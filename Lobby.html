@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לובי - ערכת כלים אישית</title>
+    
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design System Variables */
+        :root {
+            /* Primary Colors */
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --primary-dark: #2563EB;
+            
+            /* Secondary Colors */
+            --secondary: #8B5CF6;
+            --secondary-light: #A78BFA;
+            --secondary-dark: #7C3AED;
+            
+            /* Accent Colors */
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            
+            /* Background Colors */
+            --bg-light: #F9FAFB;
+            --bg-lighter: #FFFFFF;
+            --bg-dark: #0F172A;
+            --bg-darker: #030712;
+            --bg-dark-card: #1E293B;
+            
+            /* Text Colors */
+            --text-primary-light: #111827;
+            --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB;
+            --text-secondary-dark: #9CA3AF;
+            
+            /* Border Colors */
+            --border-light: #E5E7EB;
+            --border-dark: #374151;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Base Typography */
+        body { 
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #F0F5FE 0%, #F5F3FF 100%);
+            color: var(--text-primary-light);
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+        
+        body.dark-mode {
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            color: var(--text-primary-dark);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { 
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track { 
+            background: #F0F5FE;
+            border-radius: 10px;
+        }
+        body.dark-mode ::-webkit-scrollbar-track { 
+            background: #1E293B;
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xl); /* Increased margin back */
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .header-title-section h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title-section p {
+            color: var(--text-secondary-light);
+            font-size: 1.125rem;
+        }
+
+        body.dark-mode .header-title-section p {
+            color: var(--text-secondary-dark);
+        }
+
+        /* Icon Button (for Dark Mode) */
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            color: var(--text-secondary-light);
+        }
+
+        .icon-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary-dark);
+        }
+
+        body.dark-mode .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* === REMOVED: system-toolbar styles === */
+        
+        /* Standard Buttons from Design System */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        
+        .btn-secondary {
+            background: transparent; border: 2px solid var(--border-light);
+            color: var(--text-secondary-light); padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        body.dark-mode .btn-secondary { border-color: var(--border-dark); color: var(--text-secondary-dark); }
+        body.dark-mode .btn-secondary:hover { border-color: var(--primary-light); color: var(--primary-light); }
+        
+        /* App Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        /* App Card Styling */
+        .app-card {
+            background: var(--bg-lighter);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.5s ease-out;
+            will-change: transform, box-shadow;
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .app-card {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+        }
+        
+        body.dark-mode .app-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--icon-bg, var(--primary));
+            color: white;
+            margin-bottom: var(--spacing-md);
+            flex-shrink: 0;
+        }
+        
+        .app-card h3 {
+            font-size: 1.375rem;
+            color: var(--text-primary-light);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .app-card p {
+            font-size: 0.938rem;
+            color: var(--text-secondary-light);
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+        
+        body.dark-mode .app-card h3 {
+            color: var(--text-primary-dark);
+        }
+        
+        body.dark-mode .app-card p {
+            color: var(--text-secondary-dark);
+        }
+        
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.938rem;
+            margin-top: var(--spacing-md);
+            transition: all 0.2s ease;
+        }
+        
+        .card-link i {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .app-card:hover .card-link {
+            color: var(--primary-dark);
+        }
+        
+        body.dark-mode .app-card:hover .card-link {
+            color: var(--primary-light);
+        }
+
+        .app-card:hover .card-link i {
+            transform: translateX(-4px);
+        }
+
+        /* === ADDED: Modal Styles (from Design System) === */
+        .modal-backdrop {
+            display: none; /* Hidden by default */
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-backdrop.active {
+            display: flex;
+        }
+        .modal-container {
+            background: var(--bg-lighter);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.3s ease-out;
+            width: 90%;
+            max-width: 500px;
+        }
+        body.dark-mode .modal-container {
+            background: var(--bg-dark-card);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .modal-header h2 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* ============================================= */
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .header-title-section h1 {
+                font-size: 2rem;
+            }
+        }
+
+    </style>
+</head>
+<body class="">
+
+    <div class="container">
+        <header>
+            <div class="header-title-section">
+                <h1>
+                    <i data-lucide="layout-grid"></i>
+                    ערכת הכלים האישית
+                </h1>
+                <p>בחר/י את היישום הרצוי להתחלה</p>
+            </div>
+            
+            <div class="header-buttons">
+                <button id="settings-btn" class="icon-btn" title="הגדרות">
+                    <i data-lucide="settings"></i>
+                </button>
+                <button id="dark-mode-toggle" class="icon-btn" title="מצב כהה/בהיר">
+                    <i data-lucide="moon" class="moon-icon"></i>
+                    <i data-lucide="sun" class="sun-icon" style="display: none;"></i>
+                </button>
+            </div>
+        </header>
+        
+        <main class="app-grid">
+            
+            <a href="TimeTable.html" class="app-card" style="animation-delay: 0.1s;">
+                <div class="card-icon-wrapper" style="--icon-bg: var(--primary);">
+                    <i data-lucide="calendar" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3>מעצב מערכת שעות</h3>
+                <p>צור, ערוך והורד את מערכת השעות השבועית שלך בעיצוב אישי.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="AcademicStatus.html" class="app-card" style="animation-delay: 0.2s;">
+                <div class="card-icon-wrapper" style="--icon-bg: var(--secondary);">
+                    <i data-lucide="graduation-cap" style="width: 28px; height: 28px;"></i>
+                </div>
+                <h3>מערכת מעקב אקדמי</h3>
+                <p>עקוב אחר ציונים, חשב ממוצע משוקלל וצפה בהתקדמות שלך בתואר.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+            
+            <a href="TaskTracker.html" class="app-card" style="animation-delay: 0.3s;">
+                <div class="card-icon-wrapper" style="--icon-bg: var(--accent);">
+                    <i data-lucide="layout-list" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3>מנהל משימות</h3>
+                <p>ארגן את המטלות והפרויקטים שלך בלוח קנבן ויזואלי ונוח.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="StudyTimer.html" class="app-card" style="animation-delay: 0.4s;">
+                <div class="card-icon-wrapper" style="--icon-bg: var(--success);">
+                    <i data-lucide="clock-3" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3>טיימר למידה</h3>
+                <p>השתמש בטכניקת פומודורו ללמידה ממוקדת ושמירה על ריכוז.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="Flashcards.html" class="app-card" style="animation-delay: 0.5s;">
+                <div class="card-icon-wrapper" style="--icon-bg: var(--danger);">
+                    <i data-lucide="layers" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3>כרטיסיות לימוד</h3>
+                <p>צור, נהל ולמד חבילות של כרטיסיות דיגיטליות לכל קורס.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="SummaryStyler.html" class="app-card" style="animation-delay: 0.6s;">
+                <div class="card-icon-wrapper" style="--icon-bg: #D97706;">
+                    <i data-lucide="edit-3" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3>מחולל סיכומים</h3>
+                <p>צור דפי נוסחאות וסיכומים מעוצבים להדפסה, כולל תמיכה ב-LaTeX.</p>
+                <span class="card-link">
+                    פתח יישום
+                    <i data-lucide="arrow-left"></i>
+                </span>
+            </a>
+
+        </main>
+    </div>
+
+    <div class="modal-backdrop" id="settings-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>הגדרות מערכת</h2>
+                <button class="icon-btn" id="close-settings-modal-btn" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <section>
+                <h3 style="font-size: 1.125rem; color: var(--text-primary-light);">ניהול גיבוי ושחזור</h3>
+                <p style="font-size: 0.938rem; color: var(--text-secondary-light); margin-top: var(--spacing-sm); margin-bottom: var(--spacing-lg); line-height: 1.6;">
+                    ייצא את כל נתוני האפליקציות לקובץ JSON, או שחזר נתונים מקובץ גיבוי קיים.
+                </p>
+                <style>
+                    body.dark-mode #settings-modal h3 { color: var(--text-primary-dark); }
+                    body.dark-mode #settings-modal p { color: var(--text-secondary-dark); }
+                </style>
+                
+                <div class="button-group" style="display: flex; flex-direction: column; gap: var(--spacing-md); width: 100%;">
+                    <button class="btn-primary" id="backup-btn" style="justify-content: center;">
+                        <i data-lucide="download"></i>
+                        <span>ייצוא וגיבוי כללי</span>
+                    </button>
+                    <button class="btn-secondary" id="restore-btn" style="justify-content: center;">
+                        <i data-lucide="upload"></i>
+                        <span>ייבוא ושחזור גיבוי</span>
+                    </button>
+                </div>
+                <input type="file" id="restore-file-input" accept=".json" style="display: none;">
+            </section>
+            
+        </div>
+    </div>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // === NEW: Settings Modal Logic ===
+        const settingsModal = document.getElementById('settings-modal');
+        const settingsBtn = document.getElementById('settings-btn');
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
+
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('active');
+            lucide.createIcons(); // Re-render icons inside modal
+        });
+
+        closeSettingsModalBtn.addEventListener('click', () => {
+            settingsModal.classList.remove('active');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('active');
+            }
+        });
+        // ===================================
+
+        // === ALL KEYS USED BY THE APPS ===
+        const LOCAL_STORAGE_KEYS = [
+            'academicTrackerState_v2', // From AcademicStatus
+            'scheduleData',            // From TimeTable
+            'scheduleSettings',        // From TimeTable
+            'taskTrackerTasks',        // From TaskTracker
+            'studyTimerSettings',      // From StudyTimer
+            'flashcardDecks',          // From Flashcards
+            'theme',                   // From all pages
+            'summaryStylerState_v3'    // From SummaryStyler
+        ];
+        // ===================================
+
+        // --- Backup Logic ---
+        const backupBtn = document.getElementById('backup-btn');
+        backupBtn.addEventListener('click', () => {
+            try {
+                const masterBackup = {};
+                
+                LOCAL_STORAGE_KEYS.forEach(key => {
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        masterBackup[key] = data;
+                    }
+                });
+
+                if (Object.keys(masterBackup).length === 0) {
+                    alert('אין נתונים לגיבוי.');
+                    return;
+                }
+                
+                const dataStr = JSON.stringify(masterBackup, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                const date = new Date().toISOString().split('T')[0];
+                link.setAttribute('download', `Circademic_Backup_${date}.json`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error('שגיאה ביצירת הגיבוי:', error);
+                alert('אירעה שגיאה ביצירת הגיבוי.');
+            }
+        });
+
+        // --- Restore Logic ---
+        const restoreBtn = document.getElementById('restore-btn');
+        const restoreFileInput = document.getElementById('restore-file-input');
+        
+        restoreBtn.addEventListener('click', () => {
+            restoreFileInput.click();
+        });
+
+        restoreFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            
+            if (!confirm(`האם אתה בטוח שברצונך לשחזר נתונים מקובץ?
+פעולה זו תחליף את כל הנתונים הקיימים במערכת. מומלץ לגבות תחילה.`)) {
+                restoreFileInput.value = ''; // Reset input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const masterBackup = JSON.parse(e.target.result);
+                    
+                    // Clear all known keys first
+                    LOCAL_STORAGE_KEYS.forEach(key => {
+                        localStorage.removeItem(key);
+                    });
+
+                    // Restore data
+                    let restoredCount = 0;
+                    for (const key in masterBackup) {
+                        if (LOCAL_STORAGE_KEYS.includes(key) && masterBackup[key]) {
+                            localStorage.setItem(key, masterBackup[key]);
+                            restoredCount++;
+                        }
+                    }
+                    
+                    alert(`השחזור הושלם!
+שוחזרו נתונים עבור ${restoredCount} רכיבים.
+אנא רענן את העמוד כדי לראות את השינויים.`);
+                    
+                    // Force refresh to apply theme and new data
+                    window.location.reload();
+
+                } catch (error) {
+                    console.error('שגיאה בקריאת קובץ הגיבוי:', error);
+                    alert('אירעה שגיאה. אנא ודא שזהו קובץ גיבוי תקין.');
+                } finally {
+                    restoreFileInput.value = ''; // Reset input
+                }
+            };
+            
+            reader.readAsText(file);
+        });
+
+
+        // --- Dark mode toggle (Standard) ---
+        const toggleBtn = document.getElementById('dark-mode-toggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'block';
+        } else {
+            moonIcon.style.display = 'block';
+            sunIcon.style.display = 'none';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+                localStorage.setItem('theme', 'light');
+            }
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

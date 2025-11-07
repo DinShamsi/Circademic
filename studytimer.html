@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טיימר למידה (פומודורו)</title>
+    
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design System Variables */
+        :root {
+            /* Primary Colors */
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --primary-dark: #2563EB;
+            
+            /* Secondary Colors */
+            --secondary: #8B5CF6;
+            --secondary-light: #A78BFA;
+            --secondary-dark: #7C3AED;
+            
+            /* Background Colors */
+            --bg-light: #F9FAFB;
+            --bg-lighter: #FFFFFF;
+            --bg-dark: #0F172A;
+            --bg-dark-card: #1E293B;
+            
+            /* Text Colors */
+            --text-primary-light: #111827;
+            --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB;
+            --text-secondary-dark: #9CA3AF;
+            
+            /* Border Colors */
+            --border-light: #E5E7EB;
+            --border-dark: #374151;
+            
+            /* Spacing */
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Border Radius */
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Base Typography */
+        body { 
+            font-family: 'Heebo', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary-light);
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+        body.dark-mode { background: var(--bg-dark); color: var(--text-primary-dark); }
+        h1, h2, h3, h4 { font-family: 'Rubik', sans-serif; font-weight: 700; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-light); border-radius: 10px; }
+        body.dark-mode ::-webkit-scrollbar-track { background: var(--bg-dark-card); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark)); }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 600px; /* Narrower container for a timer */
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xl);
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .header-title-section h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-title-section p { color: var(--text-secondary-light); font-size: 1.125rem; }
+        body.dark-mode .header-title-section p { color: var(--text-secondary-dark); }
+
+        /* Standard Icon & Primary/Secondary Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 0.5rem; }
+        .icon-btn {
+            width: 2.75rem; height: 2.75rem;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; border: none;
+            color: var(--text-secondary-light);
+            text-decoration: none;
+        }
+        .icon-btn:hover { background: rgba(59, 130, 246, 0.2); transform: scale(1.1); }
+        body.dark-mode .icon-btn { background: rgba(59, 130, 246, 0.15); color: var(--text-secondary-dark); }
+        body.dark-mode .icon-btn:hover { background: rgba(59, 130, 246, 0.25); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5); }
+        
+        .btn-simple {
+            background: transparent;
+            color: var(--text-secondary-light);
+            padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-simple:hover { color: var(--text-primary-light); background: rgba(0,0,0,0.05); }
+        body.dark-mode .btn-simple { color: var(--text-secondary-dark); }
+        body.dark-mode .btn-simple:hover { color: var(--text-primary-dark); background: rgba(255,255,255,0.05); }
+
+
+        /* Timer Card */
+        .timer-card {
+            background: var(--bg-lighter);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.5s ease-out;
+            text-align: center;
+        }
+        body.dark-mode .timer-card {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            background: var(--bg-light);
+            border-radius: var(--radius-full);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        body.dark-mode .mode-selector {
+            background: var(--bg-dark);
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: var(--radius-full);
+            background: transparent;
+            color: var(--text-secondary-light);
+            font-weight: 600;
+            font-family: 'Heebo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode .mode-btn {
+            color: var(--text-secondary-dark);
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+        .mode-btn:not(.active):hover {
+            background: rgba(0,0,0,0.03);
+        }
+        body.dark-mode .mode-btn:not(.active):hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Timer Display */
+        .timer-display {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 7rem; /* 112px */
+            margin: var(--spacing-md) 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Progress Bar (from Design System) */
+        .progress-bar-container {
+            width: 100%;
+            height: 0.75rem;
+            background: var(--border-light);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+        }
+        body.dark-mode .progress-bar-container { background: var(--bg-dark); }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Timer Controls */
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        .timer-controls .btn-primary,
+        .timer-controls .btn-secondary {
+            flex: 1;
+            justify-content: center;
+            font-size: 1rem;
+            padding: 1rem 1.5rem;
+        }
+        .timer-controls .btn-simple {
+            flex-shrink: 0;
+            padding: 1rem;
+        }
+
+        /* Task Selector */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: var(--spacing-sm);
+        }
+        body.dark-mode .form-group label {
+            color: var(--text-primary-dark);
+        }
+        select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-lighter);
+            transition: all 0.2s ease;
+            font-size: 0.938rem;
+            font-family: 'Heebo', sans-serif;
+            width: 100%;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        body.dark-mode select {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+        body.dark-mode select:focus {
+            background: var(--bg-dark-card);
+            border-color: var(--primary-light);
+        }
+        
+        /* Modal (from Design System) */
+        .modal-backdrop {
+            display: none; /* Hidden by default */
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            justify-content: center; align-items: center;
+        }
+        .modal-backdrop.active { display: flex; }
+        .modal-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.3s ease-out;
+            width: 90%; max-width: 500px;
+        }
+        body.dark-mode .modal-container { background: var(--bg-dark-card); }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .modal-header h2 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        #settings-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+        input[type="number"] {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-light);
+            transition: all 0.2s ease;
+            font-size: 0.938rem;
+            font-family: 'Heebo', sans-serif;
+            width: 100%;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        body.dark-mode input[type="number"] {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+        body.dark-mode input:focus {
+            background: var(--bg-dark-card);
+            border-color: var(--primary-light);
+        }
+        .modal-actions {
+            margin-top: var(--spacing-lg);
+        }
+        
+    </style>
+</head>
+<body class="">
+
+    <div class="container">
+        <header>
+            <div class="header-title-section">
+                <h1>
+                    <i data-lucide="clock-3"></i>
+                    טיימר למידה
+                </h1>
+                <p>השתמש בטכניקת פומודורו ללמידה ממוקדת</p>
+            </div>
+            
+            <div class="header-buttons">
+                <a href="Lobby.html" class="icon-btn" title="חזרה ללובי">
+                    <i data-lucide="layout-grid"></i>
+                </a>
+                <button id="settings-btn" class="icon-btn" title="הגדרות">
+                    <i data-lucide="settings"></i>
+                </button>
+                <button id="dark-mode-toggle" class="icon-btn" title="מצב כהה/בהיר">
+                    <i data-lucide="moon" class="moon-icon"></i>
+                    <i data-lucide="sun" class="sun-icon" style="display: none;"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="timer-card">
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="work">למידה</button>
+                <button class="mode-btn" data-mode="short">הפסקה קצרה</button>
+                <button class="mode-btn" data-mode="long">הפסקה ארוכה</button>
+            </div>
+            
+            <div class="timer-display" id="timer-display">25:00</div>
+            
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar" style="width: 100%;"></div>
+            </div>
+            
+            <div class="timer-controls">
+                <button class="btn-primary" id="start-pause-btn" data-action="start">
+                    <i data-lucide="play"></i>
+                    <span>התחל</span>
+                </button>
+                <button class="btn-simple" id="reset-btn">
+                    <i data-lucide="rotate-cw"></i>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="task-select">על מה אני עובד/ת?</label>
+                <select id="task-select">
+                    <option value="none">ללא שיוך</option>
+                    </select>
+            </div>
+            
+        </main>
+    </div>
+    
+    <div class="modal-backdrop" id="settings-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>הגדרות טיימר</h2>
+                <button class="icon-btn" id="close-modal-btn" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="minutes-work">דקות למידה (פומודורו)</label>
+                    <input type="number" id="minutes-work" min="1" value="25">
+                </div>
+                <div class="form-group">
+                    <label for="minutes-short">דקות הפסקה קצרה</label>
+                    <input type="number" id="minutes-short" min="1" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="minutes-long">דקות הפסקה ארוכה</label>
+                    <input type="number" id="minutes-long" min="1" value="15">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">שמור הגדרות</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- STATE MANAGEMENT ---
+            const state = {
+                times: {
+                    work: 25 * 60,   // seconds
+                    short: 5 * 60,
+                    long: 15 * 60
+                },
+                mode: 'work',
+                totalSeconds: 25 * 60,
+                remainingSeconds: 25 * 60,
+                isRunning: false,
+                timerId: null,
+                audioContext: null
+            };
+
+            // --- DOM ELEMENTS ---
+            const timerDisplay = document.getElementById('timer-display');
+            const progressBar = document.getElementById('progress-bar');
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const startPauseBtn = document.getElementById('start-pause-btn');
+            const startPauseBtnIcon = startPauseBtn.querySelector('i');
+            const startPauseBtnText = startPauseBtn.querySelector('span');
+            const resetBtn = document.getElementById('reset-btn');
+            const taskSelect = document.getElementById('task-select');
+            
+            // Settings Modal
+            const settingsModal = document.getElementById('settings-modal');
+            const settingsBtn = document.getElementById('settings-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const settingsForm = document.getElementById('settings-form');
+            const workInput = document.getElementById('minutes-work');
+            const shortInput = document.getElementById('minutes-short');
+            const longInput = document.getElementById('minutes-long');
+
+            // --- LOCAL STORAGE ---
+            function saveSettings() {
+                localStorage.setItem('studyTimerSettings', JSON.stringify(state.times));
+            }
+
+            function loadSettings() {
+                const savedSettings = localStorage.getItem('studyTimerSettings');
+                if (savedSettings) {
+                    state.times = JSON.parse(savedSettings);
+                }
+                // Update settings modal inputs
+                workInput.value = state.times.work / 60;
+                shortInput.value = state.times.short / 60;
+                longInput.value = state.times.long / 60;
+            }
+
+            // --- INTEGRATION: Load data from other apps ---
+            function loadIntegrationData() {
+                taskSelect.innerHTML = '<option value="none">ללא שיוך</option>';
+                
+                // 1. Load Categories from AcademicStatus
+                try {
+                    const academicState = localStorage.getItem('academicTrackerState_v2');
+                    if (academicState) {
+                        const { userInfo } = JSON.parse(academicState);
+                        if (userInfo && userInfo.categories && userInfo.categories.length > 0) {
+                            const group = document.createElement('optgroup');
+                            group.label = 'קטגוריות (קורסים)';
+                            userInfo.categories.forEach(cat => {
+                                group.appendChild(new Option(cat, `cat_${cat}`));
+                            });
+                            taskSelect.appendChild(group);
+                        }
+                    }
+                } catch (e) { console.warn("Could not load AcademicStatus data", e); }
+                
+                // 2. Load Tasks from TaskTracker
+                try {
+                    const taskState = localStorage.getItem('taskTrackerTasks');
+                    if (taskState) {
+                        const tasks = JSON.parse(taskState);
+                        const openTasks = tasks.filter(t => t.column !== 'done');
+                        if (openTasks.length > 0) {
+                            const group = document.createElement('optgroup');
+                            group.label = 'משימות פתוחות';
+                            openTasks.forEach(task => {
+                                group.appendChild(new Option(task.title, `task_${task.id}`));
+                            });
+                            taskSelect.appendChild(group);
+                        }
+                    }
+                } catch (e) { console.warn("Could not load TaskTracker data", e); }
+            }
+
+            // --- TIMER LOGIC ---
+            function updateDisplay() {
+                const minutes = Math.floor(state.remainingSeconds / 60);
+                const seconds = state.remainingSeconds % 60;
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+                const progressPercent = (state.remainingSeconds / state.totalSeconds) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            }
+
+            function startTimer() {
+                if (state.isRunning) return;
+                state.isRunning = true;
+                
+                startPauseBtn.dataset.action = "pause";
+                startPauseBtn.classList.replace('btn-primary', 'btn-secondary');
+                startPauseBtnText.textContent = "השהה";
+                lucide.createIcons({ attrs: { 'data-lucide': 'pause' }, base: startPauseBtnIcon });
+
+                state.timerId = setInterval(() => {
+                    state.remainingSeconds--;
+                    updateDisplay();
+                    
+                    if (state.remainingSeconds <= 0) {
+                        clearInterval(state.timerId);
+                        state.isRunning = false;
+                        playNotificationSound();
+                        // Auto-switch mode
+                        switch (state.mode) {
+                            case 'work': switchMode('short'); break;
+                            case 'short': switchMode('work'); break;
+                            case 'long': switchMode('work'); break;
+                        }
+                    }
+                }, 1000);
+            }
+
+            function pauseTimer() {
+                if (!state.isRunning) return;
+                state.isRunning = false;
+                clearInterval(state.timerId);
+                state.timerId = null;
+                
+                startPauseBtn.dataset.action = "start";
+                startPauseBtn.classList.replace('btn-secondary', 'btn-primary');
+                startPauseBtnText.textContent = "התחל";
+                lucide.createIcons({ attrs: { 'data-ide': 'play' }, base: startPauseBtnIcon });
+            }
+
+            function resetTimer() {
+                pauseTimer();
+                state.totalSeconds = state.times[state.mode];
+                state.remainingSeconds = state.totalSeconds;
+                updateDisplay();
+            }
+
+            function switchMode(newMode) {
+                state.mode = newMode;
+                
+                // Update button styles
+                modeButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === newMode);
+                });
+                
+                resetTimer();
+            }
+
+            // --- EVENT HANDLERS ---
+            modeButtons.forEach(btn => {
+                btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+            });
+
+            startPauseBtn.addEventListener('click', () => {
+                if (state.isRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            resetBtn.addEventListener('click', resetTimer);
+
+            // Settings Modal Handlers
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+                lucide.createIcons(); // Re-render 'x' icon
+            });
+            closeModalBtn.addEventListener('click', () => settingsModal.classList.remove('active'));
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) settingsModal.classList.remove('active');
+            });
+            
+            settingsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                state.times.work = parseInt(workInput.value) * 60;
+                state.times.short = parseInt(shortInput.value) * 60;
+                state.times.long = parseInt(longInput.value) * 60;
+                saveSettings();
+                settingsModal.classList.remove('active');
+                // Reset timer only if the current mode was affected
+                resetTimer();
+            });
+
+            // --- UTILITIES ---
+            function playNotificationSound() {
+                if (!state.audioContext) {
+                    try {
+                        state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch(e) {
+                        console.error("Web Audio API is not supported in this browser");
+                        return;
+                    }
+                }
+                const context = state.audioContext;
+                const oscillator = context.createOscillator();
+                const gain = context.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, context.currentTime); // Hz
+                gain.gain.setValueAtTime(0.5, context.currentTime); // Volume
+                
+                oscillator.connect(gain);
+                gain.connect(context.destination);
+                
+                oscillator.start();
+                oscillator.stop(context.currentTime + 0.5); // Play for 0.5 sec
+            }
+            
+            // --- DARK MODE (Copied from other pages) ---
+            const toggleBtn = document.getElementById('dark-mode-toggle');
+            const moonIcon = document.querySelector('.moon-icon');
+            const sunIcon = document.querySelector('.sun-icon');
+
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+
+            toggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'block';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    moonIcon.style.display = 'block';
+                    sunIcon.style.display = 'none';
+                    localStorage.setItem('theme', 'light');
+                }
+                lucide.createIcons();
+            });
+
+            // --- INITIALIZATION ---
+            function init() {
+                lucide.createIcons();
+                loadSettings();
+                loadIntegrationData();
+                resetTimer(); // Set initial display
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
