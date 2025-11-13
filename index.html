@@ -66,6 +66,12 @@
         .action-button.info {
             background: linear-gradient(135deg, var(--primary-light), var(--secondary-dark));
         }
+        .action-button.shield {
+             background: linear-gradient(135deg, #22D3EE, #0EA5E9);
+        }
+        .action-button.shield:hover {
+            box-shadow: 0 8px 20px rgba(34, 211, 238, 0.4);
+        }
 
         .stat-number { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .progress-bar-container { width: 100%; height: 0.75rem; background: var(--border-light); border-radius: 9999px; overflow: hidden; position: relative; }
@@ -80,6 +86,8 @@
         .dark .nav-item:hover { background: rgba(59, 130, 246, 0.2); color: var(--primary-light); }
         .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        .btn-secondary { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4); }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5); }
         .modal-backdrop { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
         .modal-container { background: white; border-radius: var(--radius-xl); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: fadeInUp 0.3s ease-out; }
         .dark .modal-container { background: var(--bg-dark-card); }
@@ -101,6 +109,54 @@
         .badge { display: inline-block; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .badge.new { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
 
+        /* --- הוספת סגנונות לאקורדיון סמסטרים --- */
+        .semester-accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.75rem;
+            background-color: rgba(59, 130, 246, 0.05);
+            border-radius: var(--radius-md);
+            transition: background-color 0.2s ease;
+        }
+        .semester-accordion-header:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        .dark .semester-accordion-header {
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+        .dark .semester-accordion-header:hover {
+            background-color: rgba(59, 130, 246, 0.25);
+        }
+        .semester-accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: var(--bg-light);
+            border-bottom-left-radius: var(--radius-md);
+            border-bottom-right-radius: var(--radius-md);
+        }
+        .dark .semester-accordion-content {
+            background: var(--bg-dark);
+        }
+        .semester-accordion-content.open {
+            max-height: 500px; /* ערך גבוה שרירותי */
+            padding: 0.75rem;
+            border-top: 1px solid var(--border-light);
+        }
+        .dark .semester-accordion-content.open {
+            border-top-color: var(--border-dark);
+        }
+        .semester-accordion-header .icon-toggle {
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            margin-right: 0.5rem;
+        }
+        .semester-accordion-header.open .icon-toggle {
+            transform: rotate(180deg);
+        }
+        /* ------------------------------------- */
         
         /* סגנון הדפסה משופר (זהה) */
         #print-report { display: none; font-family: 'Heebo', sans-serif !important; }
@@ -251,11 +307,14 @@
                             <div class="p-3 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-lg">
                                 <i data-lucide="book-open" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
                             </div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">נקודות זכות</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">נקודות זכות (שהושלמו)</span>
                         </div>
                         <h3 class="text-3xl font-bold stat-number" id="total-credits">0</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
                             מתוך <span id="required-credits">120</span> נדרשים
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 hidden" id="active-credits-display">
+                             (<span id="active-credits-value" class="font-bold">0</span> בסמסטר הנוכחי)
                         </p>
                     </div>
                     <div class="dashboard-card">
@@ -292,7 +351,7 @@
                     <div class="progress-bar-container mb-4">
                         <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">קורסי חובה</p>
                             <p class="font-bold text-lg stat-number" id="mandatory-progress">0/0</p>
@@ -307,12 +366,16 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">ציון שיא</p>
-                            <p class="font-bold text-lg stat-number" id="highest-grade-stat">-</p>
+                            <p class="font-bold text-lg stat-number truncate" id="highest-grade-stat">-</p>
                         </div>
-                    </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">ציון נמוך</p>
+                            <p class="font-bold text-lg text-red-500 dark:text-red-400 truncate" id="lowest-grade-stat">-</p>
+                        </div>
+                        </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 no-print">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
                     
                     <div class="dashboard-card lg:col-span-1 no-print">
                         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
@@ -332,6 +395,15 @@
                         </div>
                     </div>
 
+                    <div class="dashboard-card lg:col-span-1 no-print">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+                            <i data-lucide="pie-chart" class="inline w-5 h-5 ml-2"></i>
+                            ממוצעים סמסטריאליים
+                        </h3>
+                        <div id="semester-averages-dashboard" class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                            <p class="text-gray-400">טוען נתונים...</p>
+                        </div>
+                    </div>
                     <div class="dashboard-card no-print lg:col-span-1">
                         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
                             <i data-lucide="zap" class="inline w-5 h-5 ml-2"></i>
@@ -340,7 +412,7 @@
                         <div class="grid grid-cols-1 gap-4">
                             <button id="add-active-courses-btn" class="action-button info">
                                 <i data-lucide="plus-square" class="w-5 h-5"></i>
-                                <span>הוסף קורסים לסמסטר נוכחי</span>
+                                <span>הגדר נתוני סמסטר נוכחי</span>
                             </button>
                             <button id="print-report-btn" class="action-button success">
                                 <i data-lucide="printer" class="w-5 h-5"></i>
@@ -350,6 +422,10 @@
                                 <i data-lucide="calculator" class="w-5 h-5"></i>
                                 <span>מחשבון "מה אם"</span>
                             </button>
+                            <button id="shield-calculator-btn" class="action-button shield">
+                                <i data-lucide="shield" class="w-5 h-5"></i>
+                                <span>מחשבון מגן</span>
+                            </button>
                             <button id="set-goal-btn" class="action-button">
                                 <i data-lucide="target" class="w-5 h-5"></i>
                                 <span>הגדרת יעד ממוצע</span>
@@ -358,15 +434,27 @@
                     </div>
                 </div>
 
-                <div class="dashboard-card mt-8 no-print">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-                        <i data-lucide="line-chart" class="inline w-5 h-5 ml-2"></i>
-                        מגמת ציונים (חי)
-                    </h3>
-                    <div style="height: 300px;">
-                        <canvas id="grade-trend-chart"></canvas>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 no-print">
+                    <div class="dashboard-card no-print">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+                            <i data-lucide="line-chart" class="inline w-5 h-5 ml-2"></i>
+                            מגמת ציונים (חי)
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="grade-trend-chart"></canvas>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div class="dashboard-card no-print">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+                            <i data-lucide="target" class="inline w-5 h-5 ml-2"></i>
+                            התפלגות מועדים
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="moed-chart-dashboard"></canvas>
+                        </div>
+                    </div>
+                    </div>
 
             </main>
         </div>
@@ -435,36 +523,127 @@
     </div>
     
     <div id="active-courses-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50">
-        <div class="modal-container p-6 max-w-2xl w-full">
+        <div class="modal-container p-6 max-w-lg w-full">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">הוספת קורסים לסמסטר נוכחי</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">הגדרת נתוני סמסטר נוכחי</h2>
                 <button type="button" id="close-active-courses-modal" class="icon-btn text-gray-600 dark:text-gray-300">
                     <i data-lucide="x"></i>
                 </button>
             </div>
             
-            <form id="active-courses-form">
+            <form id="active-semester-form" class="space-y-4">
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    הוסף כאן את הקורסים שאתה לומד בסמסטר זה (ללא ציון). הם יופיעו בדשבורד כ"קורסים פעילים".
+                    הזן את הנתונים עבור הסמסטר הנוכחי שלך. נתונים אלו ישמשו לתצוגה בלבד בדשבורד
+                    ו<b>לא ישפיעו על חישוב הממוצע או על סך הנ"ז שהושלמו</b>.
                 </p>
-                <div id="active-course-rows-container" class="space-y-4 max-h-64 overflow-y-auto pr-2">
-                    </div>
                 
-                <button type="button" id="add-another-course-row" class="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-all">
-                    <i data-lucide="plus" class="inline w-4 h-4 ml-1"></i>
-                    הוסף שורה
-                </button>
+                <div>
+                    <label for="active-courses-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        כמות הקורסים בסמסטר הנוכחי
+                    </label>
+                    <input type="number" id="active-courses-input" min="0" placeholder="לדוגמה: 6" class="input-field">
+                </div>
+                
+                <div>
+                    <label for="active-credits-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        סה"כ נקודות זכות בסמסטר הנוכחי
+                    </label>
+                    <input type="number" id="active-credits-input" step="0.5" min="0" placeholder="לדוגמה: 21.5" class="input-field">
+                </div>
 
                 <div class="flex gap-4 pt-6 mt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="submit" class="btn-primary flex-1">שמור קורסים</button>
+                    <button type="submit" class="btn-primary flex-1">שמור נתונים</button>
+                    <button type="button" id="clear-active-semester-btn" class="btn-secondary flex-1" style="background: #6B7280;">נקה נתונים</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div id="settings-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50"> <div class="modal-container p-8 max-w-md w-full"> <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">הגדרות פרופיל</h2> <form id="settings-form" class="space-y-4"> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label> <input type="text" id="settings-name" class="input-field w-full"> </div> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label> <input type="text" id="settings-institution" class="input-field w-full"> </div> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label> <input type="text" id="settings-major" class="input-field w-full"> </div> <div class="flex gap-4 pt-4"> <button type="submit" class="btn-primary flex-1">שמור שינויים</button> <button type="button" id="close-settings" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">ביטול</button> </div> </form> </div> </div>
-    <div id="what-if-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50"> <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all"> <div class="flex justify-between items-center mb-6"> <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מחשבון ממוצע עתידי</h2> <button id="close-what-if-btn" class="icon-btn text-gray-600 dark:text-gray-300"> <i data-lucide="x"></i> </button> </div> <div class="space-y-4"> <p class="text-gray-600 dark:text-gray-400 text-sm">הזן ציונים ונקודות זכות של קורסים עתידיים כדי לראות איך הממוצע המשוקלל שלך יושפע. הנתונים כאן לא נשמרים.</p> <div id="what-if-courses" class="space-y-2 max-h-48 overflow-y-auto pr-2"> </div> <button id="add-what-if-course-btn" class="w-full text-sm bg-gray-200 dark:bg-gray-700 p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-semibold">הוסף קורס נוסף</button> <hr class="my-4 border-gray-200 dark:border-gray-700"> <div class="text-center"> <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">הממוצע החדש שלך יהיה:</h3> <p id="what-if-result" class="text-5xl font-bold stat-number mt-2 inline-block">0.00</p> <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">מבוסס על <span id="what-if-credits-info"></span></p> </div> </div> </div> </div>
+    
+    <div id="what-if-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-container p-8 w-full max-w-lg m-4 transform transition-all overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מחשבון "מה אם"</h2>
+                <button id="close-what-if-btn" class="icon-btn text-gray-600 dark:text-gray-300">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">הוסף קורסים עתידיים</h3>
+                    <div id="what-if-courses" class="space-y-2 max-h-32 overflow-y-auto pr-2">
+                        </div>
+                    <button id="add-what-if-course-btn" class="w-full text-sm bg-gray-200 dark:bg-gray-700 p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-semibold mt-2">
+                        <i data-lucide="plus" class="inline w-4 h-4"></i> הוסף קורס עתידי
+                    </button>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">שפר ציונים קיימים</h3>
+                    <div class="flex gap-2">
+                        <select id="what-if-existing-course-select" class="input-field flex-1">
+                            <option value="">בחר קורס לשיפור...</option>
+                            </select>
+                        <button id="add-what-if-improvement-btn" class="btn-primary p-2.5">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                    <div id="what-if-improvements-list" class="space-y-2 mt-3 max-h-32 overflow-y-auto pr-2">
+                        </div>
+                </div>
+
+                <hr class="my-4 border-gray-200 dark:border-gray-700">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">הממוצע החדש שלך יהיה:</h3>
+                    <p id="what-if-result" class="text-5xl font-bold stat-number mt-2 inline-block">0.00</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">מבוסס על <span id="what-if-credits-info"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="set-goal-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50"> <div class="modal-container p-8 max-w-sm w-full"> <div class="flex justify-between items-center mb-6"> <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">הגדרת יעד ממוצע</h2> <button id="close-set-goal-btn" class="icon-btn text-gray-600 dark:text-gray-300"> <i data-lucide="x"></i> </button> </div> <form id="set-goal-form" class="space-y-4"> <div> <label for="target-average-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">יעד ממוצע רצוי</label> <input type="number" id="target-average-input" step="0.1" min="0" max="100" class="input-field w-full" placeholder="לדוגמה: 90.5"> </div> <div class="flex gap-4 pt-4"> <button type="submit" class="btn-primary flex-1">שמור יעד</button> </div> </form> </div> </div>
+
+    <div id="shield-calculator-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מחשבון מגן</h2>
+                <button id="close-shield-calculator-btn" class="icon-btn text-gray-600 dark:text-gray-300">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="shield-calculator-form" class="space-y-4">
+                <p class="text-gray-600 dark:text-gray-400 text-sm">הזן את נתוני המגן והבחינה כדי לחשב את הציון הסופי שלך.</p>
+                
+                <div>
+                    <label for="shield-grade" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ציון מגן (0-100)</label>
+                    <input type="number" id="shield-grade" min="0" max="100" class="input-field" placeholder="לדוגמה: 80">
+                </div>
+                
+                <div>
+                    <label for="shield-percentage" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">אחוז המגן (0-100%)</label>
+                    <input type="number" id="shield-percentage" min="0" max="100" class="input-field" placeholder="לדוגמה: 30">
+                </div>
+
+                <div>
+                    <label for="exam-grade" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ציון בחינה (0-100)</label>
+                    <input type="number" id="exam-grade" min="0" max="100" class="input-field" placeholder="לדוגמה: 60">
+                </div>
+
+                <hr class="my-4 border-gray-200 dark:border-gray-700">
+                
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">הציון הסופי שלך:</h3>
+                    <p id="final-grade-result" class="text-5xl font-bold stat-number mt-2 inline-block">---</p>
+                    <p id="needed-exam-grade" class="text-sm text-gray-500 dark:text-gray-400 mt-2 hidden">
+                        כדי לקבל ציון עובר (55), עליך לקבל --- בבחינה.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
     <script>
@@ -487,15 +666,27 @@
         let academicData = null;
         let liveGradeChart = null;
         let printGradeChart = null;
+        
+        // --- הוספת משתנים גלובליים לגרפים ופונט ---
+        let moedChartDashboard = null;
+        const chartDefaultFont = { family: "'Heebo', sans-serif", size: 12 };
 
         let loadingScreen, app, darkModeToggle, sidebar, mobileMenuToggle, mobileOverlay;
         let settingsModal, profileSettingsBtn, closeSettingsBtn, settingsForm;
-        let whatIfModal, closeWhatIfBtn, whatIfCoursesContainer, whatIfResultEl, whatIfCreditsInfoEl;
-        let setGoalModal, setGoalForm, closeSetGoalBtn, targetAverageInput;
-        let addActiveCoursesBtn, activeCoursesModal, closeActiveCoursesModal, activeCoursesForm, activeCourseRowsContainer, addAnotherCourseRowBtn;
         
-        // *** תיקון: הגדרת משתנה עבור הכפתור במודאל "מה אם" ***
-        let addWhatIfCourseBtn;
+        let whatIfModal, closeWhatIfBtn, whatIfCoursesContainer, whatIfResultEl, 
+            whatIfCreditsInfoEl, addWhatIfCourseBtn, whatIfExistingCourseSelect,
+            addWhatIfImprovementBtn, whatIfImprovementsList;
+        
+        let setGoalModal, setGoalForm, closeSetGoalBtn, targetAverageInput;
+        
+        let addActiveCoursesBtn, activeCoursesModal, closeActiveCoursesModal, activeSemesterForm,
+            activeCoursesInput, activeCreditsInput, clearActiveSemesterBtn,
+            activeCreditsDisplay, activeCreditsValue;
+
+        let shieldCalculatorBtn, shieldCalculatorModal, closeShieldCalculatorBtn,
+            shieldCalculatorForm, shieldGradeInput, shieldPercentageInput, examGradeInput,
+            finalGradeResult, neededExamGrade;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -512,24 +703,41 @@
                 profileSettingsBtn = document.getElementById('profile-settings');
                 closeSettingsBtn = document.getElementById('close-settings');
                 settingsForm = document.getElementById('settings-form');
+                
                 whatIfModal = document.getElementById('what-if-modal');
                 closeWhatIfBtn = document.getElementById('close-what-if-btn');
                 whatIfCoursesContainer = document.getElementById('what-if-courses');
                 whatIfResultEl = document.getElementById('what-if-result');
                 whatIfCreditsInfoEl = document.getElementById('what-if-credits-info');
+                addWhatIfCourseBtn = document.getElementById('add-what-if-course-btn');
+                whatIfExistingCourseSelect = document.getElementById('what-if-existing-course-select');
+                addWhatIfImprovementBtn = document.getElementById('add-what-if-improvement-btn');
+                whatIfImprovementsList = document.getElementById('what-if-improvements-list');
+
                 setGoalModal = document.getElementById('set-goal-modal');
                 setGoalForm = document.getElementById('set-goal-form');
                 closeSetGoalBtn = document.getElementById('close-set-goal-btn');
                 targetAverageInput = document.getElementById('target-average-input');
+                
                 addActiveCoursesBtn = document.getElementById('add-active-courses-btn');
                 activeCoursesModal = document.getElementById('active-courses-modal');
                 closeActiveCoursesModal = document.getElementById('close-active-courses-modal');
-                activeCoursesForm = document.getElementById('active-courses-form');
-                activeCourseRowsContainer = document.getElementById('active-course-rows-container');
-                addAnotherCourseRowBtn = document.getElementById('add-another-course-row');
+                activeSemesterForm = document.getElementById('active-semester-form');
+                activeCoursesInput = document.getElementById('active-courses-input');
+                activeCreditsInput = document.getElementById('active-credits-input');
+                clearActiveSemesterBtn = document.getElementById('clear-active-semester-btn');
+                activeCreditsDisplay = document.getElementById('active-credits-display');
+                activeCreditsValue = document.getElementById('active-credits-value');
                 
-                // *** תיקון: איתור הכפתור הנכון ***
-                addWhatIfCourseBtn = document.getElementById('add-what-if-course-btn');
+                shieldCalculatorBtn = document.getElementById('shield-calculator-btn');
+                shieldCalculatorModal = document.getElementById('shield-calculator-modal');
+                closeShieldCalculatorBtn = document.getElementById('close-shield-calculator-btn');
+                shieldCalculatorForm = document.getElementById('shield-calculator-form');
+                shieldGradeInput = document.getElementById('shield-grade');
+                shieldPercentageInput = document.getElementById('shield-percentage');
+                examGradeInput = document.getElementById('exam-grade');
+                finalGradeResult = document.getElementById('final-grade-result');
+                neededExamGrade = document.getElementById('needed-exam-grade');
                 
                 await loadUserData();
                 await loadAcademicData();
@@ -543,11 +751,43 @@
         });
 
         async function loadUserData(){try{const doc=await db.collection('users').doc(currentUser.uid).get();if(doc.exists){userData=doc.data()}}catch(error){console.error('Error loading user data:',error)}}
-        async function loadAcademicData(){try{const doc=await db.collection('academicData').doc(currentUser.uid).get();if(doc.exists){academicData=doc.data()}else{academicData={courses:[],userInfo:{name:currentUser.displayName||'משתמש',institution:'',major:'',requiredCredits:120,categories:['חובה','בחירה','כללי','ספורט']}};await db.collection('academicData').doc(currentUser.uid).set(academicData)}updateStatistics()}catch(error){console.error('Error loading academic data:',error)}}
+        
+        async function loadAcademicData(){
+            try {
+                const doc = await db.collection('academicData').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    academicData = doc.data();
+                    
+                    if (!academicData.userInfo) {
+                         academicData.userInfo = { name:currentUser.displayName||'משתמש',institution:'',major:'',requiredCredits:120,categories:['חובה','בחירה','כללי','ספורט'] };
+                    }
+                    academicData.userInfo.activeSemesterCourses = academicData.userInfo.activeSemesterCourses || null;
+                    academicData.userInfo.activeSemesterCredits = academicData.userInfo.activeSemesterCredits || null;
+
+                } else {
+                    academicData = {
+                        courses:[],
+                        userInfo: {
+                            name:currentUser.displayName||'משתמש',
+                            institution:'',
+                            major:'',
+                            requiredCredits:120,
+                            categories:['חובה','בחירה','כללי','ספורט'],
+                            activeSemesterCourses: null,
+                            activeSemesterCredits: null
+                        }
+                    };
+                    await db.collection('academicData').doc(currentUser.uid).set(academicData);
+                }
+                updateStatistics();
+            } catch(error) {
+                console.error('Error loading academic data:',error);
+            }
+        }
+        
         function updateUserProfile(){const userName=userData?.name||academicData?.userInfo?.name||currentUser.displayName||'משתמש';const userEmail=userData?.email||currentUser.email;const initial=userName.charAt(0).toUpperCase();document.getElementById('user-name').textContent=userName;document.getElementById('user-email').textContent=userEmail;document.getElementById('user-initial').textContent=initial;document.getElementById('welcome-name').textContent=userName}
 
 
-        // פונקציית updateStatistics (מתוקנת)
         function updateStatistics() {
             if (!academicData) return;
             const courses = academicData.courses || [];
@@ -565,15 +805,26 @@
             const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
             const requiredCredits = userInfo.requiredCredits || 120;
 
-            let currentSemester = 1;
-            if (courses.length > 0) {
-                 currentSemester = Math.max(...courses.map(c => c.semester || 1));
+            let highestGradedSemester = 0;
+            if (gradedCourses.length > 0) {
+                highestGradedSemester = Math.max(...gradedCourses.map(c => c.semester || 0));
             }
-            const activeCourseCount = courses.filter(c => c.semester === currentSemester && (c.grade === null || c.grade === undefined)).length;
+            const currentSemester = highestGradedSemester > 0 ? highestGradedSemester + 1 : 1;
+
+            const activeCourseCount = userInfo.activeSemesterCourses || 0;
+            const activeCredits = userInfo.activeSemesterCredits || null;
 
             document.getElementById('avg-grade').textContent = avgGrade.toFixed(2);
             document.getElementById('total-credits').textContent = totalCredits;
             document.getElementById('required-credits').textContent = requiredCredits;
+            
+            if (activeCredits && activeCredits > 0) {
+                activeCreditsValue.textContent = activeCredits;
+                activeCreditsDisplay.classList.remove('hidden');
+            } else {
+                activeCreditsDisplay.classList.add('hidden');
+            }
+
             document.getElementById('active-courses').textContent = activeCourseCount;
             document.getElementById('current-semester').textContent = currentSemester;
             document.getElementById('current-year').textContent = getYearName(currentSemester);
@@ -595,13 +846,24 @@
             document.getElementById('mandatory-progress').textContent = `${mandatoryCourses.length}/--`;
             document.getElementById('elective-progress').textContent = `${electiveCourses.length}/--`;
 
+            // --- הוספת לוגיקת ציון נמוך/גבוה ---
             let highestGrade = { name: '-', grade: 0 };
+            let lowestGrade = { name: '-', grade: 101 };
             if (gradedCourses.length > 0) {
                 highestGrade = gradedCourses.reduce((max, c) => c.grade > max.grade ? c : max, gradedCourses[0]);
+                lowestGrade = gradedCourses.reduce((min, c) => c.grade < min.grade ? c : min, gradedCourses[0]);
                 document.getElementById('highest-grade-stat').textContent = `${highestGrade.name} (${highestGrade.grade})`;
+                document.getElementById('lowest-grade-stat').textContent = `${lowestGrade.name} (${lowestGrade.grade})`;
             } else {
                 document.getElementById('highest-grade-stat').textContent = '-';
+                document.getElementById('lowest-grade-stat').textContent = '-';
             }
+            // ------------------------------------
+
+            // --- קריאה לפונקציות הרינדור החדשות ---
+            renderSemesterAveragesDashboard();
+            renderMoedChartDashboard();
+            // ------------------------------------
         }
 
         function getYearName(semester){const year=Math.ceil(semester/2);const yearNames=['א','ב','ג','ד','ה','ו'];return yearNames[year-1]||year.toString()}
@@ -617,25 +879,42 @@
             const liveCtx = document.getElementById('grade-trend-chart').getContext('2d');
             liveGradeChart = createGradeChart(liveCtx, darkMode);
             
-            // האזנות חדשות
-            addActiveCoursesBtn.addEventListener('click', openActiveCoursesModal);
+            // --- קריאה לרינדור גרף מועדים ---
+            renderMoedChartDashboard();
+            
+            // האזנות מודאל סמסטר נוכחי
+            addActiveCoursesBtn.addEventListener('click', openActiveSemesterModal);
             closeActiveCoursesModal.addEventListener('click', () => {
                 activeCoursesModal.classList.add('hidden');
                 activeCoursesModal.classList.remove('flex');
             });
-            addAnotherCourseRowBtn.addEventListener('click', addCourseRow);
-            activeCoursesForm.addEventListener('submit', saveActiveCourses);
-            activeCourseRowsContainer.addEventListener('click', (e) => {
-                if (e.target.closest('.remove-course-row-btn')) {
-                    e.target.closest('.active-course-row').remove();
+            activeSemesterForm.addEventListener('submit', saveActiveSemesterData);
+            clearActiveSemesterBtn.addEventListener('click', clearActiveSemesterData);
+
+            // האזנות מחשבון מגן
+            shieldCalculatorBtn.addEventListener('click', () => {
+                shieldCalculatorModal.classList.remove('hidden');
+                shieldCalculatorModal.classList.add('flex');
+            });
+            const closeShieldModal = () => {
+                shieldCalculatorModal.classList.add('hidden');
+                shieldCalculatorModal.classList.remove('flex');
+                shieldCalculatorForm.reset();
+                calculateShieldGrade();
+            }
+            closeShieldCalculatorBtn.addEventListener('click', closeShieldModal);
+            shieldCalculatorModal.addEventListener('click', (e) => {
+                if (e.target === shieldCalculatorModal) {
+                    closeShieldModal();
                 }
             });
-
-            // האזנות קיימות
-            document.getElementById('print-report-btn').addEventListener('click', printReport);
+            shieldCalculatorForm.addEventListener('input', calculateShieldGrade);
+            
+            // האזנות מחשבון "מה אם"
             document.getElementById('what-if-btn').addEventListener('click', () => { 
                 whatIfModal.classList.remove('hidden');
                 whatIfModal.classList.add('flex');
+                populateWhatIfDropdown();
                 resetAndCalculateWhatIf();
             });
             closeWhatIfBtn.addEventListener('click', () => { 
@@ -643,10 +922,13 @@
                 whatIfModal.classList.remove('flex');
             });
             
-            // *** תיקון: האזנה לכפתור הנכון ***
             addWhatIfCourseBtn.addEventListener('click', addWhatIfCourseRow_WhatIf);
+            addWhatIfImprovementBtn.addEventListener('click', addWhatIfImprovementRow);
             
-            whatIfCoursesContainer.addEventListener('input', calculateWhatIf);
+            whatIfModal.addEventListener('input', calculateWhatIf);
+
+            // האזנות קיימות
+            document.getElementById('print-report-btn').addEventListener('click', printReport);
             document.getElementById('set-goal-btn').addEventListener('click', () => { 
                 setGoalModal.classList.remove('hidden');
                 setGoalModal.classList.add('flex');
@@ -657,15 +939,34 @@
             });
             setGoalForm.addEventListener('submit', saveTargetGoal);
 
-            // האזנות לתפריט צד (שהועברו לכאן)
+            // --- הוספת האזנה לאקורדיון סמסטרים ---
+            document.getElementById('semester-averages-dashboard').addEventListener('click', (e) => {
+                const header = e.target.closest('.semester-accordion-header');
+                if (header) {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.icon-toggle');
+                    header.classList.toggle('open');
+                    if (icon) icon.classList.toggle('open');
+                    content.classList.toggle('open');
+                }
+            });
+            // -------------------------------------
+
+            // האזנות לתפריט צד
             darkModeToggle.addEventListener('click', () => {
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 lucide.createIcons();
+                
                 if (liveGradeChart) liveGradeChart.destroy();
                 const liveCtx = document.getElementById('grade-trend-chart').getContext('2d');
                 liveGradeChart = createGradeChart(liveCtx, isDark);
+                
+                // --- רינדור מחדש של גרף מועדים ---
+                if (moedChartDashboard) moedChartDashboard.destroy();
+                renderMoedChartDashboard();
+                // ---------------------------------
             });
 
             mobileMenuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); mobileOverlay.classList.toggle('active'); });
@@ -711,11 +1012,119 @@
             });
         }
 
+        // --- פונקציות חדשות שנוספו ---
+
+        function renderMoedChartDashboard() {
+            if (!academicData || !document.getElementById('moed-chart-dashboard')) return;
+            if (moedChartDashboard) moedChartDashboard.destroy();
+            
+            let moedA = academicData.courses.filter(c => !c.isMoedB).length;
+            let moedB = academicData.courses.filter(c => c.isMoedB).length;
+            const ctx = document.getElementById('moed-chart-dashboard').getContext('2d');
+            
+            const gradient1 = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient1.addColorStop(0, '#3B82F6');
+            gradient1.addColorStop(1, '#8B5CF6');
+            const gradient2 = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient2.addColorStop(0, '#EF4444');
+            gradient2.addColorStop(1, '#DC2626');
+            
+            const isDark = document.documentElement.classList.contains('dark');
+
+            moedChartDashboard = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['מועד א\'', 'מועד ב\''],
+                    datasets: [{ data: [moedA, moedB], backgroundColor: [gradient1, gradient2], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: isDark ? '#e5e7eb' : '#4b5563', 
+                                font: chartDefaultFont, 
+                                padding: 15 
+                            } 
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const value = context.raw;
+                                    const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSemesterAveragesDashboard() {
+            const element = document.getElementById('semester-averages-dashboard');
+            if (!academicData || !element) return;
+            element.innerHTML = '';
+            
+            const groups = {};
+            const coursesWithGrades = academicData.courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
+            
+            coursesWithGrades.forEach(c => {
+                const key = c.semester || 'ללא סמסטר';
+                if (!groups[key]) {
+                    groups[key] = { weightedSum: 0, credits: 0, courses: [] };
+                }
+                groups[key].weightedSum += c.grade * c.credits;
+                groups[key].credits += c.credits;
+                groups[key].courses.push({ name: c.name, grade: c.grade });
+            });
+            
+            const keys = Object.keys(groups).sort((a,b) => (a === 'ללא סמסטר' ? 1 : b === 'ללא סמסטר' ? -1 : a-b));
+            
+            if (keys.length === 0) {
+                element.innerHTML = `<p class="text-gray-400">אין נתונים להצגה.</p>`;
+                return;
+            }
+            
+            keys.forEach(key => {
+                const avg = (groups[key].weightedSum / groups[key].credits).toFixed(2);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'semester-accordion-item';
+
+                let courseListHtml = '<ul class="text-sm space-y-1 text-gray-600 dark:text-gray-400 pl-4">';
+                groups[key].courses.sort((a,b) => b.grade - a.grade).forEach(course => {
+                    courseListHtml += `<li class="flex justify-between"><span>${course.name}</span><span class="font-bold">${course.grade}</span></li>`;
+                });
+                courseListHtml += '</ul>';
+
+                itemDiv.innerHTML = `
+                    <div class="semester-accordion-header">
+                        <div class="flex items-center">
+                            <i data-lucide="chevron-down" class="w-4 h-4 icon-toggle text-gray-500"></i>
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">סמסטר ${key}</span>
+                        </div>
+                        <span class="font-bold badge text-sm">${avg}</span>
+                    </div>
+                    <div class="semester-accordion-content">
+                        ${courseListHtml}
+                    </div>
+                `;
+                element.appendChild(itemDiv);
+            });
+            lucide.createIcons();
+        }
+
+        // ---------------------------------
+        
         function createGradeChart(ctx, isDark) {
             if (!academicData) return null;
             const courses = academicData.courses || [];
             const semesterData = {};
-            courses.forEach(course => {
+            const gradedCourses = courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
+            
+            gradedCourses.forEach(course => {
                 if (!course.isPassFail && (course.grade !== null && course.grade !== undefined)) {
                     const sem = course.semester || 1;
                     if (!semesterData[sem]) semesterData[sem] = { totalWeighted: 0, totalCredits: 0 };
@@ -807,104 +1216,237 @@
             setTimeout(() => { window.print(); }, 300);
         }
 
-        function openActiveCoursesModal() {
-            activeCourseRowsContainer.innerHTML = ''; 
-            addCourseRow(); 
+        function openActiveSemesterModal() {
+            activeCoursesInput.value = academicData.userInfo.activeSemesterCourses || '';
+            activeCreditsInput.value = academicData.userInfo.activeSemesterCredits || '';
+            
             activeCoursesModal.classList.remove('hidden');
             activeCoursesModal.classList.add('flex');
             lucide.createIcons();
         }
 
-        function addCourseRow() {
-            const row = document.createElement('div');
-            row.className = 'active-course-row grid grid-cols-1 md:grid-cols-5 gap-3 items-center';
-            
-            const categories = academicData?.userInfo?.categories || ['חובה', 'בחירה', 'כללי'];
-            const categoryOptions = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-
-            const courses = academicData.courses || [];
-            const highestSemester = courses.length > 0 ? Math.max(...courses.map(c => c.semester || 1)) : 0;
-            const activeInHighest = courses.filter(c => c.semester === highestSemester && (c.grade === null || c.grade === undefined)).length > 0;
-            const nextSemester = activeInHighest ? highestSemester + 1 : (highestSemester > 0 ? highestSemester : 1);
-
-            row.innerHTML = `
-                <input type="text" placeholder="שם הקורס" class="input-field course-name md:col-span-2" required>
-                <input type="number" step="0.5" placeholder="נ''ז" class="input-field course-credits" required>
-                <select class="input-field course-category">${categoryOptions}</select>
-                <div class="flex items-center gap-2">
-                    <input type="number" value="${nextSemester}" class="input-field course-semester w-full" required>
-                    <button type="button" class="remove-course-row-btn icon-btn" style="background-color: #FEE2E2; color: #EF4444; flex-shrink: 0;">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `;
-            activeCourseRowsContainer.appendChild(row);
-            lucide.createIcons();
-        }
-
-        async function saveActiveCourses(e) {
+        async function saveActiveSemesterData(e) {
             e.preventDefault();
-            const rows = activeCourseRowsContainer.querySelectorAll('.active-course-row');
-            if (rows.length === 0) {
-                activeCoursesModal.classList.add('hidden');
-                activeCoursesModal.classList.remove('flex');
-                return;
-            }
-
-            const newCourses = [];
-            let isValid = true;
-            rows.forEach((row, index) => {
-                const name = row.querySelector('.course-name').value;
-                const credits = parseFloat(row.querySelector('.course-credits').value);
-                const semester = parseInt(row.querySelector('.course-semester').value);
-                const category = row.querySelector('.course-category').value; 
-
-                if (!name || isNaN(credits) || credits <= 0 || isNaN(semester) || semester <= 0 || !category) {
-                    isValid = false;
-                }
-                
-                newCourses.push({
-                    id: Date.now() + index,
-                    name: name,
-                    credits: credits,
-                    semester: semester,
-                    category: category, 
-                    grade: null, 
-                    isPassFail: false,
-                    isMoedB: false
-                });
-            });
-
-            if (!isValid) {
-                alert('אנא מלא את כל השדות בצורה תקינה (שם, נ"ז > 0, סמסטר > 0, וקטגוריה).');
-                return;
-            }
             
-            const updatedCourses = [...academicData.courses, ...newCourses];
+            const coursesCount = parseInt(activeCoursesInput.value) || null;
+            const creditsCount = parseFloat(activeCreditsInput.value) || null;
             
             try {
                 await db.collection('academicData').doc(currentUser.uid).update({
-                    courses: updatedCourses
+                    'userInfo.activeSemesterCourses': coursesCount,
+                    'userInfo.activeSemesterCredits': creditsCount
                 });
                 
-                academicData.courses = updatedCourses;
+                academicData.userInfo.activeSemesterCourses = coursesCount;
+                academicData.userInfo.activeSemesterCredits = creditsCount;
                 
                 updateStatistics();
                 
                 activeCoursesModal.classList.add('hidden');
                 activeCoursesModal.classList.remove('flex');
-                alert(`נוספו ${newCourses.length} קורסים בהצלחה!`);
+                alert('נתוני הסמסטר נשמרו בהצלחה!');
 
             } catch (error) {
-                console.error('Error saving active courses:', error);
-                alert('אירעה שגיאה בשמירת הקורסים.');
+                console.error('Error saving active semester data:', error);
+                alert('אירעה שגיאה בשמירת הנתונים.');
             }
         }
 
-        function addWhatIfCourseRow_WhatIf(){const row=document.createElement('div');row.className='grid grid-cols-2 gap-2 what-if-row';row.innerHTML=`<input type="number" placeholder="ציון (0-100)" class="what-if-grade input-field"><input type="number" step="0.5" placeholder='נ"ז' class="what-if-credits input-field">`;whatIfCoursesContainer.appendChild(row)}
-        function calculateWhatIf(){if(!academicData)return;const coursesWithGrades=academicData.courses.filter(c=>!c.isPassFail&&(c.grade!==null&&c.grade!==undefined));let currentWeightedSum=coursesWithGrades.reduce((sum,c)=>sum+(c.grade*c.credits),0);let currentCreditsForAvg=coursesWithGrades.reduce((sum,c)=>sum+c.credits,0);let whatIfWeightedSum=0;let whatIfCredits=0;document.querySelectorAll('.what-if-row').forEach(row=>{const grade=parseFloat(row.querySelector('.what-if-grade').value);const credits=parseFloat(row.querySelector('.what-if-credits').value);if(!isNaN(grade)&&!isNaN(credits)&&grade>=0&&grade<=100&&credits>0){whatIfWeightedSum+=grade*credits;whatIfCredits+=credits}});const totalWeightedSum=currentWeightedSum+whatIfWeightedSum;const totalCreditsForAvg=currentCreditsForAvg+whatIfCredits;const newAvg=totalCreditsForAvg>0?(totalWeightedSum/totalCreditsForAvg):0;whatIfResultEl.textContent=newAvg.toFixed(2);whatIfCreditsInfoEl.textContent=`סה"כ ${totalCreditsForAvg.toFixed(1)} נ"ז בחישוב`}
-        function resetAndCalculateWhatIf(){whatIfCoursesContainer.innerHTML='';addWhatIfCourseRow_WhatIf();calculateWhatIf()}
-        async function saveTargetGoal(e){e.preventDefault();const target=parseFloat(targetAverageInput.value);if(isNaN(target)||target<0||target>100){alert("אנא הזן יעד חוקי (בין 0 ל-100).");return}try{await db.collection('academicData').doc(currentUser.uid).update({'userInfo.targetAverage':target});academicData.userInfo.targetAverage=target;updateStatistics();setGoalModal.classList.add('hidden');setGoalModal.classList.remove('flex');alert("היעד נשמר בהצלחה!")}catch(error){console.error("Error saving target goal:",error);alert("אירעה שגיאה בשמירת היעד.")}}
+        async function clearActiveSemesterData() {
+             try {
+                await db.collection('academicData').doc(currentUser.uid).update({
+                    'userInfo.activeSemesterCourses': null,
+                    'userInfo.activeSemesterCredits': null
+                });
+                
+                academicData.userInfo.activeSemesterCourses = null;
+                academicData.userInfo.activeSemesterCredits = null;
+                
+                updateStatistics();
+                
+                activeCoursesModal.classList.add('hidden');
+                activeCoursesModal.classList.remove('flex');
+            } catch (error) {
+                console.error('Error clearing active semester data:', error);
+                alert('אירעה שגיאה באיפוס הנתונים.');
+            }
+        }
+
+        function calculateShieldGrade() {
+            const shieldGrade = parseFloat(shieldGradeInput.value);
+            const shieldPercentage = parseFloat(shieldPercentageInput.value);
+            const examGrade = parseFloat(examGradeInput.value);
+
+            finalGradeResult.textContent = '---';
+            neededExamGrade.classList.add('hidden');
+
+            if (isNaN(shieldGrade) || isNaN(shieldPercentage) || shieldPercentage < 0 || shieldPercentage > 100) {
+                return;
+            }
+
+            const shieldWeight = shieldPercentage / 100;
+            const examWeight = 1 - shieldWeight;
+
+            if (!isNaN(examGrade)) {
+                const finalGrade = (shieldGrade * shieldWeight) + (examGrade * examWeight);
+                finalGradeResult.textContent = finalGrade.toFixed(1);
+                
+            } else if (examWeight > 0) {
+                const neededGrade = (55 - (shieldGrade * shieldWeight)) / examWeight;
+                
+                neededExamGrade.innerHTML = `כדי לקבל ציון עובר (55), עליך לקבל <strong class="text-gray-800 dark:text-gray-200">${neededGrade.toFixed(1)}</strong> בבחינה.`;
+                neededExamGrade.classList.remove('hidden');
+            }
+        }
+        
+        function populateWhatIfDropdown() {
+            if (!academicData || !academicData.courses) return;
+            
+            whatIfExistingCourseSelect.innerHTML = '<option value="">בחר קורס לשיפור...</option>';
+            
+            const gradedCourses = academicData.courses
+                .filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined))
+                .sort((a, b) => a.name.localeCompare(b.name, 'he'));
+                
+            gradedCourses.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.id;
+                option.textContent = `${course.name} (${course.grade})`;
+                whatIfExistingCourseSelect.add(option);
+            });
+        }
+
+        function addWhatIfImprovementRow() {
+            const selectedId = whatIfExistingCourseSelect.value;
+            if (!selectedId) return;
+
+            const course = academicData.courses.find(c => c.id == selectedId);
+            if (!course) return;
+
+            if (document.querySelector(`.what-if-improvement-row[data-id="${course.id}"]`)) {
+                alert('קורס זה כבר נוסף לרשימת השיפור.');
+                return;
+            }
+
+            const row = document.createElement('div');
+row.className = 'what-if-improvement-row grid grid-cols-3 gap-2 items-center';
+row.dataset.id = course.id;
+row.dataset.originalGrade = course.grade;
+row.dataset.credits = course.credits;
+
+// --- שינוי: הוספת כפתור מחיקה ---
+row.innerHTML = `
+    <span class_name="text-sm text-gray-700 dark:text-gray-300 truncate" title="${course.name}">
+        ${course.name} (במקום ${course.grade})
+    </span>
+    <input type="number" placeholder="ציון חדש" class="what-if-new-grade input-field" min="0" max="100">
+    <button type="button" class="remove-what-if-row-btn icon-btn" style="background-color: #FEE2E2; color: #EF4444; width: 2.5rem; height: 2.5rem;">
+        <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+`;
+// --------------------------------
+
+whatIfImprovementsList.appendChild(row);
+lucide.createIcons(); // קריאה לרענון האייקונים
+
+// --- הוספת האזנה לכפתור המחיקה החדש ---
+row.querySelector('.remove-what-if-row-btn').addEventListener('click', () => {
+    row.remove();
+    calculateWhatIf(); // חישוב מחדש לאחר מחיקה
+});
+// -----------------------------------
+
+whatIfExistingCourseSelect.value = '';
+calculateWhatIf();
+        }
+
+        function addWhatIfCourseRow_WhatIf(){
+            const row=document.createElement('div');
+            row.className='what-if-row grid grid-cols-3 gap-2 items-center'; // --- שינוי: 3 עמודות
+            row.innerHTML=`
+                <input type="number" placeholder="ציון עתידי (0-100)" class="what-if-grade input-field col-span-1">
+                <input type="number" step="0.5" placeholder='נ"ז עתידי' class="what-if-credits input-field col-span-1">
+                <button type="button" class="remove-what-if-row-btn icon-btn col-span-1" style="background-color: #FEE2E2; color: #EF4444; width: 2.5rem; height: 2.5rem; margin-right: auto;">
+                     <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            whatIfCoursesContainer.appendChild(row);
+            lucide.createIcons(); // קריאה לרענון האייקונים
+            
+            // --- הוספת האזנה לכפתור המחיקה החדש ---
+            row.querySelector('.remove-what-if-row-btn').addEventListener('click', () => {
+                row.remove();
+                calculateWhatIf(); // חישוב מחדש לאחר מחיקה
+            });
+            // -----------------------------------
+        }
+        
+        function calculateWhatIf() {
+            if(!academicData) return;
+
+            const coursesWithGrades = academicData.courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
+            let currentWeightedSum = coursesWithGrades.reduce((sum, c) => sum + (c.grade * c.credits), 0);
+            let currentCreditsForAvg = coursesWithGrades.reduce((sum, c) => sum + c.credits, 0);
+
+            const improvementRows = document.querySelectorAll('.what-if-improvement-row');
+            const improvedCourseIds = new Set();
+            
+            improvementRows.forEach(row => {
+                const newGrade = parseFloat(row.querySelector('.what-if-new-grade').value);
+                const courseId = row.dataset.id;
+                
+                if (isNaN(newGrade) || newGrade < 0 || newGrade > 100) return;
+                
+                const originalCourse = coursesWithGrades.find(c => c.id == courseId);
+                if (!originalCourse) return;
+
+                improvedCourseIds.add(originalCourse.id);
+                
+                currentWeightedSum -= (originalCourse.grade * originalCourse.credits);
+                currentWeightedSum += (newGrade * originalCourse.credits);
+            });
+
+            document.querySelectorAll('.what-if-row').forEach(row => {
+                const grade = parseFloat(row.querySelector('.what-if-grade').value);
+                const credits = parseFloat(row.querySelector('.what-if-credits').value);
+                
+                if (!isNaN(grade) && !isNaN(credits) && grade >= 0 && grade <= 100 && credits > 0) {
+                    currentWeightedSum += grade * credits;
+                    currentCreditsForAvg += credits;
+                }
+            });
+
+            const newAvg = currentCreditsForAvg > 0 ? (currentWeightedSum / currentCreditsForAvg) : 0;
+            whatIfResultEl.textContent = newAvg.toFixed(2);
+            whatIfCreditsInfoEl.textContent = `סה"כ ${currentCreditsForAvg.toFixed(1)} נ"ז בחישוב`;
+        }
+        
+        function resetAndCalculateWhatIf(){
+            whatIfCoursesContainer.innerHTML = '';
+            whatIfImprovementsList.innerHTML = '';
+            addWhatIfCourseRow_WhatIf();
+            calculateWhatIf();
+        }
+        
+        async function saveTargetGoal(e){
+            e.preventDefault();
+            const target=parseFloat(targetAverageInput.value);
+            if(isNaN(target)||target<0||target>100){
+                alert("אנא הזן יעד חוקי (בין 0 ל-100).");
+                return;
+            }
+            try{
+                await db.collection('academicData').doc(currentUser.uid).update({'userInfo.targetAverage':target});
+                academicData.userInfo.targetAverage=target;
+                updateStatistics();
+                setGoalModal.classList.add('hidden');
+                setGoalModal.classList.remove('flex');
+                alert("היעד נשמר בהצלחה!");
+            } catch(error){
+                console.error("Error saving target goal:",error);
+                alert("אירעה שגיאה בשמירת היעד.");
+            }
+        }
         
     </script>
 </body>
