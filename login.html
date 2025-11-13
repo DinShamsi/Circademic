@@ -6,21 +6,17 @@
     <title>Circademic - כניסה למערכת</title>
     <link rel="icon" href="favicon2.png" type="image/png">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -276,34 +272,27 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     
-    <!-- Dark Mode Toggle -->
     <button id="dark-mode-toggle" class="fixed top-4 left-4 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-all hover:scale-110">
         <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-gray-700"></i>
         <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
     </button>
 
-    <!-- Main Container -->
     <div class="login-container w-full max-w-md p-8">
         
-        <!-- Logo -->
         <div class="logo-container">
             <img src="LOGO.png" alt="Circademic Logo" class="w-full h-full object-contain">
         </div>
 
-        <!-- Brand Title -->
         <h1 class="brand-title text-3xl font-bold text-center mb-2">Circademic</h1>
         <p class="text-gray-600 dark:text-gray-400 text-center mb-6">המערכת האקדמית המתקדמת שלך</p>
 
-        <!-- Tabs -->
         <div class="flex justify-center mb-6 border-b-2 border-gray-200 dark:border-gray-700">
             <button id="login-tab" class="tab-button active">התחברות</button>
             <button id="register-tab" class="tab-button">הרשמה</button>
         </div>
 
-        <!-- Messages Container -->
         <div id="message-container"></div>
 
-        <!-- Login Form -->
         <form id="login-form" class="space-y-4">
             <div>
                 <label for="login-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">אימייל</label>
@@ -322,7 +311,6 @@
             </button>
         </form>
 
-        <!-- Register Form (Hidden by default) -->
         <form id="register-form" class="space-y-4 hidden">
             <div>
                 <label for="register-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label>
@@ -350,7 +338,6 @@
             </button>
         </form>
 
-        <!-- Password Reset Form (Hidden by default) -->
         <form id="reset-form" class="space-y-4 hidden">
             <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">הזן את כתובת האימייל שלך ונשלח לך קישור לאיפוס הסיסמה.</p>
             <div>
@@ -367,14 +354,12 @@
             </button>
         </form>
 
-        <!-- Divider -->
         <div class="flex items-center my-6">
             <hr class="flex-1 border-gray-300 dark:border-gray-600">
             <span class="px-3 text-gray-500 dark:text-gray-400 text-sm">או</span>
             <hr class="flex-1 border-gray-300 dark:border-gray-600">
         </div>
 
-        <!-- Google Sign In -->
         <button id="google-signin" class="btn-google">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -432,9 +417,11 @@
 
         // Check if user is already logged in
         auth.onAuthStateChanged((user) => {
-            if (user) {
+            // --- שינוי: רק משתמש מאומת יועבר פנימה ---
+            if (user && user.emailVerified) {
                 window.location.href = 'index.html';
             }
+            // אם המשתמש מחובר אבל לא מאומת, הוא פשוט נשאר בדף הלוגין
         });
 
         // Tab Switching
@@ -541,8 +528,19 @@
             setLoading(loginBtn, true);
             
             try {
-                await auth.signInWithEmailAndPassword(email, password);
-                // Redirect will happen automatically via onAuthStateChanged
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // --- תוספת: בדיקת אימות אימייל ---
+                if (!userCredential.user.emailVerified) {
+                    await auth.signOut(); // הוצאת המשתמש
+                    showMessage('האימייל שלך עדיין לא אומת. אנא בדוק את תיבת הדואר שלך (כולל ספאם) ולחץ על הקישור.');
+                    setLoading(loginBtn, false);
+                    return; // עצירת תהליך הכניסה
+                }
+                // --- סוף תוספת ---
+                
+                // אם הגענו לפה, המשתמש מאומת וה-Redirect יקרה אוטומטית
+                
             } catch (error) {
                 showMessage(getErrorMessage(error));
                 setLoading(loginBtn, false);
@@ -594,8 +592,17 @@
                         categories: ['חובה', 'בחירה', 'כללי', 'ספורט']
                     }
                 });
+
+                // --- תוספת: שליחת אימייל אימות והתנתקות ---
+                await user.sendEmailVerification();
+                await auth.signOut();
+                // --- סוף תוספת ---
+
+                // הצגת הודעת הצלחה והחזרה לטופס התחברות
+                showMessage('הרשמה הושלמה! שלחנו לך אימייל אימות. אנא אשר את חשבונך והתחבר.', 'success');
+                setLoading(registerBtn, false);
+                showLoginForm(); // העברה אוטומטית ללשונית התחברות
                 
-                // Redirect will happen automatically via onAuthStateChanged
             } catch (error) {
                 showMessage(getErrorMessage(error));
                 setLoading(registerBtn, false);
@@ -635,6 +642,9 @@
             try {
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
+
+                // התחברות עם גוגל תמיד נחשבת מאומתת, אז אין צורך בבדיקה נוספת.
+                // הבדיקה ב-onAuthStateChanged תטפל בהעברה פנימה.
                 
                 // Check if user exists in Firestore
                 const userDoc = await db.collection('users').doc(user.uid).get();
