@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circademic - כניסה למערכת</title>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* Design System Variables */
+        :root {
+            --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
+            --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
+            --accent: #F59E0B; --accent-light: #FBBF24; --accent-dark: #D97706;
+            --success: #10B981; --success-light: #34D399; --success-dark: #059669;
+            --bg-light: #F9FAFB; --bg-lighter: #FFFFFF; --bg-dark: #0F172A;
+            --bg-darker: #030712; --bg-dark-card: #1E293B;
+            --text-primary-light: #111827; --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB; --text-secondary-dark: #9CA3AF;
+            --border-light: #E5E7EB; --border-dark: #374151;
+            --spacing-xs: 0.25rem; --spacing-sm: 0.5rem; --spacing-md: 1rem;
+            --spacing-lg: 1.5rem; --spacing-xl: 2rem;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
+        }
+
+        body { 
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+
+        h1, h2, h3 { 
+            font-family: 'Rubik', sans-serif; 
+            font-weight: 700; 
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Form Styles */
+        .login-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .dark .login-container {
+            background: var(--bg-dark-card);
+        }
+
+        .input-field {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-light);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.938rem;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .dark .input-field {
+            background: var(--bg-darker);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .dark .input-field:focus {
+            background: var(--bg-dark);
+            border-color: var(--primary-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-google {
+            background: white;
+            color: #4285f4;
+            border: 2px solid var(--border-light);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .btn-google {
+            background: var(--bg-dark);
+            color: var(--text-primary-dark);
+            border-color: var(--border-dark);
+        }
+
+        .dark .btn-google:hover {
+            background: var(--bg-darker);
+        }
+
+        .error-message {
+            background: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .dark .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+        }
+
+        .success-message {
+            background: #D1FAE5;
+            border: 1px solid #6EE7B7;
+            color: #065F46;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+
+        .dark .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #6EE7B7;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tab-button {
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            color: var(--text-secondary-light);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .dark .tab-button {
+            color: var(--text-secondary-dark);
+        }
+
+        .dark .tab-button.active {
+            color: var(--primary-light);
+        }
+
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .brand-title {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    
+    <!-- Dark Mode Toggle -->
+    <button id="dark-mode-toggle" class="fixed top-4 left-4 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-all hover:scale-110">
+        <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-gray-700"></i>
+        <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
+    </button>
+
+    <!-- Main Container -->
+    <div class="login-container w-full max-w-md p-8">
+        
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="LOGO.png" alt="Circademic Logo" class="w-full h-full object-contain">
+        </div>
+
+        <!-- Brand Title -->
+        <h1 class="brand-title text-3xl font-bold text-center mb-2">Circademic</h1>
+        <p class="text-gray-600 dark:text-gray-400 text-center mb-6">המערכת האקדמית המתקדמת שלך</p>
+
+        <!-- Tabs -->
+        <div class="flex justify-center mb-6 border-b-2 border-gray-200 dark:border-gray-700">
+            <button id="login-tab" class="tab-button active">התחברות</button>
+            <button id="register-tab" class="tab-button">הרשמה</button>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="message-container"></div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="login-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">אימייל</label>
+                <input type="email" id="login-email" required class="input-field" placeholder="student@example.com">
+            </div>
+            <div>
+                <label for="login-password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">סיסמה</label>
+                <input type="password" id="login-password" required class="input-field" placeholder="••••••••">
+            </div>
+            <div class="text-left">
+                <a href="#" id="forgot-password-link" class="text-sm text-primary hover:underline">שכחתי סיסמה</a>
+            </div>
+            <button type="submit" id="login-btn" class="btn-primary">
+                <span id="login-btn-text">התחבר</span>
+                <span id="login-spinner" class="loading-spinner hidden"></span>
+            </button>
+        </form>
+
+        <!-- Register Form (Hidden by default) -->
+        <form id="register-form" class="space-y-4 hidden">
+            <div>
+                <label for="register-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label>
+                <input type="text" id="register-name" required class="input-field" placeholder="ישראל ישראלי">
+            </div>
+            <div>
+                <label for="register-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">אימייל</label>
+                <input type="email" id="register-email" required class="input-field" placeholder="student@example.com">
+            </div>
+            <div>
+                <label for="register-password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">סיסמה</label>
+                <input type="password" id="register-password" required class="input-field" placeholder="לפחות 6 תווים">
+            </div>
+            <div>
+                <label for="register-institution" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label>
+                <input type="text" id="register-institution" class="input-field" placeholder="האוניברסיטה העברית">
+            </div>
+            <div>
+                <label for="register-major" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label>
+                <input type="text" id="register-major" class="input-field" placeholder="מדעי המחשב">
+            </div>
+            <button type="submit" id="register-btn" class="btn-primary">
+                <span id="register-btn-text">הרשם</span>
+                <span id="register-spinner" class="loading-spinner hidden"></span>
+            </button>
+        </form>
+
+        <!-- Password Reset Form (Hidden by default) -->
+        <form id="reset-form" class="space-y-4 hidden">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">הזן את כתובת האימייל שלך ונשלח לך קישור לאיפוס הסיסמה.</p>
+            <div>
+                <label for="reset-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">אימייל</label>
+                <input type="email" id="reset-email" required class="input-field" placeholder="student@example.com">
+            </div>
+            <button type="submit" id="reset-btn" class="btn-primary">
+                <span id="reset-btn-text">שלח קישור איפוס</span>
+                <span id="reset-spinner" class="loading-spinner hidden"></span>
+            </button>
+            <button type="button" id="back-to-login" class="btn-google">
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                חזרה להתחברות
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+            <hr class="flex-1 border-gray-300 dark:border-gray-600">
+            <span class="px-3 text-gray-500 dark:text-gray-400 text-sm">או</span>
+            <hr class="flex-1 border-gray-300 dark:border-gray-600">
+        </div>
+
+        <!-- Google Sign In -->
+        <button id="google-signin" class="btn-google">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            התחבר עם Google
+        </button>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDj1V85FXrcZ8Tg1kezkTsO50bgMOLcnPk",
+            authDomain: "circademic-582dc.firebaseapp.com",
+            projectId: "circademic-582dc",
+            storageBucket: "circademic-582dc.firebasestorage.app",
+            messagingSenderId: "296566462689",
+            appId: "1:296566462689:web:d23a6f74078de2332bbfa0",
+            measurementId: "G-SPD143KGDK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const resetForm = document.getElementById('reset-form');
+        const messageContainer = document.getElementById('message-container');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const backToLoginBtn = document.getElementById('back-to-login');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        // Dark Mode
+        const darkMode = localStorage.getItem('theme') === 'dark';
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', 
+                document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+            );
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Tab Switching
+        loginTab.addEventListener('click', () => {
+            showLoginForm();
+        });
+
+        registerTab.addEventListener('click', () => {
+            showRegisterForm();
+        });
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showResetForm();
+        });
+
+        backToLoginBtn.addEventListener('click', () => {
+            showLoginForm();
+        });
+
+        function showLoginForm() {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            resetForm.classList.add('hidden');
+            clearMessages();
+        }
+
+        function showRegisterForm() {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            resetForm.classList.add('hidden');
+            clearMessages();
+        }
+
+        function showResetForm() {
+            loginTab.classList.remove('active');
+            registerTab.classList.remove('active');
+            resetForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            clearMessages();
+        }
+
+        // Helper Functions
+        function showMessage(message, type = 'error') {
+            messageContainer.innerHTML = `
+                <div class="${type === 'error' ? 'error-message' : 'success-message'}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function clearMessages() {
+            messageContainer.innerHTML = '';
+        }
+
+        function setLoading(button, loading) {
+            const textSpan = button.querySelector('span:first-child');
+            const spinner = button.querySelector('.loading-spinner');
+            
+            if (loading) {
+                button.disabled = true;
+                textSpan.style.display = 'none';
+                spinner.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                textSpan.style.display = 'inline';
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function getErrorMessage(error) {
+            switch(error.code) {
+                case 'auth/user-not-found':
+                    return 'המשתמש לא נמצא במערכת';
+                case 'auth/wrong-password':
+                    return 'סיסמה שגויה';
+                case 'auth/email-already-in-use':
+                    return 'כתובת האימייל כבר קיימת במערכת';
+                case 'auth/weak-password':
+                    return 'הסיסמה חלשה מדי (לפחות 6 תווים)';
+                case 'auth/invalid-email':
+                    return 'כתובת אימייל לא תקינה';
+                case 'auth/too-many-requests':
+                    return 'יותר מדי ניסיונות. נסה שוב מאוחר יותר';
+                default:
+                    return error.message || 'אירעה שגיאה. נסה שוב.';
+            }
+        }
+
+        // Login Form Handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            setLoading(loginBtn, true);
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                // Redirect will happen automatically via onAuthStateChanged
+            } catch (error) {
+                showMessage(getErrorMessage(error));
+                setLoading(loginBtn, false);
+            }
+        });
+
+        // Register Form Handler
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const institution = document.getElementById('register-institution').value;
+            const major = document.getElementById('register-major').value;
+            const registerBtn = document.getElementById('register-btn');
+            
+            setLoading(registerBtn, true);
+            
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update display name
+                await user.updateProfile({
+                    displayName: name
+                });
+                
+                // Store additional user data in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    institution: institution || '',
+                    major: major || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Initialize academic data document
+                await db.collection('academicData').doc(user.uid).set({
+                    courses: [],
+                    userInfo: {
+                        name: name,
+                        institution: institution || '',
+                        major: major || '',
+                        requiredCredits: 120,
+                        categories: ['חובה', 'בחירה', 'כללי', 'ספורט']
+                    }
+                });
+                
+                // Redirect will happen automatically via onAuthStateChanged
+            } catch (error) {
+                showMessage(getErrorMessage(error));
+                setLoading(registerBtn, false);
+            }
+        });
+
+        // Password Reset Form Handler
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            
+            const email = document.getElementById('reset-email').value;
+            const resetBtn = document.getElementById('reset-btn');
+            
+            setLoading(resetBtn, true);
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showMessage('קישור לאיפוס סיסמה נשלח לאימייל שלך', 'success');
+                setTimeout(() => {
+                    showLoginForm();
+                }, 3000);
+            } catch (error) {
+                showMessage(getErrorMessage(error));
+            } finally {
+                setLoading(resetBtn, false);
+            }
+        });
+
+        // Google Sign In
+        document.getElementById('google-signin').addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Check if user exists in Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // New user - create profile
+                    await db.collection('users').doc(user.uid).set({
+                        name: user.displayName || '',
+                        email: user.email || '',
+                        institution: '',
+                        major: '',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Initialize academic data
+                    await db.collection('academicData').doc(user.uid).set({
+                        courses: [],
+                        userInfo: {
+                            name: user.displayName || '',
+                            institution: '',
+                            major: '',
+                            requiredCredits: 120,
+                            categories: ['חובה', 'בחירה', 'כללי', 'ספורט']
+                        }
+                    });
+                } else {
+                    // Existing user - update last login
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Redirect will happen automatically via onAuthStateChanged
+            } catch (error) {
+                showMessage(getErrorMessage(error));
+            }
+        });
+    </script>
+</body>
+</html>
