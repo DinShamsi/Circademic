@@ -20,467 +20,123 @@
     
     <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
     <style>
-        /* Design System Variables */
+        /* Design System Variables (זהה) */
         :root {
-            /* Primary Colors */
-            --primary: #3B82F6;
-            --primary-light: #60A5FA;
-            --primary-dark: #2563EB;
-            
-            /* Secondary Colors */
-            --secondary: #8B5CF6;
-            --secondary-light: #A78BFA;
-            --secondary-dark: #7C3AED;
-            
-            /* Accent Colors */
-            --accent: #F59E0B;
-            --accent-light: #FBBF24;
-            --accent-dark: #D97706;
-            
-            /* Success Colors */
-            --success: #10B981;
-            --success-light: #34D399;
-            --success-dark: #059669;
-            
-            /* Background Colors */
-            --bg-light: #F9FAFB;
-            --bg-lighter: #FFFFFF;
-            --bg-dark: #0F172A;
-            --bg-darker: #030712;
-            --bg-dark-card: #1E293B;
-            
-            /* Text Colors */
-            --text-primary-light: #111827;
-            --text-secondary-light: #6B7280;
-            --text-primary-dark: #F9FAFB;
-            --text-secondary-dark: #9CA3AF;
-            
-            /* Border Colors */
-            --border-light: #E5E7EB;
-            --border-dark: #374151;
-            
-            /* Spacing */
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
-            
-            /* Border Radius */
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
+            --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
+            --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
+            --accent: #F59E0B; --accent-light: #FBBF24; --accent-dark: #D97706;
+            --success: #10B981; --success-light: #34D399; --success-dark: #059669;
+            --bg-light: #F9FAFB; --bg-lighter: #FFFFFF; --bg-dark: #0F172A;
+            --bg-darker: #030712; --bg-dark-card: #1E293B;
+            --text-primary-light: #111827; --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB; --text-secondary-dark: #9CA3AF;
+            --border-light: #E5E7EB; --border-dark: #374151;
+            --spacing-xs: 0.25rem; --spacing-sm: 0.5rem; --spacing-md: 1rem;
+            --spacing-lg: 1.5rem; --spacing-xl: 2rem;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
         }
 
-        /* Base Typography */
+        /* שאר ה-CSS נשאר זהה לקובץ המקורי */
         body { 
             font-family: 'Heebo', sans-serif;
             background: var(--bg-light);
             transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        body.dark { background: var(--bg-dark); }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Rubik', sans-serif; font-weight: 700; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-light); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-track { background: var(--bg-dark-card); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark)); background-clip: padding-box; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* סגנונות חדשים עבור טעינה ומצב נסתר */
+        .hidden { display: none !important; }
         
-        body.dark {
-            background: var(--bg-dark);
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Rubik', sans-serif;
-            font-weight: 700;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { 
-            width: 10px;
-            height: 10px;
-        }
-        ::-webkit-scrollbar-track { 
-            background: var(--bg-light);
-            border-radius: 10px;
-        }
-        .dark ::-webkit-scrollbar-track { 
-            background: var(--bg-dark-card);
-        }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        ::-webkit-scrollbar-thumb:hover { 
-            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
-            background-clip: padding-box;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Card Styles with new Design System */
-        .stat-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        .dark .stat-card {
-            background: var(--bg-dark-card);
-            border-color: rgba(59, 130, 246, 0.2);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .dark .stat-card:hover {
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Gradient Badges */
-        .badge-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            display: inline-block;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-        }
-
-        .badge-accent {
-            background: linear-gradient(135deg, var(--accent), #EF4444);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            display: inline-block;
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
-        }
-
-        /* Button Styles */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-accent {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-accent:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), var(--success-dark));
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
-        }
-
-        /* Icon Button */
-        .icon-btn {
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: var(--radius-md);
+        #loading-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(59, 130, 246, 0.1);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border: none;
-            /* === ADDED for <a> tag styling === */
-            text-decoration: none; 
+            height: 100vh;
+            gap: var(--spacing-md);
+        }
+        .loader {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 5px solid var(--border-light);
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        body.dark .loader {
+             border: 5px solid var(--border-dark);
+             border-top-color: var(--primary-light);
         }
 
-        .icon-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: scale(1.1);
-        }
-
-        .dark .icon-btn {
-            background: rgba(59, 130, 246, 0.15);
-        }
-
-        .dark .icon-btn:hover {
-            background: rgba(59, 130, 246, 0.25);
-        }
-
-        /* Input Styles */
-        input[type="text"],
-        input[type="number"],
-        input[type="search"],
-        select,
-        textarea {
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border-light);
-            border-radius: var(--radius-md);
-            background: var(--bg-light);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.938rem;
-            font-family: 'Heebo', sans-serif;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-
-        .dark input[type="text"],
-        .dark input[type="number"],
-        .dark input[type="search"],
-        .dark select,
-        .dark textarea {
-            background: var(--bg-dark-card);
-            border-color: var(--border-dark);
-            color: var(--text-primary-dark);
-        }
-
-        .dark input:focus,
-        .dark select:focus,
-        .dark textarea:focus {
-            background: #1E293B;
-            border-color: var(--primary-light);
-        }
-
-        /* Progress Bar */
-        .progress-bar-container {
-            width: 100%;
-            height: 0.75rem;
-            background: var(--border-light);
-            border-radius: 9999px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .dark .progress-bar-container {
-            background: var(--bg-dark-card);
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 9999px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-
-        /* Modal Styles */
-        .modal-backdrop {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-container {
-            background: white;
-            border-radius: var(--radius-xl);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: fadeInUp 0.3s ease-out;
-        }
-
-        .dark .modal-container {
-            background: var(--bg-dark-card);
-        }
-
-        /* Table Styles */
-        .sortable { 
-            cursor: pointer;
-            user-select: none;
-            transition: color 0.2s ease;
-        }
-        
-        .sortable:hover { 
-            color: var(--primary);
-        }
-
-        table tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-        table tbody tr:hover {
-            background-color: rgba(59, 130, 246, 0.05);
-        }
-
-        .dark table tbody tr:hover {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        /* Header with Gradient */
-        .header-title {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Stat Number Styles */
-        .stat-number-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-number-accent {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-number-success {
-            background: linear-gradient(135deg, var(--success), var(--success-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Badge Styles for Table */
-        .badge-moed-a {
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-moed-b {
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-category {
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--secondary);
-            padding: 0.375rem 0.875rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .dark .badge-category {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--secondary-light);
-        }
-
-        /* Loading Animation */
-        .loading {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+        /* שאר ה-CSS זהה */
+        .stat-card { background: white; border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); animation: fadeInUp 0.5s ease-out; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); border-color: rgba(59, 130, 246, 0.3); }
+        .dark .stat-card { background: var(--bg-dark-card); border-color: rgba(59, 130, 246, 0.2); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+        .dark .stat-card:hover { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); }
+        .badge-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 700; display: inline-block; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3); }
+        .badge-accent { background: linear-gradient(135deg, var(--accent), #EF4444); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 700; display: inline-block; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4); display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5); }
+        .btn-accent { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5); }
+        .btn-success { background: linear-gradient(135deg, var(--success), var(--success-dark)); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5); }
+        .icon-btn { width: 2.75rem; height: 2.75rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.1); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: none; text-decoration: none; }
+        .icon-btn:hover { background: rgba(59, 130, 246, 0.2); transform: scale(1.1); }
+        .dark .icon-btn { background: rgba(59, 130, 246, 0.15); }
+        .dark .icon-btn:hover { background: rgba(59, 130, 246, 0.25); }
+        input[type="text"], input[type="number"], input[type="search"], select, textarea { padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-light); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.938rem; font-family: 'Heebo', sans-serif; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .dark input[type="text"], .dark input[type="number"], .dark input[type="search"], .dark select, .dark textarea { background: var(--bg-dark-card); border-color: var(--border-dark); color: var(--text-primary-dark); }
+        .dark input:focus, .dark select:focus, .dark textarea:focus { background: #1E293B; border-color: var(--primary-light); }
+        .progress-bar-container { width: 100%; height: 0.75rem; background: var(--border-light); border-radius: 9999px; overflow: hidden; position: relative; }
+        .dark .progress-bar-container { background: var(--bg-dark-card); }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 9999px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .modal-backdrop { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+        .modal-container { background: white; border-radius: var(--radius-xl); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: fadeInUp 0.3s ease-out; }
+        .dark .modal-container { background: var(--bg-dark-card); }
+        .sortable { cursor: pointer; user-select: none; transition: color 0.2s ease; }
+        .sortable:hover { color: var(--primary); }
+        table tbody tr { transition: background-color 0.2s ease; }
+        table tbody tr:hover { background-color: rgba(59, 130, 246, 0.05); }
+        .dark table tbody tr:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .header-title { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-number-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-number-accent { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-number-success { background: linear-gradient(135deg, var(--success), var(--success-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .badge-moed-a { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-moed-b { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-category { background: rgba(139, 92, 246, 0.1); color: var(--secondary); padding: 0.375rem 0.875rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .dark .badge-category { background: rgba(139, 92, 246, 0.2); color: var(--secondary-light); }
+        .loading { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div id="loading-container" class="bg-gray-100 dark:bg-gray-900">
+        <div class="loader"></div>
+        <p class="text-gray-600 dark:text-gray-400">מאמת נתונים...</p>
+    </div>
+
+    <div id="app-container" class="container mx-auto p-4 sm:p-6 lg:p-8 hidden">
         
         <header class="flex justify-between items-center mb-8">
             <div>
@@ -488,14 +144,11 @@
                 <p class="text-gray-600 dark:text-gray-400 text-lg" id="header-subtitle">ברוך הבא!</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="/" class="icon-btn text-gray-600 dark:text-gray-300" title="חזרה ללובי">
+                <a href="index.html" class="icon-btn text-gray-600 dark:text-gray-300" title="חזרה ללוח הבקרה">
                     <i data-lucide="layout-grid"></i>
                 </a>
                 <button id="settings-btn" class="icon-btn text-gray-600 dark:text-gray-300">
                     <i data-lucide="settings"></i>
-                </button>
-                <button id="info-btn" class="icon-btn text-gray-600 dark:text-gray-300">
-                    <i data-lucide="info"></i>
                 </button>
                 <button id="dark-mode-toggle" class="icon-btn text-gray-600 dark:text-gray-300">
                     <i data-lucide="moon" class="block dark:hidden"></i>
@@ -650,470 +303,591 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="settings-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">הגדרות</h2>
-                <button id="close-settings-btn" class="icon-btn">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <form id="settings-form" class="space-y-4">
-                <div>
-                    <label for="userName" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם הסטודנט</label>
-                    <input type="text" id="userName" placeholder="סאוסר" class="w-full">
+        <div id="settings-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+            <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">הגדרות</h2>
+                    <button id="close-settings-btn" class="icon-btn">
+                        <i data-lucide="x"></i>
+                    </button>
                 </div>
-                <div>
-                    <label for="institution" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label>
-                    <input type="text" id="institution" placeholder="האוניברסיטה העברית" class="w-full">
-                </div>
-                <div>
-                    <label for="major" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label>
-                    <input type="text" id="major" placeholder="הנדסת מכונות" class="w-full">
-                </div>
-                <div>
-                    <label for="requiredCredits" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">סה"כ נ"ז לתואר</label>
-                    <input type="number" id="requiredCredits" min="1" placeholder="160" class="w-full">
-                </div>
-                <div>
-                    <label for="userCategories" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">קטגוריות קורסים (מופרד בפסיק)</label>
-                    <input type="text" id="userCategories" placeholder="חובה, בחירה, כללי, ספורט, התמחות" class="w-full">
-                </div>
-                <div class="pt-4 flex justify-between items-center gap-4">
-                    <button type="submit" class="btn-primary flex-1">שמור שינויים</button>
-                    <button type="button" id="clear-data-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all">מחק הכל</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div id="confirm-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-container p-6 w-full max-w-sm text-center">
-            <i data-lucide="alert-triangle" class="mx-auto h-12 w-12 text-red-500"></i>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-200 mt-4">אישור מחיקה</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">האם אתה בטוח שברצונך למחוק את כל הנתונים? פעולה זו אינה הפיכה.</p>
-            <div class="mt-6 flex justify-center gap-4">
-                <button id="confirm-delete-btn" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold transition-all">כן, מחק הכל</button>
-                <button id="cancel-delete-btn" class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 font-semibold transition-all">ביטול</button>
+                <form id="settings-form" class="space-y-4">
+                    <div>
+                        <label for="userName" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם הסטודנט</label>
+                        <input type="text" id="userName" placeholder="סאוסר" class="w-full">
+                    </div>
+                    <div>
+                        <label for="institution" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label>
+                        <input type="text" id="institution" placeholder="האוניברסיטה העברית" class="w-full">
+                    </div>
+                    <div>
+                        <label for="major" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label>
+                        <input type="text" id="major" placeholder="הנדסת מכונות" class="w-full">
+                    </div>
+                    <div>
+                        <label for="requiredCredits" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">סה"כ נ"ז לתואר</label>
+                        <input type="number" id="requiredCredits" min="1" placeholder="160" class="w-full">
+                    </div>
+                    <div>
+                        <label for="userCategories" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">קטגוריות קורסים (מופרד בפסיק)</label>
+                        <input type="text" id="userCategories" placeholder="חובה, בחירה, כללי, ספורט, התמחות" class="w-full">
+                    </div>
+                    <div class="pt-4 flex justify-between items-center gap-4">
+                        <button type="submit" class="btn-primary flex-1">שמור שינויים</button>
+                        <button type="button" id="clear-data-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all">מחק הכל</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-
-    <div id="what-if-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מחשבון ממוצע עתידי</h2>
-                <button id="close-what-if-btn" class="icon-btn">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="space-y-4">
-                <p class="text-gray-600 dark:text-gray-400 text-sm">הזן ציונים ונקודות זכות של קורסים עתידיים כדי לראות איך הממוצע המשוקלל שלך יושפע. הנתונים כאן לא נשמרים.</p>
-                <div id="what-if-courses" class="space-y-2">
-                </div>
-                <button id="add-what-if-course-btn" class="w-full text-sm bg-gray-200 dark:bg-gray-700 p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-semibold">הוסף קורס נוסף</button>
-                <hr class="my-4 border-gray-200 dark:border-gray-700">
-                <div class="text-center">
-                    <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">הממוצע החדש שלך יהיה:</h3>
-                    <p id="what-if-result" class="text-5xl font-bold badge-primary mt-2 inline-block">0.00</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">מבוסס על <span id="what-if-credits-info"></span></p>
+        
+        <div id="confirm-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+            <div class="modal-container p-6 w-full max-w-sm text-center">
+                <i data-lucide="alert-triangle" class="mx-auto h-12 w-12 text-red-500"></i>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-200 mt-4">אישור מחיקה</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">האם אתה בטוח שברצונך למחוק את כל הנתונים? פעולה זו אינה הפיכה.</p>
+                <div class="mt-6 flex justify-center gap-4">
+                    <button id="confirm-delete-btn" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold transition-all">כן, מחק הכל</button>
+                    <button id="cancel-delete-btn" class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 font-semibold transition-all">ביטול</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="info-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-container p-8 w-full max-w-2xl m-4 transform transition-all max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מדריך למשתמש - מערכת מעקב אקדמי</h2>
-                <button id="close-info-btn" class="icon-btn">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="overflow-y-auto pr-4 -mr-4 text-gray-700 dark:text-gray-300 space-y-4">
-                <p>הכלי הזה נבנה כדי לעזור לכם לעקוב בקלות אחר הציונים, לחשב ממוצעים ולהבין את מצבכם האקדמי. מטרתו המרכזית היא לתת לכם <strong>שליטה מלאה על הנתונים</strong> ולאפשר לכם לראות איך כל שינוי ציון משפיע מיידית על הממוצע.</p>
-                
-                <div>
-                    <h3 class="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">פרטיות, גיבוי ושחזור נתונים</h3>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li><strong>הפרטיות שלכם מעל הכל:</strong> כל המידע שאתם מזינים נשמר באופן מקומי על הדפדפן שלכם בלבד. מפתח האתר או כל גורם אחר אינם יכולים לגשת לנתונים שלכם.</li>
-                        <li><strong>גיבוי הנתונים שלכם:</strong> מכיוון שהמידע נשמר רק אצלכם, אם תנקו את נתוני הגלישה בדפדפן או תחליפו מחשב, המידע יימחק. כדי למנוע זאת, מומלץ לגבות את הנתונים באופן קבוע באמצעות כפתור <strong>"ייצוא ל-CSV"</strong>. פעולה זו תשמור את כל הציונים שלכם בקובץ מאובטח על המחשב האישי.</li>
-                        <li><strong>שחזור קל ומהיר:</strong> אם מחקתם בטעות את הנתונים או עברתם למכשיר חדש, תוכלו לשחזר הכל בקלות. לחצו על <strong>"ייבוא מ-CSV"</strong> ובחרו את קובץ הגיבוי ששמרתם. כל הנתונים שלכם יחזרו מיד לאפליקציה.</li>
-                    </ul>
+        <div id="what-if-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+             <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">מחשבון ממוצע עתידי</h2>
+                    <button id="close-what-if-btn" class="icon-btn">
+                        <i data-lucide="x"></i>
+                    </button>
                 </div>
-
-                <div>
-                    <h3 class="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">תכונות מרכזיות</h3>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li><strong>הגדרות:</strong> לחצו על גלגל השיניים כדי להזין את סך הנ"ז לתואר (בשביל מד ההתקדמות) ולהתאים אישית את קטגוריות הקורסים.</li>
-                        <li><strong>עריכת קורס:</strong> כדי לערוך קורס קיים, לחצו על אייקון העיפרון בשורת הקורס הרצוי.</li>
-                        <li><strong>ציון בינארי (עובר/נכשל):</strong> סמנו אפשרות זו לקורסים ללא ציון מספרי. קורס כזה <strong>כן ייספר בנ"ז</strong> אך <strong>לא ישפיע על הממוצע</strong>.</li>
-                        <li><strong>מחשבון "מה אם":</strong> הכלי מאפשר לכם להזין ציונים עתידיים ולראות איך הם ישפיעו על הממוצע, מבלי לשמור אותם.</li>
-                        <li><strong>מיון וסינון:</strong> ניתן לחפש קורס, לסנן לפי סמסטר/קטגוריה, ולמיין את הטבלה על ידי לחיצה על הכותרות.</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">הבנת הגרפים</h3>
-                    <p>הגרפים בצד נותנים לכם תמונה ויזואלית: <strong>מגמת הציונים</strong> מראה את הממוצע בכל סמסטר כדי לראות התקדמות, ו<strong>התפלגות מועדים</strong> מראה כמה מבחנים עברתם במועד א' לעומת מועד ב'.</p>
-                </div>
-                <div class="pt-4 text-xs text-center text-gray-400">
-                    <p>עיצוב חדש ומודרני • נובמבר 2025</p>
+                <div class="space-y-4">
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">הזן ציונים ונקודות זכות של קורסים עתידיים כדי לראות איך הממוצע המשוקלל שלך יושפע. הנתונים כאן לא נשמרים.</p>
+                    <div id="what-if-courses" class="space-y-2">
+                    </div>
+                    <button id="add-what-if-course-btn" class="w-full text-sm bg-gray-200 dark:bg-gray-700 p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-semibold">הוסף קורס נוסף</button>
+                    <hr class="my-4 border-gray-200 dark:border-gray-700">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">הממוצע החדש שלך יהיה:</h3>
+                        <p id="what-if-result" class="text-5xl font-bold badge-primary mt-2 inline-block">0.00</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">מבוסס על <span id="what-if-credits-info"></span></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        </div>
+
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // === בלוק אתחול Firebase והגדרות ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyDj1V85FXrcZ8Tg1kezkTsO50bgMOLcnPk",
+      authDomain: "circademic-582dc.firebaseapp.com",
+      projectId: "circademic-582dc",
+      storageBucket: "circademic-582dc.firebasestorage.app",
+      messagingSenderId: "296566462689",
+      appId: "1:296566462689:web:d23a6f74078de2332bbfa0",
+      measurementId: "G-SPD143KGDK"
+    };
 
-        // --- STATE MANAGEMENT ---
-        let state = {
-            courses: [],
-            userInfo: {
-                name: '',
-                institution: '',
-                major: '',
-                requiredCredits: 120,
-                categories: ['חובה', 'בחירה', 'כללי', 'ספורט']
-            },
-            editMode: { active: false, courseId: null },
-            darkMode: false,
-            viewState: {
-                searchTerm: '',
-                filterSemester: 'all',
-                filterCategory: 'all',
-                sortBy: 'semester',
-                sortOrder: 'asc'
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // === משתנים גלובליים לניהול ===
+    let currentUser = null;
+    let academicDataRef = null; 
+    
+    // === State גלובלי ===
+    let state = {
+        courses: [],
+        userInfo: {
+            name: '',
+            institution: '',
+            major: '',
+            requiredCredits: 120,
+            categories: ['חובה', 'בחירה', 'כללי', 'ספורט']
+        },
+        editMode: { active: false, courseId: null },
+        darkMode: false,
+        viewState: {
+            searchTerm: '',
+            filterSemester: 'all',
+            filterCategory: 'all',
+            sortBy: 'semester',
+            sortOrder: 'asc'
+        }
+    };
+
+    // === תיקון: הצהרה על משתני DOM גלובליים ===
+    let loadingContainer, appContainer, courseForm, courseListEl, formTitle, submitBtn, 
+        cancelEditBtn, courseNameInput, creditsInput, gradeInput, semesterInput, 
+        isMoedBInput, isPassFailInput, courseCategoryInput, avgGradeEl, totalCreditsEl, 
+        highestGradeEl, lowestGradeEl, degreeProgressText, degreeProgressBar, 
+        semesterAveragesEl, categoryAveragesEl, settingsModal, settingsForm, 
+        userNameInput, institutionInput, majorInput, requiredCreditsInput, 
+        userCategoriesInput, headerTitle, headerSubtitle, confirmModal, 
+        whatIfModal, whatIfCoursesContainer, whatIfResultEl, whatIfCreditsInfoEl, 
+        searchInput, filterSemesterEl, filterCategoryEl, csvFileInput, 
+        darkModeToggle;
+
+    // Charts
+    let moedChart, trendChart;
+    const chartDefaultFont = { family: "'Heebo', sans-serif", size: 12 };
+    
+    
+    // --- === Auth State Observer (ה-"שומר סף") === ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            academicDataRef = db.collection('academicData').doc(currentUser.uid);
+            
+            // נחכה שה-DOM יהיה מוכן לפני שנאתחל את האפליקציה
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
+            } else {
+                initApp(); // ה-DOM כבר טעון
             }
+            
+        } else {
+            // החזר אותו לדף ההתחברות
+            window.location.href = 'index.html';
+        }
+    });
+
+    // --- === פונקציות שמירת וטעינת נתונים (משוכתבות) === ---
+    
+    async function saveState() {
+        if (!academicDataRef) return; 
+        
+        const dataToSave = {
+            courses: state.courses,
+            userInfo: state.userInfo
         };
-
-        // --- DOM ELEMENTS ---
-        const courseForm = document.getElementById('course-form');
-        const courseListEl = document.getElementById('course-list');
-        const formTitle = document.getElementById('form-title');
-        const submitBtn = document.getElementById('submit-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        // Inputs
-        const courseNameInput = document.getElementById('courseName');
-        const creditsInput = document.getElementById('credits');
-        const gradeInput = document.getElementById('grade');
-        const semesterInput = document.getElementById('semester');
-        const isMoedBInput = document.getElementById('isMoedB');
-        const isPassFailInput = document.getElementById('isPassFail');
-        const courseCategoryInput = document.getElementById('courseCategory');
-        // Summary Cards
-        const avgGradeEl = document.getElementById('avg-grade');
-        const totalCreditsEl = document.getElementById('total-credits');
-        const highestGradeEl = document.getElementById('highest-grade');
-        const lowestGradeEl = document.getElementById('lowest-grade');
-        // Progress & Averages
-        const degreeProgressText = document.getElementById('degree-progress-text');
-        const degreeProgressBar = document.getElementById('degree-progress-bar');
-        const semesterAveragesEl = document.getElementById('semester-averages');
-        const categoryAveragesEl = document.getElementById('category-averages');
-        // Settings Modal
-        const settingsModal = document.getElementById('settings-modal');
-        const settingsForm = document.getElementById('settings-form');
-        const userNameInput = document.getElementById('userName');
-        const institutionInput = document.getElementById('institution');
-        const majorInput = document.getElementById('major');
-        const requiredCreditsInput = document.getElementById('requiredCredits');
-        const userCategoriesInput = document.getElementById('userCategories');
-        // Header
-        const headerTitle = document.getElementById('header-title');
-        const headerSubtitle = document.getElementById('header-subtitle');
-        // Confirm Modal
-        const confirmModal = document.getElementById('confirm-modal');
-        // What-If Modal
-        const whatIfModal = document.getElementById('what-if-modal');
-        const whatIfCoursesContainer = document.getElementById('what-if-courses');
-        const whatIfResultEl = document.getElementById('what-if-result');
-        const whatIfCreditsInfoEl = document.getElementById('what-if-credits-info');
-        // Info Modal
-        const infoModal = document.getElementById('info-modal');
-        // Filtering and Sorting
-        const searchInput = document.getElementById('search-input');
-        const filterSemesterEl = document.getElementById('filter-semester');
-        const filterCategoryEl = document.getElementById('filter-category');
-        const csvFileInput = document.getElementById('csv-file-input');
-
-        // --- CHARTS ---
-        let moedChart, trendChart;
-        const chartDefaultFont = { family: "'Heebo', sans-serif", size: 12 };
         
-        // --- LOCAL STORAGE ---
-        function saveState() {
-            localStorage.setItem('academicTrackerState_v2', JSON.stringify(state));
+        try {
+            await academicDataRef.set(dataToSave);
+            // console.log("Data saved to Firestore"); // (טוב לדיבאגינג)
+        } catch (error) {
+            // === תיקון: טיפול שקט בשגיאות שמירה ===
+            console.error("Error saving data to Firestore: ", error);
+            // לא נקפיץ alert כדי לא להפריע למשתמש
         }
+    }
 
-        function loadState() {
-            const savedState = localStorage.getItem('academicTrackerState_v2');
-            if (savedState) {
-                let loadedData = JSON.parse(savedState);
-                state = { ...state, ...loadedData };
+    async function loadState() {
+        if (!academicDataRef) return;
 
-                if (!state.userInfo) {
-                     state.userInfo = { name: '', institution: '', major: '', requiredCredits: 120, categories: ['חובה', 'בחירה', 'כללי', 'ספורט'] };
-                }
-                if (!state.userInfo.categories || !Array.isArray(state.userInfo.categories)) {
-                    state.userInfo.categories = ['חובה', 'בחירה', 'כללי', 'ספורט'];
-                }
-                if (!state.viewState) {
-                    state.viewState = { searchTerm: '', filterSemester: 'all', filterCategory: 'all', sortBy: 'semester', sortOrder: 'asc' };
-                }
+        try {
+            const doc = await academicDataRef.get();
+            
+            if (doc.exists) {
+                const loadedData = doc.data();
+                state.courses = loadedData.courses || [];
+                state.userInfo = { ...state.userInfo, ...loadedData.userInfo }; 
+            } else {
+                console.log("No data found for this user. Creating new profile.");
+                // אין צורך לעשות כלום, state נשאר ברירת מחדל
+                // ניצור מסמך בשמירה הראשונה
+                await saveState(); // ניצור מסמך ריק בפעם הראשונה
             }
+        } catch (error) {
+            // === תיקון: טיפול בשגיאת טעינה ===
+            console.error("Error loading data from Firestore: ", error);
+            // זו השגיאה שקיבלת. היא נגרמת מחוקי אבטחה שגויים.
+            alert("שגיאה בטעינת הנתונים. ודא שהגדרת את חוקי האבטחה ב-Firestore.");
         }
+    }
 
-        // --- CORE LOGIC & RENDERING ---
+    // --- === פונקציות ליבה (זהות) === ---
+    
+    function updateDashboard() {
+        renderTable();
+        calculateAndRenderSummary();
+        renderSemesterAverages();
+        renderCategoryAverages();
+        renderCharts();
+        updateHeader();
+        populateFilterOptions();
         
-        function updateDashboard() {
-            renderTable();
-            calculateAndRenderSummary();
-            renderSemesterAverages();
-            renderCategoryAverages();
-            renderCharts();
-            updateHeader();
-            populateFilterOptions();
-            saveState();
+        // כל עדכון דשבורד גורר שמירה בענן
+        saveState(); 
+    }
+
+    // (כל שאר פונקציות הרנדור והליבה זהות לקוד הקודם)
+    function renderTable() {
+        courseListEl.innerHTML = '';
+        const filteredAndSortedCourses = getFilteredAndSortedCourses();
+        if (filteredAndSortedCourses.length === 0) {
+            courseListEl.innerHTML = `<tr><td colspan="7" class="text-center p-8 text-gray-400">לא נמצאו קורסים התואמים את החיפוש.</td></tr>`;
+            return;
         }
-
-        function renderTable() {
-            courseListEl.innerHTML = '';
-            
-            const filteredAndSortedCourses = getFilteredAndSortedCourses();
-
-            if (filteredAndSortedCourses.length === 0) {
-                courseListEl.innerHTML = `<tr><td colspan="7" class="text-center p-8 text-gray-400">לא נמצאו קורסים התואמים את החיפוש.</td></tr>`;
-                return;
+        filteredAndSortedCourses.forEach(course => {
+            const row = document.createElement('tr');
+            let gradeDisplay;
+            if (course.isPassFail) {
+                gradeDisplay = `<span class="font-bold text-gray-500 dark:text-gray-400">עבר</span>`;
+            } else {
+                const gradeColor = course.grade >= 85 ? 'stat-number-success' : 'text-gray-700 dark:text-gray-300';
+                gradeDisplay = `<span class="font-bold ${gradeColor}">${course.grade}</span>`;
             }
-            
-            filteredAndSortedCourses.forEach(course => {
-                const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-200">${course.name}</td>
+                <td class="px-4 py-3"><span class="badge-category">${course.category}</span></td>
+                <td class="px-4 py-3">${course.semester}</td>
+                <td class="px-4 py-3">${course.credits}</td>
+                <td class="px-4 py-3">${gradeDisplay}</td>
+                <td class="px-4 py-3">${course.isMoedB ? '<span class="badge-moed-b">ב׳</span>' : '<span class="badge-moed-a">א׳</span>'}</td>
+                <td class="px-4 py-3 text-center">
+                    <button class="edit-btn p-1 text-blue-500 hover:text-blue-700 transition-colors" data-id="${course.id}"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                    <button class="delete-btn p-1 text-red-500 hover:text-red-700 transition-colors" data-id="${course.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </td>
+            `;
+            courseListEl.appendChild(row);
+        });
+        lucide.createIcons();
+    }
 
-                let gradeDisplay;
-                if (course.isPassFail) {
-                    gradeDisplay = `<span class="font-bold text-gray-500 dark:text-gray-400">עבר</span>`;
-                } else {
-                    const gradeColor = course.grade >= 85 ? 'stat-number-success' : 'text-gray-700 dark:text-gray-300';
-                    gradeDisplay = `<span class="font-bold ${gradeColor}">${course.grade}</span>`;
-                }
-                
-                row.innerHTML = `
-                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-200">${course.name}</td>
-                    <td class="px-4 py-3"><span class="badge-category">${course.category}</span></td>
-                    <td class="px-4 py-3">${course.semester}</td>
-                    <td class="px-4 py-3">${course.credits}</td>
-                    <td class="px-4 py-3">${gradeDisplay}</td>
-                    <td class="px-4 py-3">${course.isMoedB ? '<span class="badge-moed-b">ב׳</span>' : '<span class="badge-moed-a">א׳</span>'}</td>
-                    <td class="px-4 py-3 text-center">
-                        <button class="edit-btn p-1 text-blue-500 hover:text-blue-700 transition-colors" data-id="${course.id}"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                        <button class="delete-btn p-1 text-red-500 hover:text-red-700 transition-colors" data-id="${course.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                `;
-                courseListEl.appendChild(row);
-            });
-            lucide.createIcons();
+    function calculateAndRenderSummary() {
+        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
+        const numCourses = state.courses.length;
+        if (numCourses === 0) {
+            avgGradeEl.textContent = '0.00';
+            totalCreditsEl.textContent = '0';
+            highestGradeEl.textContent = '-';
+            lowestGradeEl.textContent = '-';
+            degreeProgressBar.style.width = '0%';
+            degreeProgressText.textContent = '0%';
+            return;
         }
+        let totalCredits = state.courses.reduce((sum, c) => sum + parseFloat(c.credits), 0);
+        let weightedGradeSum = 0;
+        let highest = { grade: -1, name: '' };
+        let lowest = { grade: 101, name: '' };
+        let creditsForAvg = 0;
+        coursesWithGrades.forEach(c => {
+            const credits = parseFloat(c.credits);
+            const grade = parseInt(c.grade);
+            weightedGradeSum += grade * credits;
+            creditsForAvg += credits;
+            if (grade > highest.grade) highest = { grade, name: c.name };
+            if (grade < lowest.grade) lowest = { grade, name: c.name };
+        });
+        const avgGrade = creditsForAvg > 0 ? (weightedGradeSum / creditsForAvg) : 0;
+        avgGradeEl.textContent = avgGrade.toFixed(2);
+        totalCreditsEl.textContent = totalCredits;
+        highestGradeEl.textContent = coursesWithGrades.length > 0 ? `${highest.name} (${highest.grade})` : '-';
+        lowestGradeEl.textContent = coursesWithGrades.length > 0 ? `${lowest.name} (${lowest.grade})` : '-';
+        const requiredCredits = parseFloat(state.userInfo.requiredCredits) || 1;
+        const progress = Math.min(100, (totalCredits / requiredCredits) * 100);
+        degreeProgressBar.style.width = `${progress}%`;
+        degreeProgressText.textContent = `${progress.toFixed(1)}%`;
+        if (progress >= 100) {
+            launchConfetti();
+        }
+    }
 
-        function calculateAndRenderSummary() {
-            const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
-            const numCourses = state.courses.length;
-
-            if (numCourses === 0) {
-                avgGradeEl.textContent = '0.00';
-                totalCreditsEl.textContent = '0';
-                highestGradeEl.textContent = '-';
-                lowestGradeEl.textContent = '-';
-                degreeProgressBar.style.width = '0%';
-                degreeProgressText.textContent = '0%';
-                return;
+    function renderAggregatedAverages(element, groupBy) {
+        element.innerHTML = '';
+        const groups = {};
+        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
+        coursesWithGrades.forEach(c => {
+            const key = c[groupBy];
+            if (!groups[key]) {
+                groups[key] = { weightedSum: 0, credits: 0 };
             }
-
-            let totalCredits = state.courses.reduce((sum, c) => sum + parseFloat(c.credits), 0);
-            let weightedGradeSum = 0;
-            let highest = { grade: -1, name: '' };
-            let lowest = { grade: 101, name: '' };
-            
-            let creditsForAvg = 0;
-
-            coursesWithGrades.forEach(c => {
-                const credits = parseFloat(c.credits);
-                const grade = parseInt(c.grade);
-                weightedGradeSum += grade * credits;
-                creditsForAvg += credits;
-                if (grade > highest.grade) highest = { grade, name: c.name };
-                if (grade < lowest.grade) lowest = { grade, name: c.name };
-            });
-
-            const avgGrade = creditsForAvg > 0 ? (weightedGradeSum / creditsForAvg) : 0;
-            avgGradeEl.textContent = avgGrade.toFixed(2);
-            totalCreditsEl.textContent = totalCredits;
-            highestGradeEl.textContent = coursesWithGrades.length > 0 ? `${highest.name} (${highest.grade})` : '-';
-            lowestGradeEl.textContent = coursesWithGrades.length > 0 ? `${lowest.name} (${lowest.grade})` : '-';
-            
-            const requiredCredits = parseFloat(state.userInfo.requiredCredits) || 1;
-            const progress = Math.min(100, (totalCredits / requiredCredits) * 100);
-            degreeProgressBar.style.width = `${progress}%`;
-            degreeProgressText.textContent = `${progress.toFixed(1)}%`;
-            
-            if (progress >= 100) {
-                launchConfetti();
-            }
+            groups[key].weightedSum += c.grade * c.credits;
+            groups[key].credits += c.credits;
+        });
+        const keys = Object.keys(groups).sort((a,b) => (groupBy === 'semester' ? a-b : a.localeCompare(b, 'he')));
+        if (keys.length === 0) {
+            element.innerHTML = `<p class="text-gray-400">אין נתונים להצגה.</p>`;
+            return;
         }
+        keys.forEach(key => {
+            const avg = (groups[key].weightedSum / groups[key].credits).toFixed(2);
+            const div = document.createElement('div');
+            div.className = 'flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 p-3 rounded-xl transition-all hover:shadow-md';
+            const prefix = groupBy === 'semester' ? 'סמסטר ' : '';
+            div.innerHTML = `
+                <span class="font-semibold text-gray-700 dark:text-gray-300">${prefix}${key}</span>
+                <span class="font-bold badge-primary text-sm">${avg}</span>
+            `;
+            element.appendChild(div);
+        });
+    }
 
-        function renderAggregatedAverages(element, groupBy) {
-            element.innerHTML = '';
-            const groups = {};
-            const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
+    const renderSemesterAverages = () => renderAggregatedAverages(semesterAveragesEl, 'semester');
+    const renderCategoryAverages = () => renderAggregatedAverages(categoryAveragesEl, 'category');
 
-            coursesWithGrades.forEach(c => {
-                const key = c[groupBy];
-                if (!groups[key]) {
-                    groups[key] = { weightedSum: 0, credits: 0 };
-                }
-                groups[key].weightedSum += c.grade * c.credits;
-                groups[key].credits += c.credits;
-            });
+    function renderCharts() {
+        renderMoedChart();
+        renderTrendChart();
+    }
 
-            const keys = Object.keys(groups).sort((a,b) => (groupBy === 'semester' ? a-b : a.localeCompare(b, 'he')));
-            if (keys.length === 0) {
-                element.innerHTML = `<p class="text-gray-400">אין נתונים להצגה.</p>`;
-                return;
-            }
-            
-            keys.forEach(key => {
-                const avg = (groups[key].weightedSum / groups[key].credits).toFixed(2);
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 p-3 rounded-xl transition-all hover:shadow-md';
-                const prefix = groupBy === 'semester' ? 'סמסטר ' : '';
-                div.innerHTML = `
-                    <span class="font-semibold text-gray-700 dark:text-gray-300">${prefix}${key}</span>
-                    <span class="font-bold badge-primary text-sm">${avg}</span>
-                `;
-                element.appendChild(div);
-            });
-        }
-
-        const renderSemesterAverages = () => renderAggregatedAverages(semesterAveragesEl, 'semester');
-        const renderCategoryAverages = () => renderAggregatedAverages(categoryAveragesEl, 'category');
-
-
-        function renderCharts() {
-            renderMoedChart();
-            renderTrendChart();
-        }
-
-        function renderMoedChart() {
-            if (moedChart) moedChart.destroy();
-            let moedA = state.courses.filter(c => !c.isMoedB).length;
-            let moedB = state.courses.filter(c => c.isMoedB).length;
-
-            const ctx = document.getElementById('moed-chart').getContext('2d');
-            const gradient1 = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient1.addColorStop(0, '#3B82F6');
-            gradient1.addColorStop(1, '#8B5CF6');
-
-            const gradient2 = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient2.addColorStop(0, '#EF4444');
-            gradient2.addColorStop(1, '#DC2626');
-
-            moedChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['מועד א\'', 'מועד ב\''],
-                    datasets: [{
-                        data: [moedA, moedB],
-                        backgroundColor: [gradient1, gradient2],
-                        borderWidth: 0,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: state.darkMode ? '#e5e7eb' : '#4b5563', font: chartDefaultFont, padding: 15 } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const value = context.raw;
-                                    const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
-                                    return `${context.label}: ${value} (${percentage}%)`;
-                                }
+    function renderMoedChart() {
+        if (moedChart) moedChart.destroy();
+        let moedA = state.courses.filter(c => !c.isMoedB).length;
+        let moedB = state.courses.filter(c => c.isMoedB).length;
+        const ctx = document.getElementById('moed-chart').getContext('2d');
+        const gradient1 = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient1.addColorStop(0, '#3B82F6');
+        gradient1.addColorStop(1, '#8B5CF6');
+        const gradient2 = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient2.addColorStop(0, '#EF4444');
+        gradient2.addColorStop(1, '#DC2626');
+        moedChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['מועד א\'', 'מועד ב\''],
+                datasets: [{ data: [moedA, moedB], backgroundColor: [gradient1, gradient2], borderWidth: 0 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: state.darkMode ? '#e5e7eb' : '#4b5563', font: chartDefaultFont, padding: 15 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const value = context.raw;
+                                const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
+                                return `${context.label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
-            });
-        }
-        
-        function renderTrendChart() {
-            if (trendChart) trendChart.destroy();
-            const semesters = {};
-            const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
-            coursesWithGrades.forEach(c => {
-                if (!semesters[c.semester]) semesters[c.semester] = { weightedSum: 0, credits: 0 };
-                semesters[c.semester].weightedSum += c.grade * c.credits;
-                semesters[c.semester].credits += c.credits;
-            });
-            const labels = Object.keys(semesters).sort((a,b) => a-b);
-            const data = labels.map(key => (semesters[key].weightedSum / semesters[key].credits));
-
-            const ctx = document.getElementById('trend-chart').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
-
-            trendChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels.map(l => `סמסטר ${l}`),
-                    datasets: [{
-                        label: 'ממוצע סמסטריאלי',
-                        data: data,
-                        borderColor: '#3B82F6',
-                        backgroundColor: gradient,
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: '#3B82F6',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        y: { 
-                            beginAtZero: false, 
-                            ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' },
-                            grid: { color: state.darkMode ? '#374151' : '#e5e7eb' }
-                        },
-                        x: { 
-                            ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' },
-                            grid: { display: false }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-        
-        function updateHeader() {
-            headerSubtitle.textContent = state.userInfo.name ? `ברוך הבא, ${state.userInfo.name}!` : `ברוך הבא!`;
-            if (state.userInfo.major) {
-                headerTitle.textContent = `מעקב אקדמי: ${state.userInfo.major}`;
             }
+        });
+    }
+    
+    function renderTrendChart() {
+        if (trendChart) trendChart.destroy();
+        const semesters = {};
+        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
+        coursesWithGrades.forEach(c => {
+            if (!semesters[c.semester]) semesters[c.semester] = { weightedSum: 0, credits: 0 };
+            semesters[c.semester].weightedSum += c.grade * c.credits;
+            semesters[c.semester].credits += c.credits;
+        });
+        const labels = Object.keys(semesters).sort((a,b) => a-b);
+        const data = labels.map(key => (semesters[key].weightedSum / semesters[key].credits));
+        const ctx = document.getElementById('trend-chart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+        gradient.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.map(l => `סמסטר ${l}`),
+                datasets: [{
+                    label: 'ממוצע סמסטריאלי',
+                    data: data,
+                    borderColor: '#3B82F6',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: false, ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' }, grid: { color: state.darkMode ? '#374151' : '#e5e7eb' } },
+                    x: { ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' }, grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+    
+    function updateHeader() {
+        headerSubtitle.textContent = state.userInfo.name ? `ברוך הבא, ${state.userInfo.name}!` : `ברוך הבא!`;
+        if (state.userInfo.major) {
+            headerTitle.textContent = `מעקב אקדמי: ${state.userInfo.major}`;
         }
+    }
 
-        // --- EVENT HANDLERS ---
+    function getFilteredAndSortedCourses() {
+        let courses = [...state.courses];
+        if (state.viewState.searchTerm) {
+            courses = courses.filter(c => c.name.toLowerCase().includes(state.viewState.searchTerm.toLowerCase()));
+        }
+        if (state.viewState.filterSemester !== 'all') {
+            courses = courses.filter(c => c.semester == state.viewState.filterSemester);
+        }
+        if (state.viewState.filterCategory !== 'all') {
+            courses = courses.filter(c => c.category === state.viewState.filterCategory);
+        }
+        courses.sort((a, b) => {
+            const aVal = a[state.viewState.sortBy];
+            const bVal = b[state.viewState.sortBy];
+            let comparison = 0;
+            if (typeof aVal === 'string') {
+                comparison = aVal.localeCompare(bVal, 'he');
+            } else {
+                comparison = (aVal || 0) - (bVal || 0);
+            }
+            return state.viewState.sortOrder === 'asc' ? comparison : -comparison;
+        });
+        return courses;
+    }
+
+    function populateFilterOptions() {
+        const semesters = [...new Set(state.courses.map(c => c.semester))].sort((a,b) => a-b);
+        filterSemesterEl.innerHTML = '<option value="all">כל הסמסטרים</option>';
+        semesters.forEach(s => {
+            const option = new Option(`סמסטר ${s}`, s);
+            filterSemesterEl.add(option);
+        });
+        filterSemesterEl.value = state.viewState.filterSemester;
+        filterCategoryEl.innerHTML = '<option value="all">כל הקטגוריות</option>';
+        state.userInfo.categories.forEach(c => {
+             const option = new Option(c, c);
+             filterCategoryEl.add(option);
+        });
+        filterCategoryEl.value = state.viewState.filterCategory;
+    }
+
+    function addWhatIfCourseRow() {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-2 gap-2 what-if-row';
+        row.innerHTML = `
+            <input type="number" placeholder="ציון (0-100)" class="what-if-grade w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+            <input type="number" step="0.5" placeholder='נ"ז' class="what-if-credits w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+        `;
+        whatIfCoursesContainer.appendChild(row);
+    }
+    
+    function calculateWhatIf() {
+        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
+        let currentWeightedSum = coursesWithGrades.reduce((sum, c) => sum + (c.grade * c.credits), 0);
+        let currentCreditsForAvg = coursesWithGrades.reduce((sum, c) => sum + c.credits, 0);
+        let whatIfWeightedSum = 0;
+        let whatIfCredits = 0;
+        document.querySelectorAll('.what-if-row').forEach(row => {
+            const grade = parseFloat(row.querySelector('.what-if-grade').value);
+            const credits = parseFloat(row.querySelector('.what-if-credits').value);
+            if (!isNaN(grade) && !isNaN(credits) && grade >= 0 && grade <= 100 && credits > 0) {
+                whatIfWeightedSum += grade * credits;
+                whatIfCredits += credits;
+            }
+        });
+        const totalWeightedSum = currentWeightedSum + whatIfWeightedSum;
+        const totalCreditsForAvg = currentCreditsForAvg + whatIfCredits;
+        const newAvg = totalCreditsForAvg > 0 ? (totalWeightedSum / totalCreditsForAvg) : 0;
+        whatIfResultEl.textContent = newAvg.toFixed(2);
+        whatIfCreditsInfoEl.textContent = `סה"כ ${totalCreditsForAvg} נ"ז בחישוב`;
+    }
+    
+    function resetAndCalculateWhatIf() {
+        whatIfCoursesContainer.innerHTML = '';
+        addWhatIfCourseRow();
+        calculateWhatIf();
+    }
+
+    function launchConfetti() {
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    }
+
+    function populateCategoryDropdowns() {
+        courseCategoryInput.innerHTML = '';
+        state.userInfo.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            courseCategoryInput.appendChild(option);
+        });
+    }
+    
+    function applyDarkMode() {
+        // שמירת העדפה ב-localStorage (זה בסדר, זה לא "דאטה")
+        localStorage.setItem('theme', state.darkMode ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', state.darkMode);
+    }
+
+    // --- === INITIALIZATION (משוכתב) === ---
+    
+    /**
+     * פונקציית האתחול הראשית.
+     * היא נקראת רק *אחרי* שה-DOM נטען ו-Firebase זיהה משתמש מחובר.
+     */
+    async function initApp() {
         
+        // --- תיקון: איתחול משתני DOM ---
+        loadingContainer = document.getElementById('loading-container');
+        appContainer = document.getElementById('app-container');
+        courseForm = document.getElementById('course-form');
+        courseListEl = document.getElementById('course-list');
+        formTitle = document.getElementById('form-title');
+        submitBtn = document.getElementById('submit-btn');
+        cancelEditBtn = document.getElementById('cancel-edit-btn');
+        courseNameInput = document.getElementById('courseName');
+        creditsInput = document.getElementById('credits');
+        gradeInput = document.getElementById('grade');
+        semesterInput = document.getElementById('semester');
+        isMoedBInput = document.getElementById('isMoedB');
+        isPassFailInput = document.getElementById('isPassFail');
+        courseCategoryInput = document.getElementById('courseCategory');
+        avgGradeEl = document.getElementById('avg-grade');
+        totalCreditsEl = document.getElementById('total-credits');
+        highestGradeEl = document.getElementById('highest-grade');
+        lowestGradeEl = document.getElementById('lowest-grade');
+        degreeProgressText = document.getElementById('degree-progress-text');
+        degreeProgressBar = document.getElementById('degree-progress-bar');
+        semesterAveragesEl = document.getElementById('semester-averages');
+        categoryAveragesEl = document.getElementById('category-averages');
+        settingsModal = document.getElementById('settings-modal');
+        settingsForm = document.getElementById('settings-form');
+        userNameInput = document.getElementById('userName');
+        institutionInput = document.getElementById('institution');
+        majorInput = document.getElementById('major');
+        requiredCreditsInput = document.getElementById('requiredCredits');
+        userCategoriesInput = document.getElementById('userCategories');
+        headerTitle = document.getElementById('header-title');
+        headerSubtitle = document.getElementById('header-subtitle');
+        confirmModal = document.getElementById('confirm-modal');
+        whatIfModal = document.getElementById('what-if-modal');
+        whatIfCoursesContainer = document.getElementById('what-if-courses');
+        whatIfResultEl = document.getElementById('what-if-result');
+        whatIfCreditsInfoEl = document.getElementById('what-if-credits-info');
+        searchInput = document.getElementById('search-input');
+        filterSemesterEl = document.getElementById('filter-semester');
+        filterCategoryEl = document.getElementById('filter-category');
+        csvFileInput = document.getElementById('csv-file-input');
+        darkModeToggle = document.getElementById('dark-mode-toggle');
+        // ------------------------------------
+
+        // 1. הסתרת טוען והצגת אפליקציה
+        loadingContainer.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+
+        // 2. טעינת העדפת Dark Mode
+        state.darkMode = localStorage.getItem('theme') === 'dark';
+        applyDarkMode();
+
+        // 3. טעינת הנתונים מהענן (פעולה אסינכרונית)
+        await loadState();
+
+        // 4. אכלוס ה-DOM עם הנתונים שנטענו
+        userNameInput.value = state.userInfo.name;
+        institutionInput.value = state.userInfo.institution;
+        majorInput.value = state.userInfo.major;
+        requiredCreditsInput.value = state.userInfo.requiredCredits;
+        userCategoriesInput.value = state.userInfo.categories.join(', ');
+        
+        // 5. אתחול שאר האפליקציה וחיבור האזנות
+        populateCategoryDropdowns();
+        updateDashboard(); // זה יפעיל את כל פונקציות הרנדור
+        lucide.createIcons();
+
+        // --- 6. חיבור האזנות (Listeners) ---
         isPassFailInput.addEventListener('change', (e) => {
             if (e.target.checked) {
                 gradeInput.disabled = true;
@@ -1134,14 +908,11 @@
             const semester = parseInt(semesterInput.value);
             const isMoedB = isMoedBInput.checked;
             const category = courseCategoryInput.value;
-
             if (!name || isNaN(credits) || credits < 0 || isNaN(semester) || semester < 1 || (!isPassFail && (isNaN(grade) || grade < 0 || grade > 100))) {
                 alert('נא למלא את כל השדות בערכים חוקיים.');
                 return;
             }
-
             const courseData = { name, credits, grade, semester, isMoedB, category, isPassFail };
-
             if (state.editMode.active) {
                 const index = state.courses.findIndex(c => c.id === state.editMode.courseId);
                 if (index > -1) {
@@ -1151,25 +922,22 @@
             } else {
                 state.courses.push({ id: Date.now(), ...courseData });
             }
-            
             courseForm.reset();
             gradeInput.disabled = false;
             gradeInput.style.opacity = '1';
-            updateDashboard();
+            updateDashboard(); 
         });
 
         courseListEl.addEventListener('click', (e) => {
             const target = e.target.closest('button');
             if (!target) return;
-            
             const id = parseInt(target.dataset.id);
-
             if (target.classList.contains('delete-btn')) {
                 state.courses = state.courses.filter(c => c.id !== id);
                 if (state.editMode.active && state.editMode.courseId === id) {
                     exitEditMode();
                 }
-                updateDashboard();
+                updateDashboard(); 
             } else if (target.classList.contains('edit-btn')) {
                 enterEditMode(id);
             }
@@ -1179,7 +947,6 @@
             const course = state.courses.find(c => c.id === id);
             if (!course) return;
             state.editMode = { active: true, courseId: id };
-            
             courseNameInput.value = course.name;
             creditsInput.value = course.credits;
             isPassFailInput.checked = course.isPassFail;
@@ -1189,11 +956,10 @@
             semesterInput.value = course.semester;
             isMoedBInput.checked = course.isMoedB;
             courseCategoryInput.value = course.category;
-            
             formTitle.textContent = 'עריכת קורס';
             submitBtn.textContent = 'שמור שינויים';
             cancelEditBtn.classList.remove('hidden');
-            document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+            formContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
         function exitEditMode() {
@@ -1208,7 +974,7 @@
 
         cancelEditBtn.addEventListener('click', exitEditMode);
         
-        // --- Modal Handlers ---
+        // Modal Handlers
         document.getElementById('settings-btn').addEventListener('click', () => settingsModal.classList.remove('hidden'));
         document.getElementById('close-settings-btn').addEventListener('click', () => settingsModal.classList.add('hidden'));
         settingsModal.addEventListener('click', (e) => {
@@ -1226,7 +992,7 @@
             };
             settingsModal.classList.add('hidden');
             populateCategoryDropdowns();
-            updateDashboard();
+            updateDashboard(); 
         });
         
         document.getElementById('clear-data-btn').addEventListener('click', () => confirmModal.classList.remove('hidden'));
@@ -1235,23 +1001,28 @@
             if (e.target === confirmModal) confirmModal.classList.add('hidden');
         });
         
-        document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
             state.courses = [];
             state.userInfo = { name: '', institution: '', major: '', requiredCredits: 120, categories: ['חובה', 'בחירה', 'כללי', 'ספורט'] };
-            state.viewState = { searchTerm: '', filterSemester: 'all', filterCategory: 'all', sortBy: 'semester', sortOrder: 'asc' };
+            state.viewState = { searchTerm: '', filterSemester: 'all', filterCategory: 'all', sortBy: 'semester', 'sortOrder': 'asc' };
 
+            if (academicDataRef) {
+                try {
+                    await academicDataRef.delete();
+                } catch (error) {
+                    console.error("Error deleting document: ", error);
+                    alert("שגיאה במחיקת הנתונים מהענן.");
+                }
+            }
             confirmModal.classList.add('hidden');
             settingsModal.classList.add('hidden');
-            
             exitEditMode();
-
             userNameInput.value = '';
             institutionInput.value = '';
             majorInput.value = '';
             requiredCreditsInput.value = state.userInfo.requiredCredits;
             userCategoriesInput.value = state.userInfo.categories.join(', ');
-
-            updateDashboard();
+            updateDashboard(); 
         });
 
         // What-If Modal
@@ -1263,50 +1034,32 @@
         whatIfModal.addEventListener('click', e => {
             if (e.target === whatIfModal) whatIfModal.classList.add('hidden');
         });
-        document.getElementById('add-what-if-course-btn').addEventListener('click', () => {
-            addWhatIfCourseRow();
-        });
-        whatIfCoursesContainer.addEventListener('input', () => calculateWhatIf());
-
-        // Info Modal
-        document.getElementById('info-btn').addEventListener('click', () => infoModal.classList.remove('hidden'));
-        document.getElementById('close-info-btn').addEventListener('click', () => infoModal.classList.add('hidden'));
-        infoModal.addEventListener('click', e => {
-            if (e.target === infoModal) infoModal.classList.add('hidden');
-        });
+        document.getElementById('add-what-if-course-btn').addEventListener('click', addWhatIfCourseRow);
+        whatIfCoursesContainer.addEventListener('input', calculateWhatIf);
 
         // Dark Mode
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
         darkModeToggle.addEventListener('click', () => {
             state.darkMode = !state.darkMode;
             applyDarkMode();
-            updateDashboard();
+            renderCharts(); // עדכון הגרפים למצב כהה
         });
 
-        function applyDarkMode() {
-            document.documentElement.classList.toggle('dark', state.darkMode);
-        }
-
-        // --- CSV Import / Export Logic ---
+        // CSV Import / Export Logic
         document.getElementById('import-csv-btn').addEventListener('click', () => {
             csvFileInput.click();
         });
-
         csvFileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n').filter(line => line.trim() !== '').slice(1);
                     const newCourses = [];
-
                     lines.forEach((line, index) => {
                         const columns = line.split(',');
                         if (columns.length < 7) return; 
-
                         const name = columns[0].trim().replace(/"/g, '');
                         const category = columns[1].trim();
                         const credits = parseFloat(columns[2]);
@@ -1314,9 +1067,7 @@
                         const semester = parseInt(columns[4]);
                         const isMoedB = columns[5].trim() === 'כן';
                         const isPassFail = columns[6].trim() === 'כן';
-
                         const grade = isPassFail ? null : parseInt(gradeStr);
-
                         if (name && category && !isNaN(credits) && !isNaN(semester)) {
                              newCourses.push({
                                 id: Date.now() + index,
@@ -1324,10 +1075,9 @@
                             });
                         }
                     });
-                    
                     if (confirm(`האם אתה בטוח שברצונך להחליף את כל הנתונים הקיימים ב-${newCourses.length} קורסים מהקובץ?`)) {
                         state.courses = newCourses;
-                        updateDashboard();
+                        updateDashboard(); // <-- זה ישמור אוטומטית ב-Firestore
                         alert(`ייבוא הושלם בהצלחה!`);
                     }
                 } catch (error) {
@@ -1339,8 +1089,6 @@
             };
             reader.readAsText(file, 'UTF-8');
         });
-
-
         document.getElementById('export-csv-btn').addEventListener('click', () => {
             if (state.courses.length === 0) {
                 alert('אין נתונים לייצוא.');
@@ -1348,9 +1096,7 @@
             }
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "שם הקורס,קטגוריה,נקודות זכות,ציון,סמסטר,מועד ב',בינארי\r\n";
-            
             const sortedCourses = getFilteredAndSortedCourses();
-
             sortedCourses.forEach(course => {
                 const row = [
                     `"${course.name.replace(/"/g, '""')}"`,
@@ -1363,7 +1109,6 @@
                 ].join(',');
                 csvContent += row + "\r\n";
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1373,37 +1118,7 @@
             document.body.removeChild(link);
         });
 
-        // --- Filtering and Sorting ---
-        function getFilteredAndSortedCourses() {
-            let courses = [...state.courses];
-
-            if (state.viewState.searchTerm) {
-                courses = courses.filter(c => c.name.toLowerCase().includes(state.viewState.searchTerm.toLowerCase()));
-            }
-            if (state.viewState.filterSemester !== 'all') {
-                courses = courses.filter(c => c.semester == state.viewState.filterSemester);
-            }
-            if (state.viewState.filterCategory !== 'all') {
-                courses = courses.filter(c => c.category === state.viewState.filterCategory);
-            }
-
-            courses.sort((a, b) => {
-                const aVal = a[state.viewState.sortBy];
-                const bVal = b[state.viewState.sortBy];
-                
-                let comparison = 0;
-                if (typeof aVal === 'string') {
-                    comparison = aVal.localeCompare(bVal, 'he');
-                } else {
-                    comparison = (aVal || 0) - (bVal || 0);
-                }
-
-                return state.viewState.sortOrder === 'asc' ? comparison : -comparison;
-            });
-
-            return courses;
-        }
-
+        // Filtering and Sorting
         searchInput.addEventListener('input', (e) => {
             state.viewState.searchTerm = e.target.value;
             renderTable();
@@ -1428,102 +1143,8 @@
                 renderTable();
             });
         });
-
-        function populateFilterOptions() {
-            const semesters = [...new Set(state.courses.map(c => c.semester))].sort((a,b) => a-b);
-            filterSemesterEl.innerHTML = '<option value="all">כל הסמסטרים</option>';
-            semesters.forEach(s => {
-                const option = new Option(`סמסטר ${s}`, s);
-                filterSemesterEl.add(option);
-            });
-            filterSemesterEl.value = state.viewState.filterSemester;
-
-            filterCategoryEl.innerHTML = '<option value="all">כל הקטגוריות</option>';
-            state.userInfo.categories.forEach(c => {
-                 const option = new Option(c, c);
-                 filterCategoryEl.add(option);
-            });
-            filterCategoryEl.value = state.viewState.filterCategory;
-        }
-
-
-        // --- What-If Calculator Logic ---
-        function addWhatIfCourseRow() {
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-2 gap-2 what-if-row';
-            row.innerHTML = `
-                <input type="number" placeholder="ציון (0-100)" class="what-if-grade w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
-                <input type="number" step="0.5" placeholder='נ"ז' class="what-if-credits w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
-            `;
-            whatIfCoursesContainer.appendChild(row);
-        }
-
-        function calculateWhatIf() {
-            const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
-            let currentWeightedSum = coursesWithGrades.reduce((sum, c) => sum + (c.grade * c.credits), 0);
-            let currentCreditsForAvg = coursesWithGrades.reduce((sum, c) => sum + c.credits, 0);
-
-            let whatIfWeightedSum = 0;
-            let whatIfCredits = 0;
-
-            document.querySelectorAll('.what-if-row').forEach(row => {
-                const grade = parseFloat(row.querySelector('.what-if-grade').value);
-                const credits = parseFloat(row.querySelector('.what-if-credits').value);
-                if (!isNaN(grade) && !isNaN(credits) && grade >= 0 && grade <= 100 && credits > 0) {
-                    whatIfWeightedSum += grade * credits;
-                    whatIfCredits += credits;
-                }
-            });
-
-            const totalWeightedSum = currentWeightedSum + whatIfWeightedSum;
-            const totalCreditsForAvg = currentCreditsForAvg + whatIfCredits;
-
-            const newAvg = totalCreditsForAvg > 0 ? (totalWeightedSum / totalCreditsForAvg) : 0;
-            
-            whatIfResultEl.textContent = newAvg.toFixed(2);
-            whatIfCreditsInfoEl.textContent = `סה"כ ${totalCreditsForAvg} נ"ז בחישוב`;
-        }
-        
-        function resetAndCalculateWhatIf() {
-            whatIfCoursesContainer.innerHTML = '';
-            addWhatIfCourseRow();
-            calculateWhatIf();
-        }
-
-        // --- UTILS ---
-        function launchConfetti() {
-            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
-        }
-
-        function populateCategoryDropdowns() {
-            courseCategoryInput.innerHTML = '';
-            state.userInfo.categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                courseCategoryInput.appendChild(option);
-            });
-        }
-
-        // --- INITIALIZATION ---
-        function init() {
-            loadState();
-            applyDarkMode();
-            userNameInput.value = state.userInfo.name;
-            institutionInput.value = state.userInfo.institution;
-            majorInput.value = state.userInfo.major;
-            requiredCreditsInput.value = state.userInfo.requiredCredits;
-            userCategoriesInput.value = state.userInfo.categories.join(', ');
-            
-            populateCategoryDropdowns();
-            updateDashboard();
-            lucide.createIcons();
-        }
-
-        init();
-    });
+    }
+    
     </script>
 </body>
-
 </html>
-
