@@ -19,6 +19,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibjPKMVLJzT5lenBabssZ19uptoinlineeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -109,7 +111,6 @@
         .badge { display: inline-block; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .badge.new { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
 
-        /* --- הוספת סגנונות לאקורדיון סמסטרים --- */
         .semester-accordion-header {
             display: flex;
             justify-content: space-between;
@@ -141,7 +142,7 @@
             background: var(--bg-dark);
         }
         .semester-accordion-content.open {
-            max-height: 500px; /* ערך גבוה שרירותי */
+            max-height: 500px;
             padding: 0.75rem;
             border-top: 1px solid var(--border-light);
         }
@@ -156,37 +157,18 @@
         .semester-accordion-header.open .icon-toggle {
             transform: rotate(180deg);
         }
-        /* ------------------------------------- */
         
-        /* סגנון הדפסה משופר (זהה) */
-        #print-report { display: none; font-family: 'Heebo', sans-serif !important; }
+        /* הסתרת תבנית ה-PDF מהתצוגה הרגילה */
+        #pdf-render-target-wrapper {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: -100;
+        }
+
+        /* אין צורך יותר בסגנונות הדפסה ישנים */
         @media print {
-            body { background: white !important; color: black !important; }
-            .sidebar, #mobile-menu-toggle, header.mb-8, .no-print { display: none !important; }
-            main { padding: 10mm !important; width: 100% !important; }
-            #print-report { display: block !important; }
-            #print-header { display: flex !important; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eee; }
-            #print-header img { width: 70px; height: 70px; }
-            #print-header h1 { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 700; color: var(--primary); margin: 0; }
-            #print-header h2 { font-family: 'Rubik', sans-serif; font-size: 22px; font-weight: 700; color: #111827; margin-top: 1.5rem; }
-            #print-header p { font-family: 'Heebo', sans-serif; font-size: 14px; margin-top: 0.5rem; color: #6B7280; }
-            .print-card { border: 1px solid var(--border-light) !important; border-radius: var(--radius-lg) !important; padding: 1.5rem !important; page-break-inside: avoid !important; background: white !important; }
-            .print-card h3 { font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem; }
-            .print-grid-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1.5rem !important; margin-top: 1.5rem !important; }
-            .print-span-2 { grid-column: span 2 / span 2 !important; }
-            .print-stat-value { font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 2.5rem; color: var(--primary-dark); line-height: 1; }
-            .print-stat-label { font-size: 1rem; color: var(--text-secondary-light); margin-top: 0.25rem; }
-            .print-progress-bar-container { width: 100%; height: 1.5rem; background: var(--border-light) !important; border-radius: 9999px; overflow: hidden; position: relative; }
-            .print-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)) !important; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 700; }
-            .print-list { list-style-type: none; padding: 0; margin: 0; }
-            .print-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-light); }
-            .print-list li:last-child { border-bottom: none; }
-            .print-list li .course-name { font-weight: 500; color: var(--text-primary-light); }
-            .print-list li .course-grade { font-weight: 700; color: var(--primary-dark); }
-            .print-list li .course-grade-low { color: var(--danger); }
-            .chart-print-container { height: 300px; width: 100%; }
-            .stat-number, .dark .stat-number, .dark .text-gray-200, .dark .text-gray-400, .text-gray-800, .text-gray-600, .text-gray-500, .text-gray-700, .text-green-500 { color: black !important; -webkit-text-fill-color: black !important; background: none !important; }
-            .badge { background: #eee !important; color: black !important; border: 1px solid #ccc; }
+            body, .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -372,7 +354,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400">ציון נמוך</p>
                             <p class="font-bold text-lg text-red-500 dark:text-red-400 truncate" id="lowest-grade-stat">-</p>
                         </div>
-                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
@@ -404,6 +386,7 @@
                             <p class="text-gray-400">טוען נתונים...</p>
                         </div>
                     </div>
+
                     <div class="dashboard-card no-print lg:col-span-1">
                         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
                             <i data-lucide="zap" class="inline w-5 h-5 ml-2"></i>
@@ -414,9 +397,9 @@
                                 <i data-lucide="plus-square" class="w-5 h-5"></i>
                                 <span>הגדר נתוני סמסטר נוכחי</span>
                             </button>
-                            <button id="print-report-btn" class="action-button success">
-                                <i data-lucide="printer" class="w-5 h-5"></i>
-                                <span>הדפס דוח התקדמות</span>
+                            <button id="download-pdf-btn" class="action-button success">
+                                <i data-lucide="file-down" class="w-5 h-5"></i>
+                                <span>הורד דוח PDF</span>
                             </button>
                             <button id="what-if-btn" class="action-button secondary">
                                 <i data-lucide="calculator" class="w-5 h-5"></i>
@@ -454,73 +437,14 @@
                             <canvas id="moed-chart-dashboard"></canvas>
                         </div>
                     </div>
-                    </div>
+                </div>
 
             </main>
         </div>
     </div>
     
-    <div id="print-report" class="hidden">
-        <div id="print-header">
-            <div>
-                <h1 style="font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 700; color: #3B82F6;">Circademic</h1>
-                <h2 style="font-family: 'Rubik', sans-serif; font-size: 22px; font-weight: 700; color: #111827; margin-top: 1rem;">
-                    דוח התקדמות אקדמי
-                </h2>
-                <p id="print-student-name" style="font-family: 'Heebo', sans-serif; font-size: 14px; margin-top: 0.5rem; color: #6B7280;">
-                    טוען נתוני סטודנט...
-                </p>
-            </div>
-            <img src="LOGO.png" alt="Logo" style="width: 70px; height: 70px;">
+    <div id="pdf-render-target-wrapper" style="position: absolute; left: -9999px; top: 0; z-index: -100;">
         </div>
-        <div class="print-grid-container">
-            <div class="print-card">
-                <h3>ממוצע משוקלל</h3>
-                <p class="print-stat-value" id="print-avg-grade">0.00</p>
-                <p class="print-stat-label">מבוסס על קורסים עם ציון</p>
-            </div>
-            <div class="print-card">
-                <h3>סה"כ נקודות זכות</h3>
-                <p class="print-stat-value">
-                    <span id="print-total-credits">0</span> / <span id="print-required-credits">120</span>
-                </p>
-                <p class="print-stat-label">נ"ז שהושלמו מתוך סך הנ"ז לתואר</p>
-            </div>
-            <div class="print-card print-span-2">
-                <h3>התקדמות בתואר</h3>
-                <div class="print-progress-bar-container">
-                    <div id="print-progress-bar" class="print-progress-bar" style="width: 0%;">
-                        <span id="print-progress-percent">0%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="print-card">
-                <h3>ציוני קיצון</h3>
-                <ul class="print-list">
-                    <li>
-                        <span class="course-name">ציון גבוה</span>
-                        <span id="print-highest-grade" class="course-grade" style="color: var(--success-dark);">-</span>
-                    </li>
-                    <li>
-                        <span class="course-name">ציון נמוך</span>
-                        <span id="print-lowest-grade" class="course-grade" style="color: var(--danger);">-</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="print-card">
-                <h3>ממוצעים סמסטריאליים</h3>
-                <ul id="print-semester-averages" class="print-list" style="max-height: 150px; overflow-y: auto;">
-                    <li>אין נתונים</li>
-                </ul>
-            </div>
-        </div>
-        <div class="print-card" style="margin-top: 1.5rem;">
-            <h3>מגמת ציונים</h3>
-            <div class="chart-print-container">
-                <canvas id="print-grade-trend-chart"></canvas>
-            </div>
-        </div>
-    </div>
     
     <div id="active-courses-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50">
         <div class="modal-container p-6 max-w-lg w-full">
@@ -559,7 +483,60 @@
         </div>
     </div>
 
-    <div id="settings-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50"> <div class="modal-container p-8 max-w-md w-full"> <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">הגדרות פרופיל</h2> <form id="settings-form" class="space-y-4"> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label> <input type="text" id="settings-name" class="input-field w-full"> </div> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label> <input type="text" id="settings-institution" class="input-field w-full"> </div> <div> <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label> <input type="text" id="settings-major" class="input-field w-full"> </div> <div class="flex gap-4 pt-4"> <button type="submit" class="btn-primary flex-1">שמור שינויים</button> <button type="button" id="close-settings" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">ביטול</button> </div> </form> </div> </div>
+    <div id="settings-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center p-4 z-50">
+        <div class="modal-container p-8 max-w-lg w-full m-4 transform transition-all overflow-y-auto max-h-[90vh]">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">הגדרות חשבון ופרופיל</h2>
+            <form id="settings-form" class="space-y-4">
+                <div>
+                    <label for="settings-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label>
+                    <input type="text" id="settings-name" class="input-field w-full">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="settings-institution" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label>
+                        <input type="text" id="settings-institution" class="input-field w-full">
+                    </div>
+                    <div>
+                        <label for="settings-major" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label>
+                        <input type="text" id="settings-major" class="input-field w-full">
+                    </div>
+                </div>
+                <div>
+                    <label for="settings-required-credits" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">סה"כ נ"ז לתואר</label>
+                    <input type="number" id="settings-required-credits" min="1" placeholder="120" class="input-field w-full">
+                </div>
+                <div>
+                    <label for="settings-categories" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">קטגוריות קורסים (מופרד בפסיק)</label>
+                    <input type="text" id="settings-categories" placeholder="חובה, בחירה, כללי, ספורט" class="input-field w-full">
+                </div>
+                
+                <hr class="my-4 border-gray-200 dark:border-gray-700">
+
+                <div class="flex flex-col md:flex-row gap-4 pt-4">
+                    <button type="submit" class="btn-primary flex-1 order-1 md:order-1">שמור שינויים</button>
+                    <button type="button" id="close-settings" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all order-3 md:order-2">ביטול</button>
+                    <button type="button" id="clear-data-btn" class="flex-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-all font-semibold order-2 md:order-3">
+                        <i data-lucide="trash-2" class="w-4 h-4 inline ml-1"></i>
+                        מחק נתוני קורסים
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-container p-6 w-full max-w-sm text-center">
+            <i data-lucide="alert-triangle" class="mx-auto h-12 w-12 text-red-500"></i>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-200 mt-4">אישור מחיקה</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                פעולה זו תמחק **רק** את רשימת הקורסים והציונים שלך. הגדרות החשבון והפרופיל שלך (כמו שם, מוסד, וכו') **יישמרו**. האם להמשיך?
+            </p>
+            <div class="mt-6 flex justify-center gap-4">
+                <button id="confirm-delete-btn" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold transition-all">כן, מחק קורסים</button>
+                <button id="cancel-delete-btn" class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 font-semibold transition-all">ביטול</button>
+            </div>
+        </div>
+    </div>
     
     <div id="what-if-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
         <div class="modal-container p-8 w-full max-w-lg m-4 transform transition-all overflow-y-auto max-h-[90vh]">
@@ -574,7 +551,7 @@
                 <div>
                     <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">הוסף קורסים עתידיים</h3>
                     <div id="what-if-courses" class="space-y-2 max-h-32 overflow-y-auto pr-2">
-                        </div>
+                    </div>
                     <button id="add-what-if-course-btn" class="w-full text-sm bg-gray-200 dark:bg-gray-700 p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-semibold mt-2">
                         <i data-lucide="plus" class="inline w-4 h-4"></i> הוסף קורס עתידי
                     </button>
@@ -585,13 +562,13 @@
                     <div class="flex gap-2">
                         <select id="what-if-existing-course-select" class="input-field flex-1">
                             <option value="">בחר קורס לשיפור...</option>
-                            </select>
+                        </select>
                         <button id="add-what-if-improvement-btn" class="btn-primary p-2.5">
                             <i data-lucide="plus"></i>
                         </button>
                     </div>
                     <div id="what-if-improvements-list" class="space-y-2 mt-3 max-h-32 overflow-y-auto pr-2">
-                        </div>
+                    </div>
                 </div>
 
                 <hr class="my-4 border-gray-200 dark:border-gray-700">
@@ -647,7 +624,8 @@
 
 
     <script>
-        // ... (הגדרות Firebase) ...
+        const { jsPDF } = window.jspdf;
+
         const firebaseConfig = {
             apiKey: "AIzaSyDj1V85FXrcZ8Tg1kezkTsO50bgMOLcnPk",
             authDomain: "circademic-582dc.firebaseapp.com",
@@ -665,14 +643,15 @@
         let userData = null;
         let academicData = null;
         let liveGradeChart = null;
-        let printGradeChart = null;
-        
-        // --- הוספת משתנים גלובליים לגרפים ופונט ---
         let moedChartDashboard = null;
         const chartDefaultFont = { family: "'Heebo', sans-serif", size: 12 };
 
         let loadingScreen, app, darkModeToggle, sidebar, mobileMenuToggle, mobileOverlay;
-        let settingsModal, profileSettingsBtn, closeSettingsBtn, settingsForm;
+        
+        let settingsModal, profileSettingsBtn, closeSettingsBtn, settingsForm,
+            settingsNameInput, settingsInstitutionInput, settingsMajorInput,
+            settingsRequiredCreditsInput, settingsCategoriesInput,
+            clearDataBtn, confirmModal, confirmDeleteBtn, cancelDeleteBtn;
         
         let whatIfModal, closeWhatIfBtn, whatIfCoursesContainer, whatIfResultEl, 
             whatIfCreditsInfoEl, addWhatIfCourseBtn, whatIfExistingCourseSelect,
@@ -687,6 +666,8 @@
         let shieldCalculatorBtn, shieldCalculatorModal, closeShieldCalculatorBtn,
             shieldCalculatorForm, shieldGradeInput, shieldPercentageInput, examGradeInput,
             finalGradeResult, neededExamGrade;
+        
+        let downloadPdfBtn;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -699,10 +680,21 @@
                 sidebar = document.getElementById('sidebar');
                 mobileMenuToggle = document.getElementById('mobile-menu-toggle');
                 mobileOverlay = document.getElementById('mobile-overlay');
+                
                 settingsModal = document.getElementById('settings-modal');
                 profileSettingsBtn = document.getElementById('profile-settings');
                 closeSettingsBtn = document.getElementById('close-settings');
                 settingsForm = document.getElementById('settings-form');
+                settingsNameInput = document.getElementById('settings-name');
+                settingsInstitutionInput = document.getElementById('settings-institution');
+                settingsMajorInput = document.getElementById('settings-major');
+                settingsRequiredCreditsInput = document.getElementById('settings-required-credits');
+                settingsCategoriesInput = document.getElementById('settings-categories');
+                
+                clearDataBtn = document.getElementById('clear-data-btn');
+                confirmModal = document.getElementById('confirm-modal');
+                confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+                cancelDeleteBtn = document.getElementById('cancel-delete-btn');
                 
                 whatIfModal = document.getElementById('what-if-modal');
                 closeWhatIfBtn = document.getElementById('close-what-if-btn');
@@ -739,6 +731,8 @@
                 finalGradeResult = document.getElementById('final-grade-result');
                 neededExamGrade = document.getElementById('needed-exam-grade');
                 
+                downloadPdfBtn = document.getElementById('download-pdf-btn');
+                
                 await loadUserData();
                 await loadAcademicData();
                 updateUserProfile();
@@ -763,6 +757,9 @@
                     }
                     academicData.userInfo.activeSemesterCourses = academicData.userInfo.activeSemesterCourses || null;
                     academicData.userInfo.activeSemesterCredits = academicData.userInfo.activeSemesterCredits || null;
+                    academicData.userInfo.categories = academicData.userInfo.categories || ['חובה','בחירה','כללי','ספורט'];
+                    academicData.userInfo.requiredCredits = academicData.userInfo.requiredCredits || 120;
+
 
                 } else {
                     academicData = {
@@ -774,7 +771,7 @@
                             requiredCredits:120,
                             categories:['חובה','בחירה','כללי','ספורט'],
                             activeSemesterCourses: null,
-                            activeSemesterCredits: null
+                            activeSemesterCredits: null,
                         }
                     };
                     await db.collection('academicData').doc(currentUser.uid).set(academicData);
@@ -785,7 +782,15 @@
             }
         }
         
-        function updateUserProfile(){const userName=userData?.name||academicData?.userInfo?.name||currentUser.displayName||'משתמש';const userEmail=userData?.email||currentUser.email;const initial=userName.charAt(0).toUpperCase();document.getElementById('user-name').textContent=userName;document.getElementById('user-email').textContent=userEmail;document.getElementById('user-initial').textContent=initial;document.getElementById('welcome-name').textContent=userName}
+        function updateUserProfile(){
+            const userName=academicData?.userInfo?.name || userData?.name || currentUser.displayName || 'משתמש';
+            const userEmail=userData?.email || currentUser.email;
+            const initial=userName.charAt(0).toUpperCase();
+            document.getElementById('user-name').textContent=userName;
+            document.getElementById('user-email').textContent=userEmail;
+            document.getElementById('user-initial').textContent=initial;
+            document.getElementById('welcome-name').textContent=userName
+        }
 
 
         function updateStatistics() {
@@ -846,7 +851,6 @@
             document.getElementById('mandatory-progress').textContent = `${mandatoryCourses.length}/--`;
             document.getElementById('elective-progress').textContent = `${electiveCourses.length}/--`;
 
-            // --- הוספת לוגיקת ציון נמוך/גבוה ---
             let highestGrade = { name: '-', grade: 0 };
             let lowestGrade = { name: '-', grade: 101 };
             if (gradedCourses.length > 0) {
@@ -858,12 +862,9 @@
                 document.getElementById('highest-grade-stat').textContent = '-';
                 document.getElementById('lowest-grade-stat').textContent = '-';
             }
-            // ------------------------------------
 
-            // --- קריאה לפונקציות הרינדור החדשות ---
             renderSemesterAveragesDashboard();
             renderMoedChartDashboard();
-            // ------------------------------------
         }
 
         function getYearName(semester){const year=Math.ceil(semester/2);const yearNames=['א','ב','ג','ד','ה','ו'];return yearNames[year-1]||year.toString()}
@@ -879,10 +880,8 @@
             const liveCtx = document.getElementById('grade-trend-chart').getContext('2d');
             liveGradeChart = createGradeChart(liveCtx, darkMode);
             
-            // --- קריאה לרינדור גרף מועדים ---
             renderMoedChartDashboard();
             
-            // האזנות מודאל סמסטר נוכחי
             addActiveCoursesBtn.addEventListener('click', openActiveSemesterModal);
             closeActiveCoursesModal.addEventListener('click', () => {
                 activeCoursesModal.classList.add('hidden');
@@ -891,7 +890,6 @@
             activeSemesterForm.addEventListener('submit', saveActiveSemesterData);
             clearActiveSemesterBtn.addEventListener('click', clearActiveSemesterData);
 
-            // האזנות מחשבון מגן
             shieldCalculatorBtn.addEventListener('click', () => {
                 shieldCalculatorModal.classList.remove('hidden');
                 shieldCalculatorModal.classList.add('flex');
@@ -910,7 +908,6 @@
             });
             shieldCalculatorForm.addEventListener('input', calculateShieldGrade);
             
-            // האזנות מחשבון "מה אם"
             document.getElementById('what-if-btn').addEventListener('click', () => { 
                 whatIfModal.classList.remove('hidden');
                 whatIfModal.classList.add('flex');
@@ -927,8 +924,8 @@
             
             whatIfModal.addEventListener('input', calculateWhatIf);
 
-            // האזנות קיימות
-            document.getElementById('print-report-btn').addEventListener('click', printReport);
+            downloadPdfBtn.addEventListener('click', downloadPDFReport);
+            
             document.getElementById('set-goal-btn').addEventListener('click', () => { 
                 setGoalModal.classList.remove('hidden');
                 setGoalModal.classList.add('flex');
@@ -939,7 +936,6 @@
             });
             setGoalForm.addEventListener('submit', saveTargetGoal);
 
-            // --- הוספת האזנה לאקורדיון סמסטרים ---
             document.getElementById('semester-averages-dashboard').addEventListener('click', (e) => {
                 const header = e.target.closest('.semester-accordion-header');
                 if (header) {
@@ -950,9 +946,7 @@
                     content.classList.toggle('open');
                 }
             });
-            // -------------------------------------
 
-            // האזנות לתפריט צד
             darkModeToggle.addEventListener('click', () => {
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
@@ -963,37 +957,76 @@
                 const liveCtx = document.getElementById('grade-trend-chart').getContext('2d');
                 liveGradeChart = createGradeChart(liveCtx, isDark);
                 
-                // --- רינדור מחדש של גרף מועדים ---
                 if (moedChartDashboard) moedChartDashboard.destroy();
                 renderMoedChartDashboard();
-                // ---------------------------------
             });
 
             mobileMenuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); mobileOverlay.classList.toggle('active'); });
             mobileOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); mobileOverlay.classList.remove('active'); });
+            
             profileSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.remove('hidden'); settingsModal.classList.add('flex');
-                document.getElementById('settings-name').value = userData?.name || academicData?.userInfo?.name || '';
-                document.getElementById('settings-institution').value = userData?.institution || academicData?.userInfo?.institution || '';
-                document.getElementById('settings-major').value = userData?.major || academicData?.userInfo?.major || '';
+                settingsModal.classList.remove('hidden');
+                settingsModal.classList.add('flex');
+                
+                settingsNameInput.value = academicData?.userInfo?.name || userData?.name || '';
+                settingsInstitutionInput.value = academicData?.userInfo?.institution || userData?.institution || '';
+                settingsMajorInput.value = academicData?.userInfo?.major || userData?.major || '';
+                settingsRequiredCreditsInput.value = academicData?.userInfo?.requiredCredits || 120;
+                settingsCategoriesInput.value = academicData?.userInfo?.categories.join(', ') || 'חובה, בחירה, כללי, ספורט';
+                
+                lucide.createIcons();
             });
-            closeSettingsBtn.addEventListener('click', () => { settingsModal.classList.add('hidden'); settingsModal.classList.remove('flex'); });
+            
+            closeSettingsBtn.addEventListener('click', () => {
+                settingsModal.classList.add('hidden');
+                settingsModal.classList.remove('flex');
+            });
+
+            // ===== תיקון: לוגיקת שמירת הגדרות מתוקנת =====
             settingsForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const name = document.getElementById('settings-name').value;
-                const institution = document.getElementById('settings-institution').value;
-                const major = document.getElementById('settings-major').value;
+                const name = settingsNameInput.value;
+                const institution = settingsInstitutionInput.value;
+                const major = settingsMajorInput.value;
+                const requiredCredits = parseFloat(settingsRequiredCreditsInput.value) || 120;
+                const categories = settingsCategoriesInput.value.split(',').map(c => c.trim()).filter(Boolean);
+
+                // שימוש ב-state הקיים כדי לא לדרוס בטעות ערכים
+                const newInfo = {
+                    ...(academicData.userInfo || {}), // טעינת כל המידע הקיים קודם
+                    name, 
+                    institution, 
+                    major, 
+                    requiredCredits, 
+                    categories
+                };
+
                 try {
-                    await db.collection('users').doc(currentUser.uid).update({ name, institution, major });
-                    await db.collection('academicData').doc(currentUser.uid).update({
-                        'userInfo.name': name,
-                        'userInfo.institution': institution,
-                        'userInfo.major': major
-                    });
+                    // עדכון מסמך academicData עם כל המידע
+                    await db.collection('academicData').doc(currentUser.uid).set({
+                        'userInfo': newInfo
+                    }, { merge: true }); // merge: true שומר על שדה 'courses'
+                    
+                    // עדכון/יצירה של מסמך 'users'
+                    await db.collection('users').doc(currentUser.uid).set({ 
+                        name, institution, major 
+                    }, { merge: true }); // merge: true ייצור אם לא קיים, יעדכן אם קיים
+                    
                     if (name) await currentUser.updateProfile({ displayName: name });
-                    if (userData) { userData.name = name; userData.institution = institution; userData.major = major; }
-                    if (academicData) { academicData.userInfo.name = name; academicData.userInfo.institution = institution; academicData.userInfo.major = major; }
+                    
+                    // עדכון ה-state המקומי
+                    academicData.userInfo = newInfo;
+                    if (userData) { 
+                        userData.name = name; 
+                        userData.institution = institution; 
+                        userData.major = major; 
+                    } else {
+                        // יצירת אובייקט userData אם לא היה קיים
+                        userData = { name, institution, major, email: currentUser.email };
+                    }
+
                     updateUserProfile();
+                    updateStatistics();
                     settingsModal.classList.add('hidden');
                     settingsModal.classList.remove('flex');
                     alert('ההגדרות נשמרו בהצלחה!');
@@ -1002,6 +1035,39 @@
                     alert('אירעה שגיאה בשמירת ההגדרות.');
                 }
             });
+            // ============================================
+
+            clearDataBtn.addEventListener('click', () => {
+                confirmModal.classList.remove('hidden');
+                confirmModal.classList.add('flex');
+                lucide.createIcons();
+            });
+            cancelDeleteBtn.addEventListener('click', () => {
+                confirmModal.classList.add('hidden');
+                confirmModal.classList.remove('flex');
+            });
+            confirmDeleteBtn.addEventListener('click', async () => {
+                try {
+                    await db.collection('academicData').doc(currentUser.uid).update({
+                        courses: []
+                    });
+                    
+                    academicData.courses = [];
+                    
+                    updateStatistics();
+                    updateUserProfile();
+                    
+                    confirmModal.classList.add('hidden');
+                    confirmModal.classList.remove('flex');
+                    settingsModal.classList.add('hidden');
+                    settingsModal.classList.remove('flex');
+                    alert('כל נתוני הקורסים נמחקו בהצלחה.');
+                } catch (error) {
+                    console.error('Error clearing courses:', error);
+                    alert('אירעה שגיאה במחיקת הנתונים.');
+                }
+            });
+            
             document.getElementById('logout-btn').addEventListener('click', async () => { if (confirm('האם אתה בטוח שברצונך לצאת?')) { try { await auth.signOut(); window.location.href = 'login.html'; } catch (error) { console.error('Error signing out:', error); } } });
 
             document.querySelectorAll('#schedule-link, #notes-link, #tasks-link').forEach(link => {
@@ -1011,9 +1077,7 @@
                 });
             });
         }
-
-        // --- פונקציות חדשות שנוספו ---
-
+        
         function renderMoedChartDashboard() {
             if (!academicData || !document.getElementById('moed-chart-dashboard')) return;
             if (moedChartDashboard) moedChartDashboard.destroy();
@@ -1115,8 +1179,6 @@
             });
             lucide.createIcons();
         }
-
-        // ---------------------------------
         
         function createGradeChart(ctx, isDark) {
             if (!academicData) return null;
@@ -1158,64 +1220,178 @@
             if (ctx.canvas.id === 'grade-trend-chart' && liveGradeChart) {
                 liveGradeChart.destroy();
             }
-            if (ctx.canvas.id === 'print-grade-trend-chart' && printGradeChart) {
-                printGradeChart.destroy();
-            }
             
             return new Chart(ctx, { type: 'line', data: chartData, options: options });
         }
+        
+        // --- פונקציות יצירת PDF ---
+        
+        async function downloadPDFReport() {
+            const btn = document.getElementById('download-pdf-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = `<span class="spinner" style="border-top-color: white; width: 20px; height: 20px; margin-left: 0; border-width: 3px;"></span> <span class="mr-2">מכין דוח...</span>`;
+            btn.disabled = true;
 
+            try {
+                if (!liveGradeChart || !moedChartDashboard) {
+                    throw new Error('הגרפים עדיין לא נטענו, אנא המתן רגע ונסה שוב.');
+                }
+                
+                let template;
+                try {
+                    const response = await fetch('report-template.html');
+                    if (!response.ok) {
+                        throw new Error(`קובץ התבנית (report-template.html) לא נמצא (שגיאת ${response.status}).`);
+                    }
+                    template = await response.text();
+                } catch (fetchError) {
+                    console.error("Fetch Error:", fetchError);
+                    throw new Error('לא הצלחתי לטעון את קובץ התבנית. ודא שהוא נמצא באותה תיקייה ונסה לרענן.');
+                }
 
-        function printReport() {
-            if (!academicData) return;
-            const courses = academicData.courses || [];
-            const userInfo = academicData.userInfo || {};
-            const gradedCourses = courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
-            const studentName = userData?.name || userInfo.name || currentUser.displayName || 'סטודנט';
-            document.getElementById('print-student-name').textContent = `דוח עבור: ${studentName}`;
-            let avgGrade = 0;
-            if (gradedCourses.length > 0) { avgGrade = (gradedCourses.reduce((sum, c) => sum + (c.grade * c.credits), 0) / gradedCourses.reduce((sum, c) => sum + c.credits, 0)) || 0; }
-            const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-            const requiredCredits = userInfo.requiredCredits || 120;
-            document.getElementById('print-avg-grade').textContent = avgGrade.toFixed(2);
-            document.getElementById('print-total-credits').textContent = totalCredits;
-            document.getElementById('print-required-credits').textContent = requiredCredits;
-            const progress = Math.min(100, (totalCredits / requiredCredits) * 100);
-            document.getElementById('print-progress-bar').style.width = `${progress}%`;
-            document.getElementById('print-progress-percent').textContent = `${progress.toFixed(1)}%`;
-            if (gradedCourses.length > 0) {
-                const highest = gradedCourses.reduce((max, c) => c.grade > max.grade ? c : max, gradedCourses[0]);
-                const lowest = gradedCourses.reduce((min, c) => c.grade < min.grade ? c : min, gradedCourses[0]);
-                document.getElementById('print-highest-grade').innerHTML = `${highest.name} (<span style="color: #059669;">${highest.grade}</span>)`;
-                document.getElementById('print-lowest-grade').innerHTML = `${lowest.name} (<span style="color: #EF4444;">${lowest.grade}</span>)`;
-            } else {
-                document.getElementById('print-highest-grade').textContent = '-';
-                document.getElementById('print-lowest-grade').textContent = '-';
-            }
-            const semesterData = {};
-            gradedCourses.forEach(course => {
-                const sem = course.semester || 1;
-                if (!semesterData[sem]) semesterData[sem] = { totalWeighted: 0, totalCredits: 0 };
-                semesterData[sem].totalWeighted += course.grade * course.credits;
-                semesterData[sem].totalCredits += course.credits;
-            });
-            const semesterEl = document.getElementById('print-semester-averages');
-            semesterEl.innerHTML = '';
-            const sortedSemesters = Object.keys(semesterData).sort((a, b) => a - b);
-            if (sortedSemesters.length === 0) {
-                semesterEl.innerHTML = '<li>אין נתונים</li>';
-            } else {
-                sortedSemesters.forEach(sem => {
-                    const avg = (semesterData[sem].totalWeighted / semesterData[sem].totalCredits).toFixed(2);
-                    semesterEl.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;"><span class="course-name" style="font-weight: 500; color: #111827;">סמסטר ${sem}</span><span class="course-grade" style="font-weight: 700; color: #2563EB;">${avg}</span></li>`;
+                const gradeTrendImg = liveGradeChart.toBase64Image();
+                const moedChartImg = moedChartDashboard.toBase64Image();
+                if (!gradeTrendImg || !moedChartImg) {
+                    throw new Error('אירעה שגיאה בהמרת הגרפים לתמונה.');
+                }
+                
+                const { userInfo, courses } = academicData;
+                const gradedCourses = courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
+                
+                let avgGrade = 0;
+                if (gradedCourses.length > 0) {
+                    const totalWeighted = gradedCourses.reduce((sum, c) => sum + (c.grade * c.credits), 0);
+                    const totalCreditsForAvg = gradedCourses.reduce((sum, c) => sum + c.credits, 0);
+                    avgGrade = totalCreditsForAvg > 0 ? (totalWeighted / totalCreditsForAvg) : 0;
+                }
+                const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
+                const requiredCredits = userInfo.requiredCredits || 120;
+                const progress = Math.min(100, (totalCredits / requiredCredits) * 100);
+
+                let highestGrade = { name: '-', grade: 0 };
+                let lowestGrade = { name: '-', grade: 101 };
+                if (gradedCourses.length > 0) {
+                    highestGrade = gradedCourses.reduce((max, c) => c.grade > max.grade ? c : max, gradedCourses[0]);
+                    lowestGrade = gradedCourses.reduce((min, c) => c.grade < min.grade ? c : min, gradedCourses[0]);
+                }
+
+                const semesterAveragesHtml = buildSemesterListHtmlForPDF(gradedCourses);
+                const courseTableRowsHtml = buildCourseTableHtmlForPDF(courses);
+
+                template = template
+                    .replace('{{STUDENT_NAME}}', userInfo.name || 'סטודנט')
+                    .replace('{{STUDENT_MAJOR}}', userInfo.major || 'ללא תחום לימוד')
+                    .replace('{{STUDENT_INSTITUTION}}', userInfo.institution || 'ללא מוסד')
+                    .replace('{{AVG_GRADE}}', avgGrade.toFixed(2))
+                    .replace('{{TOTAL_CREDITS}}', totalCredits)
+                    .replace('{{REQUIRED_CREDITS}}', requiredCredits)
+                    .replace(/{{PROGRESS_PERCENT}}/g, progress.toFixed(1))
+                    .replace('{{HIGHEST_GRADE_COURSE}}', highestGrade.name)
+                    .replace('{{HIGHEST_GRADE_SCORE}}', highestGrade.grade)
+                    .replace('{{LOWEST_GRADE_COURSE}}', lowestGrade.name)
+                    .replace('{{LOWEST_GRADE_SCORE}}', lowestGrade.grade)
+                    .replace('{{GRADE_TREND_CHART_IMG}}', gradeTrendImg)
+                    .replace('{{MOED_CHART_IMG}}', moedChartImg)
+                    .replace('{{SEMESTER_AVERAGES_LIST}}', semesterAveragesHtml)
+                    .replace('{{FULL_COURSE_TABLE_ROWS}}', courseTableRowsHtml);
+
+                const renderWrapper = document.getElementById('pdf-render-target-wrapper');
+                renderWrapper.innerHTML = template;
+                const renderDiv = renderWrapper.firstElementChild;
+                
+                const canvas = await html2canvas(renderDiv, {
+                    scale: 2,
+                    useCORS: true,
+                    windowWidth: renderDiv.scrollWidth,
+                    windowHeight: renderDiv.scrollHeight
                 });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                let totalHeight = pdfHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                totalHeight -= pdf.internal.pageSize.getHeight();
+
+                while (totalHeight > 0) {
+                    position = -pdf.internal.pageSize.getHeight() + position;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    totalHeight -= pdf.internal.pageSize.getHeight();
+                }
+                
+                pdf.save(`Circademic_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+
+                renderWrapper.innerHTML = '';
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert("אירעה שגיאה ביצירת קובץ ה-PDF: " + error.message);
+            } finally {
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                lucide.createIcons();
             }
-            const printCtx = document.getElementById('print-grade-trend-chart').getContext('2d');
-            if (printGradeChart) { printGradeChart.destroy(); }
-            printGradeChart = createGradeChart(printCtx, false); 
-            setTimeout(() => { window.print(); }, 300);
         }
 
+        function buildSemesterListHtmlForPDF(gradedCourses) {
+            const groups = {};
+            gradedCourses.forEach(c => {
+                const key = c.semester || 'ללא סמסטר';
+                if (!groups[key]) {
+                    groups[key] = { weightedSum: 0, credits: 0 };
+                }
+                groups[key].weightedSum += c.grade * c.credits;
+                groups[key].credits += c.credits;
+            });
+            
+            const keys = Object.keys(groups).sort((a,b) => (a === 'ללא סמסטר' ? 1 : b === 'ללא סמסטר' ? -1 : a-b));
+            
+            if (keys.length === 0) {
+                return `<li><span class="label">אין נתונים</span></li>`;
+            }
+            
+            return keys.map(key => {
+                const avg = (groups[key].weightedSum / groups[key].credits).toFixed(2);
+                return `
+                    <li>
+                        <span class="label">סמסטר ${key}</span>
+                        <span class="value">${avg}</span>
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        function buildCourseTableHtmlForPDF(courses) {
+            if (courses.length === 0) {
+                return `<tr><td colspan="5" style="text-align:center; padding: 1rem;">אין קורסים להצגה</td></tr>`;
+            }
+
+            return courses.sort((a,b) => (a.semester || 0) - (b.semester || 0))
+                .map(course => {
+                    const grade = course.isPassFail ? 'עבר' : (course.grade !== null ? course.grade : 'טרם');
+                    const moed = course.isMoedB ? 'ב׳' : 'א׳';
+                    return `
+                        <tr>
+                            <td>${course.name}</td>
+                            <td>${course.semester || '-'}</td>
+                            <td>${course.credits}</td>
+                            <td>${grade}</td>
+                            <td>${moed}</td>
+                        </tr>
+                    `;
+            }).join('');
+        }
+
+        
         function openActiveSemesterModal() {
             activeCoursesInput.value = academicData.userInfo.activeSemesterCourses || '';
             activeCreditsInput.value = academicData.userInfo.activeSemesterCredits || '';
@@ -1329,40 +1505,36 @@
             }
 
             const row = document.createElement('div');
-row.className = 'what-if-improvement-row grid grid-cols-3 gap-2 items-center';
-row.dataset.id = course.id;
-row.dataset.originalGrade = course.grade;
-row.dataset.credits = course.credits;
+            row.className = 'what-if-improvement-row grid grid-cols-3 gap-2 items-center';
+            row.dataset.id = course.id;
+            row.dataset.originalGrade = course.grade;
+            row.dataset.credits = course.credits;
 
-// --- שינוי: הוספת כפתור מחיקה ---
-row.innerHTML = `
-    <span class_name="text-sm text-gray-700 dark:text-gray-300 truncate" title="${course.name}">
-        ${course.name} (במקום ${course.grade})
-    </span>
-    <input type="number" placeholder="ציון חדש" class="what-if-new-grade input-field" min="0" max="100">
-    <button type="button" class="remove-what-if-row-btn icon-btn" style="background-color: #FEE2E2; color: #EF4444; width: 2.5rem; height: 2.5rem;">
-        <i data-lucide="x" class="w-4 h-4"></i>
-    </button>
-`;
-// --------------------------------
+            row.innerHTML = `
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate" title="${course.name}">
+                    ${course.name} (במקום ${course.grade})
+                </span>
+                <input type="number" placeholder="ציון חדש" class="what-if-new-grade input-field" min="0" max="100">
+                <button type="button" class="remove-what-if-row-btn icon-btn" style="background-color: #FEE2E2; color: #EF4444; width: 2.5rem; height: 2.5rem;">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
 
-whatIfImprovementsList.appendChild(row);
-lucide.createIcons(); // קריאה לרענון האייקונים
+            whatIfImprovementsList.appendChild(row);
+            lucide.createIcons();
 
-// --- הוספת האזנה לכפתור המחיקה החדש ---
-row.querySelector('.remove-what-if-row-btn').addEventListener('click', () => {
-    row.remove();
-    calculateWhatIf(); // חישוב מחדש לאחר מחיקה
-});
-// -----------------------------------
+            row.querySelector('.remove-what-if-row-btn').addEventListener('click', () => {
+                row.remove();
+                calculateWhatIf();
+            });
 
-whatIfExistingCourseSelect.value = '';
-calculateWhatIf();
+            whatIfExistingCourseSelect.value = '';
+            calculateWhatIf();
         }
 
         function addWhatIfCourseRow_WhatIf(){
             const row=document.createElement('div');
-            row.className='what-if-row grid grid-cols-3 gap-2 items-center'; // --- שינוי: 3 עמודות
+            row.className='what-if-row grid grid-cols-3 gap-2 items-center';
             row.innerHTML=`
                 <input type="number" placeholder="ציון עתידי (0-100)" class="what-if-grade input-field col-span-1">
                 <input type="number" step="0.5" placeholder='נ"ז עתידי' class="what-if-credits input-field col-span-1">
@@ -1371,14 +1543,12 @@ calculateWhatIf();
                 </button>
             `;
             whatIfCoursesContainer.appendChild(row);
-            lucide.createIcons(); // קריאה לרענון האייקונים
+            lucide.createIcons();
             
-            // --- הוספת האזנה לכפתור המחיקה החדש ---
             row.querySelector('.remove-what-if-row-btn').addEventListener('click', () => {
                 row.remove();
-                calculateWhatIf(); // חישוב מחדש לאחר מחיקה
+                calculateWhatIf();
             });
-            // -----------------------------------
         }
         
         function calculateWhatIf() {
@@ -1451,4 +1621,3 @@ calculateWhatIf();
     </script>
 </body>
 </html>
-
