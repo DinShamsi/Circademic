@@ -157,9 +157,9 @@
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             
-            <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="flex flex-col gap-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="stat-card text-center">
                         <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">ממוצע משוקלל</h3>
@@ -279,30 +279,7 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-1 flex flex-col gap-6">
-                <div class="stat-card">
-                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-4 text-lg">ממוצעים סמסטריאליים</h3>
-                    <div id="semester-averages" class="space-y-2 text-sm">
-                        <p class="text-gray-400">אין נתונים להצגה.</p>
-                    </div>
-                    <hr class="my-4 border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-4 text-lg">ממוצעים לפי קטגוריה</h3>
-                    <div id="category-averages" class="space-y-2 text-sm">
-                        <p class="text-gray-400">אין נתונים להצגה.</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-4 text-lg">מגמת ציונים</h3>
-                    <div class="h-48"><canvas id="trend-chart"></canvas></div>
-                </div>
-
-                <div class="stat-card">
-                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-4 text-lg">התפלגות מועדים</h3>
-                    <div class="h-48"><canvas id="moed-chart"></canvas></div>
-                </div>
             </div>
-        </div>
 
         <div id="settings-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 hidden z-50">
             <div class="modal-container p-8 w-full max-w-md m-4 transform transition-all">
@@ -425,7 +402,7 @@
         cancelEditBtn, courseNameInput, creditsInput, gradeInput, semesterInput, 
         isMoedBInput, isPassFailInput, courseCategoryInput, avgGradeEl, totalCreditsEl, 
         highestGradeEl, lowestGradeEl, degreeProgressText, degreeProgressBar, 
-        semesterAveragesEl, categoryAveragesEl, settingsModal, settingsForm, 
+        settingsModal, settingsForm, // מחיקת: semesterAveragesEl, categoryAveragesEl
         userNameInput, institutionInput, majorInput, requiredCreditsInput, 
         userCategoriesInput, headerTitle, headerSubtitle, confirmModal, 
         whatIfModal, whatIfCoursesContainer, whatIfResultEl, whatIfCreditsInfoEl, 
@@ -433,7 +410,7 @@
         darkModeToggle;
 
     // Charts
-    let moedChart, trendChart;
+    // ===== מחיקה: let moedChart, trendChart; =====
     const chartDefaultFont = { family: "'Heebo', sans-serif", size: 12 };
     
     
@@ -505,9 +482,9 @@
     function updateDashboard() {
         renderTable();
         calculateAndRenderSummary();
-        renderSemesterAverages();
-        renderCategoryAverages();
-        renderCharts();
+        // ===== מחיקה: renderSemesterAverages(); =====
+        // ===== מחיקה: renderCategoryAverages(); =====
+        // ===== מחיקה: renderCharts(); =====
         updateHeader();
         populateFilterOptions();
         
@@ -588,124 +565,13 @@
         }
     }
 
-    function renderAggregatedAverages(element, groupBy) {
-        element.innerHTML = '';
-        const groups = {};
-        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
-        coursesWithGrades.forEach(c => {
-            const key = c[groupBy];
-            if (!groups[key]) {
-                groups[key] = { weightedSum: 0, credits: 0 };
-            }
-            groups[key].weightedSum += c.grade * c.credits;
-            groups[key].credits += c.credits;
-        });
-        const keys = Object.keys(groups).sort((a,b) => (groupBy === 'semester' ? a-b : a.localeCompare(b, 'he')));
-        if (keys.length === 0) {
-            element.innerHTML = `<p class="text-gray-400">אין נתונים להצגה.</p>`;
-            return;
-        }
-        keys.forEach(key => {
-            const avg = (groups[key].weightedSum / groups[key].credits).toFixed(2);
-            const div = document.createElement('div');
-            div.className = 'flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 p-3 rounded-xl transition-all hover:shadow-md';
-            const prefix = groupBy === 'semester' ? 'סמסטר ' : '';
-            div.innerHTML = `
-                <span class="font-semibold text-gray-700 dark:text-gray-300">${prefix}${key}</span>
-                <span class="font-bold badge-primary text-sm">${avg}</span>
-            `;
-            element.appendChild(div);
-        });
-    }
-
-    const renderSemesterAverages = () => renderAggregatedAverages(semesterAveragesEl, 'semester');
-    const renderCategoryAverages = () => renderAggregatedAverages(categoryAveragesEl, 'category');
-
-    function renderCharts() {
-        renderMoedChart();
-        renderTrendChart();
-    }
-
-    function renderMoedChart() {
-        if (moedChart) moedChart.destroy();
-        let moedA = state.courses.filter(c => !c.isMoedB).length;
-        let moedB = state.courses.filter(c => c.isMoedB).length;
-        const ctx = document.getElementById('moed-chart').getContext('2d');
-        const gradient1 = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient1.addColorStop(0, '#3B82F6');
-        gradient1.addColorStop(1, '#8B5CF6');
-        const gradient2 = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient2.addColorStop(0, '#EF4444');
-        gradient2.addColorStop(1, '#DC2626');
-        moedChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['מועד א\'', 'מועד ב\''],
-                datasets: [{ data: [moedA, moedB], backgroundColor: [gradient1, gradient2], borderWidth: 0 }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: state.darkMode ? '#e5e7eb' : '#4b5563', font: chartDefaultFont, padding: 15 } },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const value = context.raw;
-                                const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    function renderTrendChart() {
-        if (trendChart) trendChart.destroy();
-        const semesters = {};
-        const coursesWithGrades = state.courses.filter(c => !c.isPassFail);
-        coursesWithGrades.forEach(c => {
-            if (!semesters[c.semester]) semesters[c.semester] = { weightedSum: 0, credits: 0 };
-            semesters[c.semester].weightedSum += c.grade * c.credits;
-            semesters[c.semester].credits += c.credits;
-        });
-        const labels = Object.keys(semesters).sort((a,b) => a-b);
-        const data = labels.map(key => (semesters[key].weightedSum / semesters[key].credits));
-        const ctx = document.getElementById('trend-chart').getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-        gradient.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
-        trendChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels.map(l => `סמסטר ${l}`),
-                datasets: [{
-                    label: 'ממוצע סמסטריאלי',
-                    data: data,
-                    borderColor: '#3B82F6',
-                    backgroundColor: gradient,
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointBackgroundColor: '#3B82F6',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: false, ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' }, grid: { color: state.darkMode ? '#374151' : '#e5e7eb' } },
-                    x: { ticks: { color: state.darkMode ? '#9ca3af' : '#6b7280' }, grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
+    // ===== מחיקה: כל פונקציות הגרפים והסיכומים =====
+    // renderAggregatedAverages נמחק
+    // renderSemesterAverages נמחק
+    // renderCategoryAverages נמחק
+    // renderCharts נמחק
+    // renderMoedChart נמחק
+    // renderTrendChart נמחק
     
     function updateHeader() {
         headerSubtitle.textContent = state.userInfo.name ? `ברוך הבא, ${state.userInfo.name}!` : `ברוך הבא!`;
@@ -841,8 +707,7 @@
         lowestGradeEl = document.getElementById('lowest-grade');
         degreeProgressText = document.getElementById('degree-progress-text');
         degreeProgressBar = document.getElementById('degree-progress-bar');
-        semesterAveragesEl = document.getElementById('semester-averages');
-        categoryAveragesEl = document.getElementById('category-averages');
+        // ===== מחיקה: semesterAveragesEl, categoryAveragesEl =====
         settingsModal = document.getElementById('settings-modal');
         settingsForm = document.getElementById('settings-form');
         userNameInput = document.getElementById('userName');
@@ -1041,7 +906,7 @@
         darkModeToggle.addEventListener('click', () => {
             state.darkMode = !state.darkMode;
             applyDarkMode();
-            renderCharts(); // עדכון הגרפים למצב כהה
+            // ===== מחיקה: renderCharts(); =====
         });
 
         // CSV Import / Export Logic
@@ -1148,4 +1013,3 @@
     </script>
 </body>
 </html>
-
