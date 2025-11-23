@@ -420,7 +420,7 @@
         auth.onAuthStateChanged((user) => {
             // --- שינוי: רק משתמש מאומת יועבר פנימה ---
             if (user && user.emailVerified) {
-                window.location.href = 'index.html';
+                window.location.href = '/';
             }
             // אם המשתמש מחובר אבל לא מאומת, הוא פשוט נשאר בדף הלוגין
         });
