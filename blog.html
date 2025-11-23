@@ -179,10 +179,11 @@
                 <div id="post-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center sticky top-0 z-10">
                         <button id="back-to-list" class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 font-medium"><i data-lucide="arrow-right"></i> חזרה לרשימה</button>
-                        <div class="flex items-center gap-3">
-                            <button id="edit-post-btn" class="hidden flex items-center gap-1 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i> עריכה</button>
-                            <span id="view-tag" class="tag cursor-default"></span>
-                        </div>
+                       <div class="flex items-center gap-3">
+    <button id="edit-post-btn" class="hidden flex items-center gap-1 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i> עריכה</button>
+    <button id="delete-post-btn" class="hidden flex items-center gap-1 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i> מחיקה</button>
+    <span id="view-tag" class="tag cursor-default"></span>
+</div>
                     </div>
                     <div class="p-8 md:p-12">
                         <div class="mb-8 text-center">
@@ -393,11 +394,22 @@
 
             document.getElementById('view-tags-container').innerHTML = `<span class="tag">#${post.tag.replace(/\s+/g, '_')}</span> <span class="tag">#Circademic</span>`;
             
+            // Show Edit & Delete Buttons if authorized
             const editBtn = document.getElementById('edit-post-btn');
+            const deleteBtn = document.getElementById('delete-post-btn');
+            
             if (isWriter) {
+                // הצגת כפתור עריכה
                 editBtn.classList.remove('hidden');
                 editBtn.onclick = () => openEditModal(post);
-            } else editBtn.classList.add('hidden');
+                
+                // הצגת כפתור מחיקה (החדש)
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.onclick = () => deletePost(post.id);
+            } else {
+                editBtn.classList.add('hidden');
+                deleteBtn.classList.add('hidden');
+            }
 
             window.scrollTo(0,0);
             lucide.createIcons();
@@ -409,6 +421,19 @@
             window.history.pushState({}, '', url);
             showListView();
         });
+        // --- פונקציית מחיקת פוסט ---
+        async function deletePost(postId) {
+            if (confirm('האם אתה בטוח שברצונך למחוק את הפוסט הזה? הפעולה אינה הפיכה.')) {
+                try {
+                    await db.collection('posts').doc(postId).delete();
+                    alert('הפוסט נמחק בהצלחה.');
+                    showListView(); // חזרה לרשימה
+                } catch (error) {
+                    console.error("Error removing document: ", error);
+                    alert("שגיאה במחיקה: " + error.message);
+                }
+            }
+        }
 
         function renderList() {
             const grid = document.getElementById('blog-grid');
@@ -539,4 +564,5 @@
         lucide.createIcons();
     </script>
 </body>
+
 </html>
