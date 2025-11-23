@@ -1230,6 +1230,7 @@ loadRecentAnnouncements();
         
         // --- פונקציות יצירת PDF ---
         
+        // --- פונקציה מעודכנת ליצירת PDF (עם תבנית מוטמעת) ---
         async function downloadPDFReport() {
             const btn = document.getElementById('download-pdf-btn');
             const originalBtnText = btn.innerHTML;
@@ -1237,28 +1238,16 @@ loadRecentAnnouncements();
             btn.disabled = true;
 
             try {
+                // בדיקה שהגרפים נטענו
                 if (!liveGradeChart || !moedChartDashboard) {
                     throw new Error('הגרפים עדיין לא נטענו, אנא המתן רגע ונסה שוב.');
                 }
-                
-                let template;
-                try {
-                    const response = await fetch('report-template.html');
-                    if (!response.ok) {
-                        throw new Error(`קובץ התבנית (report-template.html) לא נמצא (שגיאת ${response.status}).`);
-                    }
-                    template = await response.text();
-                } catch (fetchError) {
-                    console.error("Fetch Error:", fetchError);
-                    throw new Error('לא הצלחתי לטעון את קובץ התבנית. ודא שהוא נמצא באותה תיקייה ונסה לרענן.');
-                }
 
+                // המרת הגרפים לתמונות
                 const gradeTrendImg = liveGradeChart.toBase64Image();
                 const moedChartImg = moedChartDashboard.toBase64Image();
-                if (!gradeTrendImg || !moedChartImg) {
-                    throw new Error('אירעה שגיאה בהמרת הגרפים לתמונה.');
-                }
-                
+
+                // חישובי נתונים
                 const { userInfo, courses } = academicData;
                 const gradedCourses = courses.filter(c => !c.isPassFail && (c.grade !== null && c.grade !== undefined));
                 
@@ -1279,13 +1268,93 @@ loadRecentAnnouncements();
                     lowestGrade = gradedCourses.reduce((min, c) => c.grade < min.grade ? c : min, gradedCourses[0]);
                 }
 
+                // בניית טבלאות HTML
                 const semesterAveragesHtml = buildSemesterListHtmlForPDF(gradedCourses);
                 const courseTableRowsHtml = buildCourseTableHtmlForPDF(courses);
 
+                // --- תבנית ה-HTML מוטמעת כאן (במקום קובץ חיצוני) ---
+                let template = `
+                <!DOCTYPE html>
+                <html lang="he" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Report Template</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@600;700&display=swap');
+                        :root { --primary: #3B82F6; --text-primary: #111827; --text-secondary: #6B7280; --border-light: #E5E7EB; }
+                        body { font-family: 'Heebo', sans-serif; margin: 0; padding: 20px; background: white; color: var(--text-primary); width: 210mm; box-sizing: border-box; }
+                        .report-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1rem; border-bottom: 4px solid var(--primary); margin-bottom: 2rem; }
+                        .report-header h1 { font-family: 'Rubik', sans-serif; font-size: 28px; margin: 0; }
+                        .report-title { text-align: center; font-family: 'Rubik', sans-serif; font-size: 32px; color: var(--primary); margin: 1rem 0 2rem 0; }
+                        .progress-section { background: #F9FAFB; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-light); margin-bottom: 2rem; }
+                        .progress-bar { height: 20px; background: #E5E7EB; border-radius: 99px; overflow: hidden; margin: 10px 0; }
+                        .progress-fill { height: 100%; background: var(--primary); width: {{PROGRESS_PERCENT}}%; }
+                        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+                        .detail-card { border: 1px solid var(--border-light); border-radius: 12px; padding: 1rem; background: #fff; }
+                        .detail-card h3 { margin-top: 0; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; font-family: 'Rubik', sans-serif; }
+                        .chart-img { width: 100%; height: auto; max-height: 200px; object-fit: contain; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 14px; }
+                        th, td { padding: 8px; text-align: right; border-bottom: 1px solid #eee; }
+                        th { background: #f9fafb; font-weight: bold; }
+                        ul { list-style: none; padding: 0; }
+                        li { display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding: 5px 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class="report-header">
+                        <div>
+                            <h1>{{STUDENT_NAME}}</h1>
+                            <p>{{STUDENT_MAJOR}} | {{STUDENT_INSTITUTION}}</p>
+                        </div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">Circademic</div>
+                    </div>
+
+                    <h2 class="report-title">דוח מצב אקדמי</h2>
+
+                    <div class="progress-section">
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;">
+                            <span>התקדמות בתואר</span>
+                            <span>{{PROGRESS_PERCENT}}%</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                            <span>ממוצע: <strong>{{AVG_GRADE}}</strong></span>
+                            <span>נ"ז: <strong>{{TOTAL_CREDITS}} / {{REQUIRED_CREDITS}}</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <h3>נתונים וממוצעים</h3>
+                            <ul>
+                                <li><span>ציון שיא:</span> <strong style="color:#10B981">{{HIGHEST_GRADE_COURSE}} ({{HIGHEST_GRADE_SCORE}})</strong></li>
+                                <li><span>ציון נמוך:</span> <strong style="color:#EF4444">{{LOWEST_GRADE_COURSE}} ({{LOWEST_GRADE_SCORE}})</strong></li>
+                            </ul>
+                            <h4 style="margin:10px 0 5px 0">ממוצעים סמסטריאליים</h4>
+                            <ul>{{SEMESTER_AVERAGES_LIST}}</ul>
+                        </div>
+                        <div class="detail-card">
+                            <h3>מגמות</h3>
+                            <img src="{{GRADE_TREND_CHART_IMG}}" class="chart-img" alt="Trend">
+                            <div style="height:20px"></div>
+                            <img src="{{MOED_CHART_IMG}}" class="chart-img" alt="Moed">
+                        </div>
+                    </div>
+
+                    <h3>רשימת קורסים מלאה</h3>
+                    <table>
+                        <thead><tr><th>קורס</th><th>סמסטר</th><th>נ"ז</th><th>ציון</th><th>מועד</th></tr></thead>
+                        <tbody>{{FULL_COURSE_TABLE_ROWS}}</tbody>
+                    </table>
+                </body>
+                </html>
+                `;
+
+                // הזרקת הנתונים לתוך התבנית
                 template = template
                     .replace('{{STUDENT_NAME}}', userInfo.name || 'סטודנט')
-                    .replace('{{STUDENT_MAJOR}}', userInfo.major || 'ללא תחום לימוד')
-                    .replace('{{STUDENT_INSTITUTION}}', userInfo.institution || 'ללא מוסד')
+                    .replace('{{STUDENT_MAJOR}}', userInfo.major || 'ללא תחום')
+                    .replace('{{STUDENT_INSTITUTION}}', userInfo.institution || '')
                     .replace('{{AVG_GRADE}}', avgGrade.toFixed(2))
                     .replace('{{TOTAL_CREDITS}}', totalCredits)
                     .replace('{{REQUIRED_CREDITS}}', requiredCredits)
@@ -1299,46 +1368,39 @@ loadRecentAnnouncements();
                     .replace('{{SEMESTER_AVERAGES_LIST}}', semesterAveragesHtml)
                     .replace('{{FULL_COURSE_TABLE_ROWS}}', courseTableRowsHtml);
 
+                // רינדור והורדה
                 const renderWrapper = document.getElementById('pdf-render-target-wrapper');
                 renderWrapper.innerHTML = template;
-                const renderDiv = renderWrapper.firstElementChild;
-                
+                const renderDiv = renderWrapper.firstElementChild; // ה-HTML של הדוח
+
+                // המתן רגע קטן לטעינת תמונות אם יש
+                await new Promise(r => setTimeout(r, 100));
+
                 const canvas = await html2canvas(renderDiv, {
                     scale: 2,
                     useCORS: true,
-                    windowWidth: renderDiv.scrollWidth,
-                    windowHeight: renderDiv.scrollHeight
+                    windowWidth: 794, // A4 width in pixels at 96dpi
                 });
-                
+
                 const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({
-                    orientation: 'p',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-                
+                const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                let totalHeight = pdfHeight;
-                let position = 0;
-                
+
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                totalHeight -= pdf.internal.pageSize.getHeight();
-
-                while (totalHeight > 0) {
-                    position = -pdf.internal.pageSize.getHeight() + position;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                    totalHeight -= pdf.internal.pageSize.getHeight();
-                }
                 
-                pdf.save(`Circademic_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+                // אם הדוח ארוך מדף אחד (פשוט, ללא חיתוך חכם כרגע כדי למנוע באגים)
+                if (pdfHeight > 297) {
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, -297, pdfWidth, pdfHeight);
+                }
 
-                renderWrapper.innerHTML = '';
+                pdf.save(`Circademic_Report.pdf`);
+                renderWrapper.innerHTML = ''; // ניקוי
 
             } catch (error) {
-                console.error("Error generating PDF:", error);
-                alert("אירעה שגיאה ביצירת קובץ ה-PDF: " + error.message);
+                console.error("PDF Error:", error);
+                alert("שגיאה: " + error.message);
             } finally {
                 btn.innerHTML = originalBtnText;
                 btn.disabled = false;
@@ -1671,5 +1733,6 @@ loadRecentAnnouncements();
     </script>
 </body>
 </html>
+
 
 
