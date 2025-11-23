@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circademic - הדרך החכמה לנהל את התואר</title>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+
+    <style>
+        /* Design System Variables - From DesignSystem.md */
+        :root {
+            --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
+            --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
+            --accent: #F59E0B; --accent-light: #FBBF24; --accent-dark: #D97706;
+            --bg-light: #F9FAFB; --bg-lighter: #FFFFFF; --bg-dark: #0F172A;
+            --bg-dark-card: #1E293B;
+            --text-primary-light: #111827; --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB; --text-secondary-dark: #9CA3AF;
+            --border-light: #E5E7EB; --border-dark: #374151;
+            --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
+        }
+
+        body { 
+            font-family: 'Heebo', sans-serif;
+            background: var(--bg-light);
+            overflow-x: hidden;
+        }
+        
+        body.dark { background: var(--bg-dark); }
+        h1, h2, h3 { font-family: 'Rubik', sans-serif; font-weight: 700; }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        /* Components */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 1rem 2rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            font-size: 1.1rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+
+        .btn-outline {
+            background: transparent; border: 2px solid var(--border-light);
+            color: var(--text-primary-light); padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md); font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .dark .btn-outline { border-color: var(--border-dark); color: var(--text-primary-dark); }
+        .dark .btn-outline:hover { border-color: var(--primary-light); color: var(--primary-light); }
+
+        .feature-card {
+            background: white; border-radius: var(--radius-lg); padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); border-color: rgba(59, 130, 246, 0.3); }
+        .dark .feature-card { background: var(--bg-dark-card); border-color: rgba(59, 130, 246, 0.2); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+        .dark .hero-gradient {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 1) 0%, rgba(30, 41, 59, 1) 100%);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .floating-icon { animation: float 3s ease-in-out infinite; }
+        .delay-100 { animation-delay: 1s; }
+        .delay-200 { animation-delay: 2s; }
+
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+    <nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border-b border-gray-200 dark:border-gray-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <img src="LOGO.png" alt="Circademic Logo" class="w-10 h-10">
+                <span class="text-2xl font-bold font-rubik text-gray-800 dark:text-gray-100">Circademic</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-gray-600"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
+                </button>
+                <a href="login.html" class="hidden md:block btn-outline">התחברות</a>
+                <a href="login.html" class="btn-primary text-sm px-4 py-2">הירשם בחינם</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-gradient pt-32 pb-20 px-6">
+        <div class="container mx-auto text-center max-w-4xl">
+            <div class="inline-block mb-4 px-4 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-sm font-semibold animate-[fadeInUp_0.5s_ease-out]">
+                🚀 המערכת החדשה לסטודנטים
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 text-gray-900 dark:text-gray-100 leading-tight animate-[fadeInUp_0.7s_ease-out]">
+                הפסיקו לחשב ציונים <br>
+                <span class="text-gradient">באקסל מסובך</span>
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto animate-[fadeInUp_0.9s_ease-out]">
+                Circademic היא הדרך המתקדמת, המעוצבת והפשוטה ביותר לעקוב אחרי התואר שלך.
+                ממוצעים, מגן, תחזיות ודוחות - הכל במקום אחד.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16 animate-[fadeInUp_1.1s_ease-out]">
+                <a href="login.html" class="btn-primary">
+                    התחל עכשיו - בחינם
+                    <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i>
+                </a>
+                <a href="#features" class="btn-outline bg-white dark:bg-gray-800">
+                    איך זה עובד?
+                </a>
+            </div>
+
+            <div class="relative max-w-4xl mx-auto animate-[fadeInUp_1.3s_ease-out]">
+                <div class="absolute -top-10 -left-10 w-24 h-24 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                <div class="absolute -top-10 -right-10 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                                       <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-xl flex items-center justify-center text-gray-400">
+                        <div class="text-center">
+                            <i data-lucide="layout-dashboard" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+                            <span class="text-lg">תצוגה מקדימה של לוח הבקרה</span>
+                        </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="py-20 px-6">
+        <div class="container mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">כל מה שצריך כדי להצטיין</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">בנינו את הכלים שסטודנטים באמת צריכים. בלי רעש, בלי סיבוכים.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
+                        <i data-lucide="calculator" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">מחשבון "מה אם"</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        רוצה לדעת כמה צריך לקבל במבחן כדי לשמור על הממוצע? הסימולטור שלנו יחשב הכל בשבילך.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400">
+                        <i data-lucide="file-down" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">דוחות PDF אוטומטיים</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        צריך להגיש גיליון ציונים למלגה או לעבודה? הפק דוח מעוצב ומקצועי בלחיצת כפתור אחת.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-6 text-orange-600 dark:text-orange-400">
+                        <i data-lucide="shield" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">חישוב ציון מגן</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        מחשבון ייעודי שמראה לך בדיוק כמה המגן עוזר (או מזיק) וכמה עליך לקבל בבחינה כדי לעבור.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center mb-6 text-green-600 dark:text-green-400">
+                        <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">ויזואליזציה חכמה</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        גרפים ברורים של התפלגות ציונים, ממוצעים סמסטריאליים ומגמות לאורך התואר.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 text-gray-600 dark:text-gray-300">
+                        <i data-lucide="moon" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">מצב כהה (Dark Mode)</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        לומדים מאוחר בלילה? המערכת תומכת באופן מלא במצב כהה שנעים לעין.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center mb-6 text-red-600 dark:text-red-400">
+                        <i data-lucide="lock" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">פרטיות ואבטחה</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        המידע שלך הוא רק שלך. הכל מאובטח בענן, ללא גישה לגורמים צד שלישי.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-white dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="space-y-2">
+                    <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">100%</p>
+                    <p class="text-gray-600 dark:text-gray-400">חינם לשימוש</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-4xl font-bold text-purple-600 dark:text-purple-400">24/7</p>
+                    <p class="text-gray-600 dark:text-gray-400">זמינות בענן</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-4xl font-bold text-orange-600 dark:text-orange-400">PDF</p>
+                    <p class="text-gray-600 dark:text-gray-400">ייצוא מהיר</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-4xl font-bold text-green-600 dark:text-green-400">UI</p>
+                    <p class="text-gray-600 dark:text-gray-400">ממשק מודרני</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-10 dark:opacity-20"></div>
+        <div class="container mx-auto text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">מוכנים לשלוט בתואר שלכם?</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
+                הצטרפו לסטודנטים שכבר משתמשים ב-Circademic ונהנים מראש שקט.
+            </p>
+            <a href="login.html" class="btn-primary transform hover:scale-105">
+                צור חשבון בחינם
+                <i data-lucide="chevron-left" class="w-5 h-5 mr-1"></i>
+            </a>
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">לא נדרש כרטיס אשראי • הרשמה מהירה</p>
+        </div>
+    </section>
+
+    <footer class="bg-gray-100 dark:bg-gray-900 pt-16 pb-8 border-t border-gray-200 dark:border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <img src="LOGO.png" alt="Logo" class="w-8 h-8">
+                        <span class="text-xl font-bold font-rubik text-gray-800 dark:text-gray-100">Circademic</span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-xs">
+                        המערכת האקדמית המתקדמת שלך. תוכננה על ידי סטודנטים, עבור סטודנטים.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-gray-900 dark:text-gray-100">ניווט מהיר</h4>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                        <li><a href="login.html" class="hover:text-blue-500 transition-colors">כניסה</a></li>
+                        <li><a href="login.html" class="hover:text-blue-500 transition-colors">הרשמה</a></li>
+                        <li><a href="about.html" class="hover:text-blue-500 transition-colors">אודות</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4 text-gray-900 dark:text-gray-100">תמיכה</h4>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                        <li><a href="contact.html" class="hover:text-blue-500 transition-colors">צור קשר</a></li>
+                        <li><a href="#" class="hover:text-blue-500 transition-colors">דיווח על באג</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-500 dark:text-gray-500">© 2025 Circademic. כל הזכויות שמורות.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Dark Mode Logic
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        
+        // Check local storage
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>
