@@ -1,0 +1,2853 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחולל סיכומים ודפי נוסחאות</title>
+    
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&family=David+Libre:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },
+      svg: { fontCache: 'global' },
+      startup: {
+        ready: () => {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            if(window.onMathJaxReady) window.onMathJaxReady();
+          });
+        }
+      }
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    
+    <style>
+        /* Design System Variables */
+        :root {
+            --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
+            --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
+            --accent: #F59E0B; --success: #10B981; --danger: #EF4444;
+            --academic-red: #A91D3A;
+            --code-green: #22c55e;
+
+            --bg-light: #F9FAFB; --bg-lighter: #FFFFFF;
+            --bg-dark: #0F172A; --bg-dark-card: #1E293B;
+            --text-primary-light: #111827; --text-secondary-light: #6B7280;
+            --text-primary-dark: #F9FAFB; --text-secondary-dark: #9CA3AF;
+            --border-light: #E5E7EB; --border-dark: #374151;
+            --spacing-sm: 0.5rem; --spacing-md: 1rem; --spacing-lg: 1.5rem; --spacing-xl: 2rem;
+            --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 9999px;
+            
+            /* A4 Page Dimensions */
+            --a4-width-mm: 210mm;
+            --a4-height-mm: 297mm;
+            --mm-to-px: 3.7795275591;
+            --a4-height-px: calc(var(--a4-height-mm) * var(--mm-to-px));
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Base Typography */
+        body { 
+            font-family: 'Heebo', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary-light);
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+        body.dark-mode { background: var(--bg-dark); color: var(--text-primary-dark); }
+        h1, h2, h3, h4 { font-family: 'Rubik', sans-serif; font-weight: 700; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-light); border-radius: 10px; }
+        body.dark-mode ::-webkit-scrollbar-track { background: var(--bg-dark-card); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Format Help Box */
+        .format-help-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            margin-bottom: var(--spacing-lg);
+            animation: fadeInUp 0.5s ease-out;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode .format-help-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-color: var(--border-dark);
+        }
+        
+        .format-help-box:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+        }
+        
+        .format-help-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .format-help-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .format-help-toggle {
+            transition: transform 0.3s ease;
+        }
+        
+        .format-help-toggle.open {
+            transform: rotate(180deg);
+        }
+        
+        .format-help-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .format-help-content.open {
+            max-height: 500px;
+            margin-top: 0.75rem;
+        }
+        
+        .format-help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .format-help-item {
+            background: var(--bg-lighter);
+            padding: 0.4rem 0.6rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            font-size: 0.85rem;
+        }
+        
+        body.dark-mode .format-help-item {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+        }
+        
+        .format-help-item strong {
+            color: var(--primary);
+        }
+        
+        .format-help-item code {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary-light);
+            background: var(--bg-light);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+        
+        body.dark-mode .format-help-item code {
+            color: var(--text-secondary-dark);
+            background: var(--bg-dark);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg) var(--spacing-lg);
+        }
+
+        /* Standard Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+            animation: fadeInUp 0.5s ease-out;
+            flex-shrink: 0;
+        }
+        .header-title-section h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            font-size: 2.5rem; margin-bottom: var(--spacing-sm);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-title-section p { color: var(--text-secondary-light); font-size: 1.125rem; }
+        body.dark-mode .header-title-section p { color: var(--text-secondary-dark); }
+        .header-buttons { display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Standard Icon & Buttons */
+        .icon-btn {
+            width: 2.75rem; height: 2.75rem; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; border: none; color: var(--text-secondary-light); text-decoration: none;
+        }
+        .icon-btn:hover { background: rgba(59, 130, 246, 0.2); transform: scale(1.1); }
+        body.dark-mode .icon-btn { background: rgba(59, 130, 246, 0.15); color: var(--text-secondary-dark); }
+        body.dark-mode .icon-btn:hover { background: rgba(59, 130, 246, 0.25); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        
+        .btn-secondary {
+            background: transparent; border: 2px solid var(--border-light);
+            color: var(--text-secondary-light); padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        body.dark-mode .btn-secondary { border-color: var(--border-dark); color: var(--text-secondary-dark); }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5); }
+        
+        .btn-success {
+            background: var(--success);
+            color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md);
+            font-weight: 600; border: none; cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5); }
+
+        /* Summary Manager Bar */
+        .summary-manager-bar {
+            background: var(--bg-lighter);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            animation: fadeInUp 0.5s ease-out;
+        }
+        body.dark-mode .summary-manager-bar {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+        }
+        
+        .summary-manager-bar div[style*="border-right"] {
+            border-color: var(--border-light) !important;
+        }
+        body.dark-mode .summary-manager-bar div[style*="border-right"] {
+            border-color: var(--border-dark) !important;
+        }
+        
+        .summary-selector {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .summary-selector label {
+            font-weight: 600;
+            color: var(--text-secondary-light);
+        }
+        body.dark-mode .summary-selector label {
+            color: var(--text-secondary-dark);
+        }
+        
+        .summary-selector select {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-light);
+            font-family: 'Heebo', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        body.dark-mode .summary-selector select {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+        .summary-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        
+        .summary-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        /* Main App Layout */
+        .styler-container {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: var(--spacing-lg);
+            animation: fadeInUp 0.6s ease-out;
+            position: relative;
+        }
+
+        /* Sidebar (Controls & Input) */
+        .styler-sidebar {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-lighter);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            position: sticky;
+            top: var(--spacing-lg);
+            height: calc(100vh - var(--spacing-lg) * 2);
+        }
+        body.dark-mode .styler-sidebar {
+            background: var(--bg-dark-card);
+            border-color: var(--border-dark);
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex; justify-content: center; gap: var(--spacing-sm);
+            background: var(--bg-light); border-radius: var(--radius-full);
+            padding: var(--spacing-sm); margin-bottom: var(--spacing-lg);
+            flex-shrink: 0;
+        }
+        body.dark-mode .mode-selector { background: var(--bg-dark); }
+        .mode-btn {
+            flex: 1; padding: 0.625rem 1rem; border: none; border-radius: var(--radius-full);
+            background: transparent; color: var(--text-secondary-light); font-weight: 600;
+            font-family: 'Heebo', sans-serif; cursor: pointer; transition: all 0.3s ease;
+        }
+        body.dark-mode .mode-btn { color: var(--text-secondary-dark); }
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Sidebar Tab Controls */
+        .sidebar-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            flex: 1; padding: 0.75rem; border-radius: var(--radius-md);
+            background: var(--bg-light); border: none;
+            color: var(--text-secondary-light); font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);
+        }
+        body.dark-mode .tab-btn { background: var(--bg-dark); color: var(--text-secondary-dark); }
+        .tab-btn.active {
+            background: var(--primary-light); color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+        
+        .tab-panel {
+            display: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            min-height: 0;
+            padding-right: var(--spacing-sm);
+        }
+        .tab-panel.active {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        /* Content Builder UI */
+        .form-group {
+            display: flex; flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        .form-group label { font-weight: 600; font-size: 0.875rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.75rem 1rem; border: 2px solid var(--border-light);
+            border-radius: var(--radius-md); background: var(--bg-light);
+            transition: all 0.2s ease; font-size: 0.938rem;
+            font-family: 'Heebo', sans-serif; width: 100%;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        body.dark-mode .form-group input, 
+        body.dark-mode .form-group select, 
+        body.dark-mode .form-group textarea {
+            background: var(--bg-dark); border-color: var(--border-dark); color: var(--text-primary-dark);
+        }
+        /* Checkbox style */
+        .form-group-row {
+            display: flex; align-items: center; gap: var(--spacing-sm);
+        }
+        .form-group-row input[type="checkbox"] {
+            width: 1rem; height: 1rem;
+            accent-color: var(--primary);
+        }
+        
+        /* Specific panel content */
+        .add-form {
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex; flex-direction: column; gap: var(--spacing-md);
+            border: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        body.dark-mode .add-form { background: var(--bg-dark); border-color: var(--border-dark); }
+        .add-form button { justify-content: center; }
+        .edit-controls { display: flex; gap: var(--spacing-sm); }
+        .edit-controls .btn-secondary { flex: 1; justify-content: center; }
+        .edit-controls .btn-danger-outline {
+            background: transparent; border: 2px solid var(--danger);
+            color: var(--danger); padding: 0.75rem; border-radius: var(--radius-md);
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .edit-controls .btn-danger-outline:hover { background: rgba(239, 68, 68, 0.1); }
+        
+        .item-list {
+            display: flex; flex-direction: column; gap: var(--spacing-sm);
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 100px;
+        }
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-light);
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        body.dark-mode .list-item { background: var(--bg-dark); border-color: var(--border-dark); }
+        .list-item span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .list-item .item-controls { display: flex; gap: var(--spacing-sm); }
+        .list-item .edit-btn {
+            background: transparent; color: var(--text-secondary-light);
+            border: none; cursor: pointer; padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        .list-item .edit-btn:hover {
+            color: var(--primary);
+        }
+        .list-item .delete-btn {
+            background: transparent; color: var(--text-secondary-light);
+            border: none; cursor: pointer; padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        .list-item .delete-btn:hover {
+            color: var(--danger);
+        }
+        .list-item.dragging {
+            opacity: 0.5;
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* Math Helper Bar */
+        .symbol-bar { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+        .symbol-bar button {
+            background: var(--bg-light); border: 1px solid var(--border-light);
+            border-radius: var(--radius-md); padding: 0.5rem 0.75rem;
+            font-weight: bold; font-family: 'Times New Roman', Times, serif;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        body.dark-mode .symbol-bar button { background: var(--bg-dark); border-color: var(--border-dark); }
+        .symbol-bar button:hover {
+            background: var(--bg-lighter); border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .math-live-preview {
+            background: var(--bg-light); border: 1px solid var(--border-light);
+            border-radius: var(--radius-md); padding: var(--spacing-md);
+            min-height: 40px; direction: ltr;
+        }
+        body.dark-mode .math-live-preview { background: var(--bg-dark); border-color: var(--border-dark); }
+        
+        /* Textarea fix */
+        #template-text-content .form-group {
+            flex-grow: 1; min-height: 0;
+        }
+        #text-input {
+            height: 100%; resize: none;
+            flex-grow: 1;
+        }
+
+        /* Preview Area */
+        .styler-preview-area {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 100vh;
+        }
+        .preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            flex-shrink: 0;
+            position: sticky;
+            top: var(--spacing-lg);
+            background: var(--bg-light);
+            padding-bottom: var(--spacing-md);
+            z-index: 10;
+        }
+        body.dark-mode .preview-toolbar { background: var(--bg-dark); }
+        
+        .page-counter {
+            font-weight: 600; font-size: 1.125rem;
+            color: var(--text-secondary-light);
+        }
+        body.dark-mode .page-counter { color: var(--text-secondary-dark); }
+        
+        .a4-preview-wrapper {
+            flex-grow: 1;
+            overflow: auto;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--border-light);
+        }
+        body.dark-mode .a4-preview-wrapper {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+
+        /* The A4 Page */
+        .a4-page {
+            width: var(--a4-width-mm);
+            min-height: var(--a4-height-mm);
+            background: white;
+            margin: 0 auto var(--spacing-lg);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            
+            color: var(--page-color-text, black);
+            font-family: var(--page-font-body, 'Times New Roman');
+            font-size: var(--page-font-size, 11pt);
+            line-height: 1.4;
+            padding: var(--page-margins, 20mm);
+        }
+        
+        /* Rendered Content Styles */
+        .a4-page .page-header {
+            text-align: center;
+            border-bottom: 2px solid var(--page-color-accent, black);
+            margin-bottom: 1em;
+            padding-bottom: 0.5em;
+            break-before: avoid; 
+        }
+        .a4-page .page-main-title {
+            font-family: var(--page-font-heading, 'Times New Roman');
+            color: var(--page-color-accent, black);
+            font-size: 22pt;
+            font-weight: bold;
+            margin: 0;
+        }
+        .a4-page .page-meta {
+            font-family: var(--page-font-heading, 'Times New Roman');
+            font-size: 10pt;
+            color: var(--text-secondary-light);
+            margin-top: var(--spacing-sm);
+        }
+        
+        .page-content {
+            column-count: var(--page-columns, 1);
+            column-gap: 10mm;
+        }
+        
+        .page-content p { 
+            margin-bottom: 0.75em; 
+        }
+        .page-content.increased-spacing p {
+            margin-bottom: 1.5em;
+        }
+        
+        .page-content .glossary-term, .page-content .math-name {
+            font-family: var(--page-font-heading, 'Times New Roman');
+            color: var(--page-color-accent, black);
+            font-weight: bold;
+        }
+        .page-content .math-formula {
+            direction: ltr;
+            margin-right: var(--spacing-sm);
+        }
+
+        /* Theme Classes */
+        .a4-page.theme-professional {
+            --page-font-body: 'Times New Roman', Times, serif;
+            --page-font-heading: 'Times New Roman', Times, serif;
+            --page-color-text: #000000;
+            --page-color-accent: var(--primary-dark);
+        }
+        .a4-page.theme-modern {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: var(--text-primary-light);
+            --page-color-accent: var(--secondary-dark);
+        }
+        .a4-page.theme-minimal {
+            --page-font-body: Arial, Helvetica, sans-serif;
+            --page-font-heading: Arial, Helvetica, sans-serif;
+            --page-color-text: #000000;
+            --page-color-accent: #000000;
+        }
+        .a4-page.theme-academic {
+            --page-font-body: 'David Libre', serif;
+            --page-font-heading: 'David Libre', serif;
+            --page-color-text: #000000;
+            --page-color-accent: var(--academic-red);
+        }
+        .a4-page.theme-code {
+            --page-font-body: 'Source Code Pro', monospace;
+            --page-font-heading: 'Source Code Pro', monospace;
+            --page-color-text: #333333;
+            --page-color-accent: var(--code-green);
+        }
+        
+        /* ===== ערכות נושא חדשות ===== */
+        
+        .a4-page.theme-nature {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #1a4d2e;
+            --page-color-accent: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .a4-page.theme-ocean {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #0c4a6e;
+            --page-color-accent: #0ea5e9;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        
+        .a4-page.theme-sunset {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #7c2d12;
+            --page-color-accent: #f97316;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+        }
+        
+        .a4-page.theme-lavender {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #4c1d95;
+            --page-color-accent: #a855f7;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+        }
+        
+        .a4-page.theme-rose {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #881337;
+            --page-color-accent: #f43f5e;
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        }
+        
+        .a4-page.theme-charcoal {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #fafafa;
+            --page-color-accent: #a3a3a3;
+            background: linear-gradient(135deg, #27272a 0%, #18181b 100%);
+        }
+        
+        .a4-page.theme-emerald {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #064e3b;
+            --page-color-accent: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+        
+        .a4-page.theme-golden {
+            --page-font-body: 'David Libre', serif;
+            --page-font-heading: 'David Libre', serif;
+            --page-color-text: #78350f;
+            --page-color-accent: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+            z-index: 50; justify-content: center; align-items: center;
+        }
+        .modal-backdrop.active { display: flex; }
+        .modal-container {
+            background: white; border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.3s ease-out;
+            width: 90%; max-width: 500px;
+        }
+        body.dark-mode .modal-container { background: var(--bg-dark-card); }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .modal-header h2 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .modal-actions { display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg); }
+        
+        /* Welcome Modal */
+        .welcome-modal {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        .welcome-modal.hidden {
+            display: none;
+        }
+        
+        .welcome-content {
+            background: var(--bg-lighter);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 550px;
+            animation: slideDown 0.4s ease-out;
+        }
+        
+        body.dark-mode .welcome-content {
+            background: var(--bg-dark-card);
+        }
+        
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-secondary-light);
+            margin-bottom: 1.5rem;
+        }
+        
+        body.dark-mode .welcome-text {
+            color: var(--text-secondary-dark);
+        }
+        
+        .welcome-important {
+            background: rgba(239, 68, 68, 0.1);
+            border-right: 4px solid #EF4444;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+        }
+        
+        body.dark-mode .welcome-important {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .welcome-important strong {
+            color: #EF4444;
+        }
+        
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        
+        .welcome-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+        
+        body.dark-mode .welcome-feature {
+            background: var(--bg-dark);
+        }
+        
+        .welcome-feature i {
+            color: var(--success);
+        }
+        
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .welcome-actions button {
+            flex: 1;
+        }
+        
+        .welcome-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+        
+        body.dark-mode .welcome-checkbox {
+            background: var(--bg-dark);
+        }
+        
+        .welcome-checkbox input {
+            cursor: pointer;
+        }
+        
+        .welcome-checkbox label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary-light);
+        }
+        
+        body.dark-mode .welcome-checkbox label {
+            color: var(--text-secondary-dark);
+        }
+
+        /* Print Mount & Media Query */
+        #print-mount { display: none; visibility: hidden; }
+        
+        @media print {
+            body > :not(#print-mount) {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            body, html { background: white !important; color: black !important; }
+            #print-mount, #print-mount * {
+                display: block !important;
+                visibility: visible !important;
+            }
+            #print-mount { position: absolute; top: 0; left: 0; width: 100%; }
+            @page { size: A4; margin: 0; }
+            .a4-page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                min-height: 0 !important;
+                height: auto !important;
+                page-break-inside: avoid;
+                break-before: avoid;
+            }
+            .a4-page .page-header { 
+                page-break-inside: avoid; 
+                break-before: avoid;
+            }
+            .page-content p { page-break-inside: avoid; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .styler-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .styler-sidebar {
+                position: relative;
+                top: 0;
+                height: auto;
+            }
+            .styler-preview-area { min-height: 600px; }
+            .preview-toolbar { position: relative; top: 0; }
+        }
+
+    </style>
+</head>
+<body class="">
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="welcome-modal">
+        <div class="welcome-content">
+            <div class="welcome-icon">
+                <i data-lucide="info"></i>
+            </div>
+            
+            <h2 class="welcome-title">ברוך הבא למחולל הסיכומים! 📚</h2>
+            
+            <div class="welcome-text">
+                <p style="margin-bottom: 1rem;">
+                    מערכת זו עובדת <strong>באופן לוקאלי</strong> במחשב שלך ללא צורך בשרת חיצוני.
+                </p>
+                
+                <div class="welcome-important">
+                    <strong>⚠️ חשוב לדעת:</strong><br>
+                    הסיכומים שלך נשמרים <strong>בדפדפן</strong> (LocalStorage). 
+                    אם תמחק את נתוני הגלישה של הדפדפן - הסיכומים ייעלמו!
+                </div>
+                
+                <p style="margin-top: 1rem;">
+                    <strong>💾 הגנה על הנתונים שלך:</strong>
+                </p>
+            </div>
+            
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <i data-lucide="download"></i>
+                    <span>שמור גיבוי קבוע</span>
+                </div>
+                <div class="welcome-feature">
+                    <i data-lucide="shield-check"></i>
+                    <span>100% פרטי ומאובטח</span>
+                </div>
+                <div class="welcome-feature">
+                    <i data-lucide="server-off"></i>
+                    <span>ללא שרת חיצוני</span>
+                </div>
+                <div class="welcome-feature">
+                    <i data-lucide="zap"></i>
+                    <span>מהיר וקל לשימוש</span>
+                </div>
+            </div>
+            
+            <div class="welcome-text" style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-md);">
+                <strong style="color: var(--primary);">💡 טיפ:</strong> 
+                לחץ על כפתור <strong>"ייצא גיבוי"</strong> ⬇️ (בסרגל העליון) 
+                כדי לשמור את הסיכומים שלך לקובץ JSON במחשב!
+            </div>
+            
+            <div class="welcome-checkbox" onclick="document.getElementById('dont-show-again').click()">
+                <input type="checkbox" id="dont-show-again">
+                <label for="dont-show-again">אל תציג הודעה זו שוב</label>
+            </div>
+            
+            <div class="welcome-actions">
+                <button class="btn-primary" id="welcome-ok" style="flex: 2;">
+                    <i data-lucide="check"></i>
+                    הבנתי, בואו נתחיל!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-title-section">
+            <h1>
+                <i data-lucide="edit-3"></i>
+                מחולל סיכומים
+            </h1>
+            <p>צור דפי נוסחאות וסיכומים מעוצבים להדפסה</p>
+        </div>
+        
+        <div class="header-buttons">
+            <a href="Lobby.html" class="icon-btn" title="חזרה ללובי">
+                <i data-lucide="layout-grid"></i>
+            </a>
+            <button id="settings-btn" class="icon-btn" title="הגדרות">
+                <i data-lucide="settings"></i>
+            </button>
+            <button id="dark-mode-toggle" class="icon-btn" title="מצב כהה/בהיר">
+                <i data-lucide="moon" class="moon-icon"></i>
+                <i data-lucide="sun" class="sun-icon" style="display: none;"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Summary Manager Bar -->
+        <div class="summary-manager-bar">
+            <div class="summary-selector">
+                <label for="summary-select">
+                    <i data-lucide="folder"></i>
+                    סיכום נוכחי:
+                </label>
+                <select id="summary-select"></select>
+            </div>
+            <div class="summary-actions">
+                <button id="new-summary-btn" class="btn-success" title="צור סיכום חדש">
+                    <i data-lucide="plus"></i>
+                    <span>חדש</span>
+                </button>
+                <button id="rename-summary-btn" class="icon-btn" title="שנה שם לסיכום">
+                    <i data-lucide="edit"></i>
+                </button>
+                <button id="delete-summary-btn" class="icon-btn" title="מחק סיכום">
+                    <i data-lucide="trash-2"></i>
+                </button>
+                <div style="border-right: 2px solid var(--border-light); height: 2rem; margin: 0 0.5rem;"></div>
+                <button id="print-combined-btn" class="icon-btn" title="הדפס PDF משולב (כל 3 הסוגים)">
+                    <i data-lucide="book-open"></i>
+                </button>
+                <button id="export-data-btn" class="icon-btn" title="ייצא גיבוי של כל הסיכומים">
+                    <i data-lucide="download"></i>
+                </button>
+                <button id="import-data-btn" class="icon-btn" title="ייבא גיבוי">
+                    <i data-lucide="upload"></i>
+                </button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Format Help Box -->
+        <div class="format-help-box" id="format-help-box">
+            <div class="format-help-header">
+                <div class="format-help-title">
+                    <i data-lucide="help-circle"></i>
+                    כלי עיצוב - לחץ לפתיחה
+                </div>
+                <i data-lucide="chevron-down" class="format-help-toggle" id="format-help-toggle"></i>
+            </div>
+            <div class="format-help-content" id="format-help-content">
+                <div class="format-help-grid">
+                    <div class="format-help-item">
+                        <strong>הדגשה:</strong> <code>*טקסט*</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>קו תחתון:</strong> <code>_טקסט_</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>כותרת:</strong> <code>### כותרת</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>אדום:</strong> <code>{אדום: טקסט}</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>כחול:</strong> <code>{כחול: טקסט}</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>ירוק:</strong> <code>{ירוק: טקסט}</code>
+                    </div>
+                    <div class="format-help-item">
+                        <strong>LaTeX:</strong> <code>$x^2$</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="styler-container">
+            
+            <div class="styler-sidebar">
+                
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="glossary">דף מושגים</button>
+                    <button class="mode-btn" data-mode="math">דף נוסחאות</button>
+                    <button class="mode-btn" data-mode="text">טקסט רציף</button>
+                </div>
+                
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="content">
+                        <i data-lucide="file-text"></i> תוכן
+                    </button>
+                    <button class="tab-btn" data-tab="design">
+                        <i data-lucide="palette"></i> עיצוב
+                    </button>
+                </div>
+                
+                <div id="tab-content" class="tab-panel active">
+                </div>
+                
+                <div id="tab-design" class="tab-panel">
+                    <div class="form-group">
+                        <label for="design-title">כותרת ראשית</label>
+                        <input type="text" id="design-title" placeholder="לדוגמה: סיכום למבחן בחדו''א">
+                    </div>
+                    <div class="form-group">
+                        <label for="design-theme">ערכת נושא</label>
+                        <select id="design-theme">
+                            <option value="theme-modern" selected>מודרני (Heebo/Rubik)</option>
+                            <option value="theme-professional">מקצועי (Times New Roman)</option>
+                            <option value="theme-academic">אקדמי (David Libre)</option>
+                            <option value="theme-code">קוד (Source Code Pro)</option>
+                            <option value="theme-minimal">מינימליסטי (Arial)</option>
+                            <optgroup label="─── ערכות צבעוניות ───">
+                                <option value="theme-nature">🌿 טבע ירוק</option>
+                                <option value="theme-ocean">🌊 אוקיינוס כחול</option>
+                                <option value="theme-sunset">🌅 שקיעה כתומה</option>
+                                <option value="theme-lavender">💜 לבנדר סגול</option>
+                                <option value="theme-rose">🌹 ורד ורוד</option>
+                                <option value="theme-charcoal">⚫ פחם כהה</option>
+                                <option value="theme-emerald">💎 אמרלד ירוק</option>
+                                <option value="theme-golden">✨ זהב מלכותי</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <hr style="border-color: var(--border-light);">
+                    
+                    <div class="form-group">
+                        <label for="design-columns">מספר טורים</label>
+                        <select id="design-columns">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="design-margins">שוליים</label>
+                        <select id="design-margins">
+                            <option value="10mm">צרים (10 מ"מ)</option>
+                            <option value="20mm" selected>רגילים (20 מ"מ)</option>
+                            <option value="30mm">רחבים (30 מ"מ)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="design-font-size">גודל גופן</label>
+                        <select id="design-font-size">
+                            <option value="9pt">קטן</option>
+                            <option value="11pt" selected>בינוני</option>
+                            <option value="13pt">גדול</option>
+                        </select>
+                    </div>
+                    
+                    <div id="spacing-controls" class="form-group-row" style="margin-top: var(--spacing-sm);">
+                        <input type="checkbox" id="design-spacing">
+                        <label for="design-spacing">הגדל רווחים בין פריטים</label>
+                    </div>
+
+                </div>
+
+            </div>
+            
+            <div class="styler-preview-area">
+                
+                <div class="preview-toolbar">
+                    <div class="page-counter">
+                        <span>
+                            סה"כ עמודים (משוער):
+                            <strong id="total-pages">1</strong>
+                        </span>
+                    </div>
+                    <button class="btn-primary" id="print-btn">
+                        <i data-lucide="printer"></i>
+                        <span>הדפס / שמור כ-PDF</span>
+                    </button>
+                </div>
+                
+                <div class="a4-preview-wrapper" id="a4-preview-wrapper">
+                    <div id="a4-page" class="a4-page theme-modern">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="print-mount"></div>
+
+    <!-- Settings Modal -->
+    <div class="modal-backdrop" id="settings-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>הגדרות סיכום</h2>
+                <button class="icon-btn" id="close-settings-modal-btn" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="meta-author-name">שם יוצר/ת (אופציונלי)</label>
+                <input type="text" id="meta-author-name" placeholder="הקלד את שמך">
+            </div>
+            <div class="form-group-row">
+                <input type="checkbox" id="meta-show-timestamp">
+                <label for="meta-show-timestamp">הצג חותמת תאריך בעמוד</label>
+            </div>
+            <hr style="border-color: var(--border-light); margin: var(--spacing-lg) 0;">
+            <div class="form-group">
+                <label>ניהול נתונים</label>
+                <button class="btn-danger" id="clear-data-btn" style="justify-content: center;">
+                    <i data-lucide="trash-2"></i>
+                    <span>נקה את כל התוכן של סיכום זה</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Summary Modal -->
+    <div class="modal-backdrop" id="new-summary-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>צור סיכום חדש</h2>
+                <button class="icon-btn" id="close-new-summary-modal" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="new-summary-name">שם הסיכום</label>
+                <input type="text" id="new-summary-name" placeholder="לדוגמה: חדו''א - שיעור 3">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancel-new-summary">ביטול</button>
+                <button class="btn-primary" id="confirm-new-summary">צור</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Summary Modal -->
+    <div class="modal-backdrop" id="rename-summary-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>שנה שם סיכום</h2>
+                <button class="icon-btn" id="close-rename-modal" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="rename-summary-input">שם חדש</label>
+                <input type="text" id="rename-summary-input">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancel-rename">ביטול</button>
+                <button class="btn-primary" id="confirm-rename">שמור</button>
+            </div>
+        </div>
+    </div>
+
+
+    <template id="template-glossary-content">
+        <div class="add-form">
+            <h3 id="glossary-form-title" style="font-size: 1.25rem; margin-bottom: 0.5rem;">הוסף מושג חדש</h3>
+            <div class="form-group">
+                <label for="glossary-term">מושג</label>
+                <input type="text" id="glossary-term" placeholder="הסדרת התנהגות">
+            </div>
+            <div class="form-group">
+                <label for="glossary-def">הגדרה</label>
+                <textarea id="glossary-def" placeholder="חוקים קובעים כללים להתנהגות..."></textarea>
+            </div>
+            <button id="add-glossary-btn" class="btn-primary">
+                <i data-lucide="plus"></i> <span class="btn-text">הוסף מושג</span>
+            </button>
+            <button id="add-glossary-subtitle-btn" class="btn-secondary" style="margin-top: 0.5rem; width: 100%;">
+                <i data-lucide="heading-3"></i> הוסף תת-כותרת
+            </button>
+            <div class="edit-controls" style="display: none;">
+                <button type="button" id="cancel-edit-btn" class="btn-secondary">בטל עריכה</button>
+                <button type="button" id="delete-item-btn" class="btn-danger-outline">
+                    <i data-lucide="trash-2"></i> מחק
+                </button>
+            </div>
+        </div>
+        <div id="glossary-list" class="item-list"></div>
+    </template>
+    
+    <template id="template-math-content">
+        <div class="add-form">
+            <h3 id="math-form-title" style="font-size: 1.25rem; margin-bottom: 0.5rem;">הוסף נוסחה חדשה</h3>
+            <div class="form-group">
+                <label for="math-name">שם / תיאור</label>
+                <input type="text" id="math-name" placeholder="חוק ניוטון השני">
+            </div>
+            <div class="form-group">
+                <label for="math-formula">נוסחה (בכתיב LaTeX)</label>
+                <div class="symbol-bar">
+                    <button type="button" data-symbol="\sqrt{}">√</button>
+                    <button type="button" data-symbol="\frac{}{}">a/b</button>
+                    <button type="button" data-symbol="^{}">a²</button>
+                    <button type="button" data-symbol="_{}">a₁</button>
+                    <button type="button" data-symbol="\sum">Σ</button>
+                    <button type="button" data-symbol="\int">∫</button>
+                    <button type="button" data-symbol="\alpha">α</button>
+                    <button type="button" data-symbol="\beta">β</button>
+                    <button type="button" data-symbol="\pi">π</button>
+                </div>
+                <input type="text" id="math-formula" placeholder="F=ma">
+                <div id="math-live-preview" class="math-live-preview"></div>
+            </div>
+            <button id="add-math-btn" class="btn-primary">
+                <i data-lucide="plus"></i> <span class="btn-text">הוסף נוסחה</span>
+            </button>
+            <button id="add-math-subtitle-btn" class="btn-secondary" style="margin-top: 0.5rem; width: 100%;">
+                <i data-lucide="heading-3"></i> הוסף תת-כותרת
+            </button>
+            <div class="edit-controls" style="display: none;">
+                <button type="button" id="cancel-edit-btn" class="btn-secondary">בטל עריכה</button>
+                <button type="button" id="delete-item-btn" class="btn-danger-outline">
+                    <i data-lucide="trash-2"></i> מחק
+                </button>
+            </div>
+        </div>
+        <div id="math-list" class="item-list"></div>
+    </template>
+    
+    <template id="template-text-content">
+        <div class="form-group" style="flex-grow: 1; min-height: 0; display: flex; flex-direction: column;">
+            <label>תוכן רציף</label>
+            <textarea id="text-input" style="flex-grow: 1; resize: none;" placeholder="הקלד או הדבק את הסיכום שלך כאן..."></textarea>
+        </div>
+    </template>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- SUMMARY MANAGEMENT STATE ---
+            const summaryManager = {
+                currentSummaryId: null,
+                summaries: {} // { id: { name, data } }
+            };
+            
+            const SUMMARIES_KEY = 'allSummaries_v1';
+            const CURRENT_SUMMARY_KEY = 'currentSummaryId_v1';
+            
+            // --- STATE MANAGEMENT ---
+            const defaultDesign = {
+                title: "",
+                theme: "theme-modern",
+                fontSize: "11pt",
+                columns: "1",
+                margins: "20mm",
+                increasedSpacing: false
+            };
+            
+            const state = {
+                mode: 'glossary',
+                items: {
+                    glossary: [],
+                    math: [],
+                    text: ""
+                },
+                design: {
+                    glossary: { ...defaultDesign },
+                    math: { ...defaultDesign, theme: "theme-professional" },
+                    text: { ...defaultDesign, theme: "theme-academic" }
+                },
+                meta: {
+                    authorName: "",
+                    showTimestamp: false
+                },
+                activeTab: 'content',
+                editingId: null,
+                draggingId: null,
+                isMathJaxReady: false
+            };
+
+            // --- DOM ELEMENTS ---
+            const dom = {
+                // Summary Manager
+                summarySelect: document.getElementById('summary-select'),
+                newSummaryBtn: document.getElementById('new-summary-btn'),
+                renameSummaryBtn: document.getElementById('rename-summary-btn'),
+                deleteSummaryBtn: document.getElementById('delete-summary-btn'),
+                printCombinedBtn: document.getElementById('print-combined-btn'),
+                exportDataBtn: document.getElementById('export-data-btn'),
+                importDataBtn: document.getElementById('import-data-btn'),
+                importFileInput: document.getElementById('import-file-input'),
+                
+                // Modals
+                newSummaryModal: document.getElementById('new-summary-modal'),
+                closeNewSummaryModal: document.getElementById('close-new-summary-modal'),
+                newSummaryName: document.getElementById('new-summary-name'),
+                cancelNewSummary: document.getElementById('cancel-new-summary'),
+                confirmNewSummary: document.getElementById('confirm-new-summary'),
+                
+                renameSummaryModal: document.getElementById('rename-summary-modal'),
+                closeRenameModal: document.getElementById('close-rename-modal'),
+                renameSummaryInput: document.getElementById('rename-summary-input'),
+                cancelRename: document.getElementById('cancel-rename'),
+                confirmRename: document.getElementById('confirm-rename'),
+                
+                // App elements
+                modeButtons: document.querySelectorAll('.mode-btn'),
+                tabButtons: document.querySelectorAll('.tab-btn'),
+                tabPanels: document.querySelectorAll('.tab-panel'),
+                contentTabPanel: document.getElementById('tab-content'),
+                designTabPanel: document.getElementById('tab-design'),
+                printBtn: document.getElementById('print-btn'),
+                a4Page: document.getElementById('a4-page'),
+                a4PreviewWrapper: document.getElementById('a4-preview-wrapper'),
+                totalPages: document.getElementById('total-pages'),
+                
+                designTitle: document.getElementById('design-title'),
+                designTheme: document.getElementById('design-theme'),
+                designFontSize: document.getElementById('design-font-size'),
+                designColumns: document.getElementById('design-columns'),
+                designMargins: document.getElementById('design-margins'),
+                spacingControls: document.getElementById('spacing-controls'),
+                designSpacing: document.getElementById('design-spacing'),
+                
+                printMount: document.getElementById('print-mount'),
+                
+                settingsBtn: document.getElementById('settings-btn'),
+                settingsModal: document.getElementById('settings-modal'),
+                closeSettingsModalBtn: document.getElementById('close-settings-modal-btn'),
+                metaAuthorName: document.getElementById('meta-author-name'),
+                metaShowTimestamp: document.getElementById('meta-show-timestamp'),
+                clearDataBtn: document.getElementById('clear-data-btn')
+            };
+            
+            // --- TEMPLATES ---
+            const templates = {
+                glossary: document.getElementById('template-glossary-content').innerHTML,
+                math: document.getElementById('template-math-content').innerHTML,
+                text: document.getElementById('template-text-content').innerHTML,
+            };
+
+            // --- SUMMARY MANAGEMENT FUNCTIONS ---
+            
+            function loadAllSummaries() {
+                const stored = localStorage.getItem(SUMMARIES_KEY);
+                if (stored) {
+                    summaryManager.summaries = JSON.parse(stored);
+                }
+                
+                // If no summaries exist, create a default one
+                if (Object.keys(summaryManager.summaries).length === 0) {
+                    const defaultId = Date.now();
+                    summaryManager.summaries[defaultId] = {
+                        name: "סיכום 1",
+                        data: JSON.parse(JSON.stringify(state)) // Deep copy default state
+                    };
+                }
+                
+                // Load current summary ID
+                const currentId = localStorage.getItem(CURRENT_SUMMARY_KEY);
+                if (currentId && summaryManager.summaries[currentId]) {
+                    summaryManager.currentSummaryId = currentId;
+                } else {
+                    // Set to first available summary
+                    summaryManager.currentSummaryId = Object.keys(summaryManager.summaries)[0];
+                }
+            }
+            
+            function saveAllSummaries() {
+                localStorage.setItem(SUMMARIES_KEY, JSON.stringify(summaryManager.summaries));
+                localStorage.setItem(CURRENT_SUMMARY_KEY, summaryManager.currentSummaryId);
+            }
+            
+            function saveCurrentSummary() {
+                if (!summaryManager.currentSummaryId) return;
+                summaryManager.summaries[summaryManager.currentSummaryId].data = JSON.parse(JSON.stringify(state));
+                saveAllSummaries();
+            }
+            
+            function loadCurrentSummary() {
+                if (!summaryManager.currentSummaryId) return;
+                const summaryData = summaryManager.summaries[summaryManager.currentSummaryId].data;
+                
+                // Deep copy to avoid reference issues
+                state.mode = summaryData.mode || 'glossary';
+                state.activeTab = summaryData.activeTab || 'content';
+                
+                if (summaryData.items) {
+                    state.items.glossary = JSON.parse(JSON.stringify(summaryData.items.glossary || []));
+                    state.items.math = JSON.parse(JSON.stringify(summaryData.items.math || []));
+                    state.items.text = summaryData.items.text || "";
+                }
+                
+                if (summaryData.meta) {
+                    state.meta = { ...state.meta, ...summaryData.meta };
+                }
+                
+                if (summaryData.design) {
+                    state.design.glossary = { ...defaultDesign, ...summaryData.design.glossary };
+                    state.design.math = { ...defaultDesign, theme: "theme-professional", ...summaryData.design.math };
+                    state.design.text = { ...defaultDesign, theme: "theme-academic", ...summaryData.design.text };
+                }
+                
+                // Apply to UI
+                dom.metaAuthorName.value = state.meta.authorName;
+                dom.metaShowTimestamp.checked = state.meta.showTimestamp;
+                syncDesignUIToState();
+                switchMode(state.mode, true);
+                switchTab(state.activeTab, true);
+                renderPreview();
+            }
+            
+            function updateSummarySelector() {
+                dom.summarySelect.innerHTML = '';
+                Object.entries(summaryManager.summaries).forEach(([id, summary]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = summary.name;
+                    dom.summarySelect.appendChild(option);
+                });
+                dom.summarySelect.value = summaryManager.currentSummaryId;
+            }
+            
+            function switchSummary(newSummaryId) {
+                if (newSummaryId === summaryManager.currentSummaryId) return;
+                
+                // Save current summary before switching
+                saveCurrentSummary();
+                
+                // Switch to new summary
+                summaryManager.currentSummaryId = newSummaryId;
+                loadCurrentSummary();
+                updateSummarySelector();
+                saveAllSummaries();
+            }
+            
+            function createNewSummary(name) {
+                const newId = Date.now().toString();
+                const summaryCount = Object.keys(summaryManager.summaries).length;
+                const summaryName = name || `סיכום ${summaryCount + 1}`;
+                
+                // Create fresh state for new summary
+                summaryManager.summaries[newId] = {
+                    name: summaryName,
+                    data: {
+                        mode: 'glossary',
+                        items: {
+                            glossary: [],
+                            math: [],
+                            text: ""
+                        },
+                        design: {
+                            glossary: { ...defaultDesign },
+                            math: { ...defaultDesign, theme: "theme-professional" },
+                            text: { ...defaultDesign, theme: "theme-academic" }
+                        },
+                        meta: {
+                            authorName: "",
+                            showTimestamp: false
+                        },
+                        activeTab: 'content'
+                    }
+                };
+                
+                switchSummary(newId);
+            }
+            
+            function renameSummary(newName) {
+                if (!summaryManager.currentSummaryId || !newName.trim()) return;
+                summaryManager.summaries[summaryManager.currentSummaryId].name = newName.trim();
+                saveAllSummaries();
+                updateSummarySelector();
+            }
+            
+            function deleteSummary() {
+                if (Object.keys(summaryManager.summaries).length <= 1) {
+                    alert("לא ניתן למחוק את הסיכום האחרון!");
+                    return;
+                }
+                
+                if (!confirm(`האם אתה בטוח שברצונך למחוק את "${summaryManager.summaries[summaryManager.currentSummaryId].name}"?`)) {
+                    return;
+                }
+                
+                delete summaryManager.summaries[summaryManager.currentSummaryId];
+                
+                // Switch to first remaining summary
+                const remainingIds = Object.keys(summaryManager.summaries);
+                summaryManager.currentSummaryId = remainingIds[0];
+                
+                loadCurrentSummary();
+                updateSummarySelector();
+                saveAllSummaries();
+            }
+
+            // --- SYNC FUNCTIONS ---
+            function syncDesignStateFromUI() {
+                const mode = state.mode;
+                state.design[mode].title = dom.designTitle.value;
+                state.design[mode].theme = dom.designTheme.value;
+                state.design[mode].fontSize = dom.designFontSize.value;
+                state.design[mode].columns = dom.designColumns.value;
+                state.design[mode].margins = dom.designMargins.value;
+                state.design[mode].increasedSpacing = dom.designSpacing.checked;
+            }
+            
+            function syncDesignUIToState() {
+                const mode = state.mode;
+                dom.designTitle.value = state.design[mode].title;
+                dom.designTheme.value = state.design[mode].theme;
+                dom.designFontSize.value = state.design[mode].fontSize;
+                dom.designColumns.value = state.design[mode].columns;
+                dom.designMargins.value = state.design[mode].margins;
+                dom.designSpacing.checked = state.design[mode].increasedSpacing;
+                
+                dom.spacingControls.style.display = (mode === 'text') ? 'none' : 'flex';
+            }
+
+            // --- MATHJAX READY ---
+            window.onMathJaxReady = () => {
+                state.isMathJaxReady = true;
+                renderPreview();
+            };
+
+            // --- CORE FUNCTIONS ---
+            
+            function switchMode(newMode, force = false) {
+                if (state.mode === newMode && !force) return;
+                state.mode = newMode;
+                state.editingId = null;
+                
+                dom.modeButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === newMode);
+                });
+                
+                syncDesignUIToState();
+                
+                dom.contentTabPanel.innerHTML = templates[newMode];
+                attachContentListeners(newMode);
+                
+                if (newMode === 'text') {
+                    document.getElementById('text-input').value = state.items.text;
+                } else {
+                    renderItemList();
+                }
+                
+                renderPreview();
+                saveCurrentSummary();
+            }
+
+            function switchTab(newTab, force = false) {
+                if (state.activeTab === newTab && !force) return;
+                state.activeTab = newTab;
+                
+                dom.tabButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === newTab);
+                });
+                dom.tabPanels.forEach(panel => {
+                    panel.classList.toggle('active', panel.id === `tab-${newTab}`);
+                });
+                saveCurrentSummary();
+            }
+
+            function attachContentListeners(mode) {
+                if (mode === 'glossary') {
+                    document.getElementById('add-glossary-btn').addEventListener('click', handleAddItem);
+                    document.getElementById('glossary-list').addEventListener('click', handleItemClick);
+                    document.getElementById('glossary-list').addEventListener('dragstart', handleDragStart);
+                    document.getElementById('glossary-list').addEventListener('dragover', handleDragOver);
+                    document.getElementById('glossary-list').addEventListener('dragleave', handleDragLeave);
+                    document.getElementById('glossary-list').addEventListener('drop', handleDrop);
+                    document.getElementById('glossary-list').addEventListener('dragend', handleDragEnd);
+                    document.getElementById('cancel-edit-btn').addEventListener('click', cancelEdit);
+                    document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
+                } else if (mode === 'math') {
+                    document.getElementById('add-math-btn').addEventListener('click', handleAddItem);
+                    document.getElementById('math-list').addEventListener('click', handleItemClick);
+                    document.getElementById('math-list').addEventListener('dragstart', handleDragStart);
+                    document.getElementById('math-list').addEventListener('dragover', handleDragOver);
+                    document.getElementById('math-list').addEventListener('dragleave', handleDragLeave);
+                    document.getElementById('math-list').addEventListener('drop', handleDrop);
+                    document.getElementById('math-list').addEventListener('dragend', handleDragEnd);
+                    document.getElementById('cancel-edit-btn').addEventListener('click', cancelEdit);
+                    document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
+                    document.querySelector('.symbol-bar').addEventListener('click', handleSymbolClick);
+                    document.getElementById('math-formula').addEventListener('input', handleMathPreview);
+                } else if (mode === 'text') {
+                    document.getElementById('text-input').addEventListener('input', handleTextInput);
+                }
+            }
+
+            // --- Content Handlers ---
+            function handleAddItem() {
+                const mode = state.mode;
+                let item;
+                
+                if (mode === 'glossary') {
+                    const term = document.getElementById('glossary-term').value.trim();
+                    const def = document.getElementById('glossary-def').value.trim();
+                    if (!term && !def) return;
+                    item = { term, def };
+                } else if (mode === 'math') {
+                    const name = document.getElementById('math-name').value.trim();
+                    const formula = document.getElementById('math-formula').value.trim();
+                    if (!name && !formula) return;
+                    item = { name, formula };
+                }
+                
+                if (state.editingId) {
+                    const index = state.items[mode].findIndex(i => i.id === state.editingId);
+                    if (index > -1) {
+                        state.items[mode][index] = { ...state.items[mode][index], ...item };
+                    }
+                    cancelEdit();
+                } else {
+                    state.items[mode].push({ id: Date.now(), ...item });
+                }
+                
+                if (mode !== 'text') {
+                    document.getElementById(mode === 'glossary' ? 'glossary-term' : 'math-name').focus();
+                    clearForm();
+                }
+                
+                renderItemList();
+                renderPreview();
+                saveCurrentSummary();
+            }
+            
+            function handleTextInput(e) {
+                state.items.text = e.target.value;
+                renderPreview();
+                saveCurrentSummary();
+            }
+
+            // --- Edit & Delete Handlers ---
+            function handleItemClick(e) {
+                const editBtn = e.target.closest('.edit-btn');
+                const deleteBtn = e.target.closest('.delete-btn');
+                
+                if (editBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = Number(editBtn.closest('.list-item').dataset.id);
+                    enterEditMode(id);
+                } else if (deleteBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = Number(deleteBtn.closest('.list-item').dataset.id);
+                    deleteSubtitle(id);
+                }
+            }
+            
+            function deleteSubtitle(id) {
+                if (!confirm("האם למחוק את תת-הכותרת?")) return;
+                
+                const mode = state.mode;
+                state.items[mode] = state.items[mode].filter(i => i.id !== id);
+                
+                renderItemList();
+                renderPreview();
+                saveCurrentSummary();
+            }
+
+            function enterEditMode(id) {
+                const mode = state.mode;
+                const item = state.items[mode].find(i => i.id === id);
+                if (!item) return;
+
+                state.editingId = id;
+                
+                // Check if it's a subtitle
+                const isSubtitle = (item.term && item.term.startsWith('###')) || (item.name && item.name.startsWith('###'));
+                
+                if (isSubtitle) {
+                    // Edit subtitle
+                    const currentTitle = item.term ? item.term.substring(3) : item.name.substring(3);
+                    const newTitle = prompt('ערוך תת-כותרת:', currentTitle);
+                    
+                    if (newTitle !== null && newTitle.trim()) {
+                        if (mode === 'glossary') {
+                            item.term = `###${newTitle.trim()}`;
+                        } else if (mode === 'math') {
+                            item.name = `###${newTitle.trim()}`;
+                        }
+                        
+                        renderItemList();
+                        renderPreview();
+                        saveCurrentSummary();
+                    }
+                    state.editingId = null;
+                } else {
+                    // Regular edit mode
+                    if (mode === 'glossary') {
+                        document.getElementById('glossary-form-title').textContent = "עריכת מושג";
+                        document.getElementById('glossary-term').value = item.term;
+                        document.getElementById('glossary-def').value = item.def;
+                    } else if (mode === 'math') {
+                        document.getElementById('math-form-title').textContent = "עריכת נוסחה";
+                        document.getElementById('math-name').value = item.name;
+                        document.getElementById('math-formula').value = item.formula;
+                        handleMathPreview();
+                    }
+                    
+                    document.querySelector('.add-form .btn-text').textContent = "שמור שינויים";
+                    document.querySelector('.edit-controls').style.display = 'flex';
+                }
+            }
+
+            function cancelEdit() {
+                state.editingId = null;
+                clearForm();
+                
+                document.querySelector('.add-form .btn-text').textContent = state.mode === 'glossary' ? "הוסף מושג" : "הוסף נוסחה";
+                document.querySelector('.edit-controls').style.display = 'none';
+                if (state.mode === 'math') {
+                    document.getElementById('math-form-title').textContent = "הוסף נוסחה חדשה";
+                    handleMathPreview();
+                } else if (state.mode === 'glossary') {
+                    document.getElementById('glossary-form-title').textContent = "הוסף מושג חדש";
+                }
+            }
+
+            function handleDeleteItem() {
+                if (!state.editingId) return;
+                if (!confirm("האם אתה בטוח שברצונך למחוק פריט זה?")) return;
+
+                const mode = state.mode;
+                state.items[mode] = state.items[mode].filter(i => i.id !== state.editingId);
+                
+                cancelEdit();
+                renderItemList();
+                renderPreview();
+                saveCurrentSummary();
+            }
+            
+            function clearForm() {
+                if (state.mode === 'glossary') {
+                    document.getElementById('glossary-term').value = '';
+                    document.getElementById('glossary-def').value = '';
+                } else if (state.mode === 'math') {
+                    document.getElementById('math-name').value = '';
+                    document.getElementById('math-formula').value = '';
+                }
+            }
+
+            function renderItemList() {
+                let listEl, items;
+                if (state.mode === 'glossary') {
+                    listEl = document.getElementById('glossary-list');
+                    items = state.items.glossary;
+                } else if (state.mode === 'math') {
+                    listEl = document.getElementById('math-list');
+                    items = state.items.math;
+                } else {
+                    return;
+                }
+                
+                listEl.innerHTML = '';
+                items.forEach(item => {
+                    const li = document.createElement('div');
+                    li.className = 'list-item';
+                    li.dataset.id = item.id;
+                    li.draggable = true;
+                    
+                    // Check if it's a subtitle
+                    const isSubtitle = (item.term && item.term.startsWith('###')) || (item.name && item.name.startsWith('###'));
+                    let text;
+                    
+                    if (isSubtitle) {
+                        // Display subtitle without ###
+                        text = item.term ? item.term.substring(3) : item.name.substring(3);
+                        li.innerHTML = `
+                            <span style="color: var(--primary); font-weight: 600;">📋 ${text}</span>
+                            <div class="item-controls">
+                                <button class="edit-btn" title="ערוך תת-כותרת"><i data-lucide="edit-2" class="icon-sm"></i></button>
+                                <button class="delete-btn" title="מחק תת-כותרת"><i data-lucide="trash-2" class="icon-sm"></i></button>
+                            </div>
+                        `;
+                    } else {
+                        // Regular item
+                        text = item.term || item.name || (item.formula ? "נוסחה ללא שם" : "פריט ריק");
+                        li.innerHTML = `
+                            <span>${text}</span>
+                            <div class="item-controls">
+                                <button class="edit-btn" title="ערוך"><i data-lucide="edit-2" class="icon-sm"></i></button>
+                            </div>
+                        `;
+                    }
+                    
+                    listEl.appendChild(li);
+                });
+                lucide.createIcons();
+            }
+            
+            // --- Drag & Drop Handlers ---
+            function handleDragStart(e) {
+                if (!e.target.classList.contains('list-item')) return;
+                state.draggingId = Number(e.target.dataset.id);
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            }
+            
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const target = e.target.closest('.list-item');
+                if (target) {
+                    target.style.borderTop = '2px solid var(--primary)';
+                }
+            }
+            
+            function handleDragLeave(e) {
+                const target = e.target.closest('.list-item');
+                if (target) {
+                    target.style.borderTop = '';
+                }
+            }
+            
+            function handleDragEnd(e) {
+                if(e.target.classList) e.target.classList.remove('dragging');
+                state.draggingId = null;
+                document.querySelectorAll('.list-item').forEach(i => i.style.borderTop = '');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                if (state.draggingId === null) return;
+                
+                const targetEl = e.target.closest('.list-item');
+                if (!targetEl) return;
+                
+                const targetId = Number(targetEl.dataset.id);
+                if (targetId === state.draggingId) return;
+
+                const mode = state.mode;
+                const items = state.items[mode];
+                const draggedIndex = items.findIndex(i => i.id === state.draggingId);
+                const targetIndex = items.findIndex(i => i.id === targetId);
+                
+                const [draggedItem] = items.splice(draggedIndex, 1);
+                items.splice(targetIndex, 0, draggedItem);
+                
+                renderItemList();
+                renderPreview();
+                saveCurrentSummary();
+            }
+
+            // --- Math Helpers ---
+            function handleSymbolClick(e) {
+                const symbol = e.target.dataset.symbol;
+                if (!symbol) return;
+                
+                const input = document.getElementById('math-formula');
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                const text = input.value;
+                
+                let cursorPos = start + symbol.length;
+                if (symbol.includes("{}")) {
+                    cursorPos = start + symbol.indexOf('{') + 1;
+                }
+                
+                input.value = text.substring(0, start) + symbol + text.substring(end);
+                input.focus();
+                input.setSelectionRange(cursorPos, cursorPos);
+                
+                handleMathPreview();
+            }
+            
+            async function handleMathPreview() {
+                const input = document.getElementById('math-formula').value.trim();
+                const preview = document.getElementById('math-live-preview');
+                if (!window.MathJax || !state.isMathJaxReady) return;
+
+                if (input === "") {
+                    preview.innerHTML = "";
+                    return;
+                }
+                
+                preview.innerHTML = `$${input}$`;
+                try {
+                    await MathJax.typesetPromise([preview]);
+                } catch(e) { console.error("MathJax live preview error:", e); }
+            }
+
+            // --- Design Handlers ---
+            function handleDesignChange() {
+                syncDesignStateFromUI();
+                renderPreview();
+                saveCurrentSummary();
+            }
+
+            // --- Preview Renderer ---
+            
+            // פונקציה לפרסור טקסט עם פורמט מיוחד
+            function parseFormattedText(text) {
+                if (!text) return '';
+                
+                // Escape HTML
+                let result = text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                
+                // 1. כותרות משנה: ### כותרת (בתחילת שורה)
+                result = result.replace(/^### (.+)$/gm, '<h3 style="color: var(--primary); font-size: 1.2rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem;">$1</h3>');
+                
+                // 2. Underline: _טקסט_
+                result = result.replace(/_(.+?)_/g, '<u>$1</u>');
+                
+                // 3. Bold: **טקסט** או *טקסט*
+                result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                result = result.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+                
+                // 4. צבעים: {אדום: טקסט} {כחול: טקסט} וכו'
+                const colorMap = {
+                    'אדום': '#EF4444',
+                    'כתום': '#F59E0B',
+                    'ירוק': '#10B981',
+                    'כחול': '#3B82F6',
+                    'סגול': '#8B5CF6',
+                    'ורוד': '#EC4899',
+                    'טורקיז': '#06B6D4',
+                    'ליים': '#84CC16',
+                    'צהוב': '#F97316',
+                    'סגול-כהה': '#6366F1'
+                };
+                
+                Object.keys(colorMap).forEach(colorName => {
+                    const regex = new RegExp(`\\{${colorName}:([^}]+)\\}`, 'g');
+                    result = result.replace(regex, `<span style="color: ${colorMap[colorName]}; font-weight: 600;">$1</span>`);
+                });
+                
+                // 5. שורות חדשות
+                result = result.replace(/\n/g, '<br>');
+                
+                return result;
+            }
+            
+            async function renderPreview() {
+                const page = dom.a4Page;
+                const design = state.design[state.mode];
+                
+                page.className = `a4-page ${design.theme}`;
+                page.style.setProperty('--page-font-size', design.fontSize);
+                page.style.setProperty('--page-columns', design.columns);
+                page.style.setProperty('--page-margins', design.margins);
+                
+                let headerHtml = '';
+                let contentHtml = '';
+                
+                if (design.title || state.meta.authorName || state.meta.showTimestamp) {
+                    headerHtml += '<div class="page-header">';
+                    if (design.title) {
+                        headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
+                    }
+                    if (state.meta.authorName || state.meta.showTimestamp) {
+                        const author = state.meta.authorName;
+                        const date = state.meta.showTimestamp ? new Date().toLocaleDateString('he-IL') : '';
+                        headerHtml += `<div class="page-meta">${author} ${author && date ? '•' : ''} ${date}</div>`;
+                    }
+                    headerHtml += '</div>';
+                }
+                
+                switch (state.mode) {
+                    case 'text':
+                        // טקסט רציף עם פרסור פורמט
+                        contentHtml += parseFormattedText(state.items.text);
+                        break;
+                    case 'glossary':
+                        // דף מושגים עם פרסור פורמט
+                        contentHtml += state.items.glossary.map(item => {
+                            const term = parseFormattedText(item.term);
+                            const def = parseFormattedText(item.def);
+                            return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
+                        }).join('');
+                        break;
+                    case 'math':
+                        // דף נוסחאות - כבר תומך ב-MathJax
+                        contentHtml += state.items.math.map(item => {
+                            let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
+                            let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
+                            return `<p>${name} ${formula}</p>`;
+                        }).join('');
+                        break;
+                }
+                
+                page.innerHTML = `${headerHtml}<div class="page-content">${contentHtml}</div>`;
+                
+                if(design.increasedSpacing) {
+                    page.querySelector('.page-content').classList.add('increased-spacing');
+                }
+
+                // רינדור MathJax לנוסחאות
+                if (window.MathJax && state.isMathJaxReady) {
+                    try {
+                        await MathJax.typesetPromise([page]);
+                    } catch(e) { console.error("MathJax typesetting error:", e); }
+                }
+
+                updatePageCount();
+                dom.a4PreviewWrapper.scrollTop = 0;
+            }
+
+            function updatePageCount() {
+                const pageHeightPx = (297 - (parseFloat(state.design[state.mode].margins) * 2)) * 3.7795275591;
+                const contentHeightPx = dom.a4Page.scrollHeight;
+                const totalPages = Math.max(1, Math.ceil(contentHeightPx / pageHeightPx));
+                dom.totalPages.textContent = totalPages;
+            }
+            
+            function handlePrint() {
+                const printMount = dom.printMount;
+                const pageClone = dom.a4Page.cloneNode(true);
+                
+                pageClone.style.width = '100%';
+                pageClone.style.height = 'auto';
+                pageClone.style.minHeight = 'auto';
+                pageClone.style.boxShadow = 'none';
+                pageClone.style.margin = '0';
+                pageClone.style.padding = state.design[state.mode].margins;
+                
+                printMount.innerHTML = '';
+                printMount.appendChild(pageClone);
+                
+                window.print();
+            }
+            
+            // --- COMBINED PDF PRINT FUNCTION ---
+            async function handlePrintCombined() {
+                if (!confirm("האם להדפיס PDF משולב של כל 3 סוגי הסיכומים (מושגים, נוסחאות, טקסט)?")) {
+                    return;
+                }
+                
+                const printMount = dom.printMount;
+                printMount.innerHTML = '';
+                
+                // Save current mode and state
+                const originalMode = state.mode;
+                
+                // Array of modes in order
+                const modes = ['glossary', 'math', 'text'];
+                
+                for (const mode of modes) {
+                    // Skip empty sections
+                    if (mode === 'text' && !state.items.text.trim()) continue;
+                    if (mode !== 'text' && state.items[mode].length === 0) continue;
+                    
+                    const design = state.design[mode];
+                    const page = document.createElement('div');
+                    page.className = `a4-page ${design.theme}`;
+                    page.style.width = '100%';
+                    page.style.height = 'auto';
+                    page.style.minHeight = 'auto';
+                    page.style.boxShadow = 'none';
+                    page.style.margin = '0';
+                    page.style.padding = design.margins;
+                    page.style.setProperty('--page-font-size', design.fontSize);
+                    page.style.setProperty('--page-columns', design.columns);
+                    page.style.setProperty('--page-margins', design.margins);
+                    page.style.pageBreakAfter = 'always';
+                    
+                    let headerHtml = '';
+                    let contentHtml = '';
+                    
+                    // Add header
+                    if (design.title || state.meta.authorName || state.meta.showTimestamp) {
+                        headerHtml += '<div class="page-header">';
+                        if (design.title) {
+                            headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
+                        }
+                        if (state.meta.authorName || state.meta.showTimestamp) {
+                            const author = state.meta.authorName;
+                            const date = state.meta.showTimestamp ? new Date().toLocaleDateString('he-IL') : '';
+                            headerHtml += `<div class="page-meta">${author} ${author && date ? '•' : ''} ${date}</div>`;
+                        }
+                        headerHtml += '</div>';
+                    }
+                    
+                    // Generate content based on mode
+                    switch (mode) {
+                        case 'text':
+                            contentHtml += parseFormattedText(state.items.text);
+                            break;
+                        case 'glossary':
+                            contentHtml += state.items.glossary.map(item => {
+                                // Check if it's a subtitle
+                                if (item.term.startsWith('###')) {
+                                    const title = item.term.substring(3);
+                                    return parseFormattedText(`### ${title}`);
+                                }
+                                const term = parseFormattedText(item.term);
+                                const def = parseFormattedText(item.def);
+                                return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
+                            }).join('');
+                            break;
+                        case 'math':
+                            contentHtml += state.items.math.map(item => {
+                                // Check if it's a subtitle
+                                if (item.name.startsWith('###')) {
+                                    const title = item.name.substring(3);
+                                    return parseFormattedText(`### ${title}`);
+                                }
+                                let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
+                                let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
+                                return `<p>${name} ${formula}</p>`;
+                            }).join('');
+                            break;
+                    }
+                    
+                    page.innerHTML = `${headerHtml}<div class="page-content ${design.increasedSpacing ? 'increased-spacing' : ''}">${contentHtml}</div>`;
+                    printMount.appendChild(page);
+                }
+                
+                // Typeset all math at once if needed
+                if (state.items.math.length > 0 && window.MathJax && state.isMathJaxReady) {
+                    try {
+                        await MathJax.typesetPromise([printMount]);
+                    } catch(e) { console.error("MathJax combined print error:", e); }
+                }
+                
+                // Small delay to ensure rendering
+                setTimeout(() => {
+                    window.print();
+                }, 100);
+            }
+            
+            // --- DATA EXPORT/IMPORT FUNCTIONS ---
+            function handleExportData() {
+                // Save current summary first
+                saveCurrentSummary();
+                
+                // Create backup object with all summaries
+                const backup = {
+                    version: 1,
+                    exportDate: new Date().toISOString(),
+                    summaries: summaryManager.summaries,
+                    currentSummaryId: summaryManager.currentSummaryId
+                };
+                
+                // Convert to JSON
+                const jsonStr = JSON.stringify(backup, null, 2);
+                
+                // Create blob and download
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `סיכומים-גיבוי-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show success message
+                alert('✅ הגיבוי נשמר בהצלחה!\n\nשמור קובץ זה במקום בטוח (Google Drive, Dropbox, וכו\')');
+            }
+            
+            function handleImportData() {
+                if (!confirm('⚠️ האם אתה בטוח?\n\nייבוא גיבוי יחליף את כל הסיכומים הנוכחיים.\nאם ברצונך לשמור את הסיכומים הנוכחיים, לחץ "ביטול" וייצא אותם תחילה.')) {
+                    return;
+                }
+                
+                dom.importFileInput.click();
+            }
+            
+            function handleFileImport(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const backup = JSON.parse(e.target.result);
+                        
+                        // Validate backup structure
+                        if (!backup.summaries || typeof backup.summaries !== 'object') {
+                            throw new Error('קובץ גיבוי לא תקין');
+                        }
+                        
+                        // Restore data
+                        summaryManager.summaries = backup.summaries;
+                        
+                        // Set current summary
+                        if (backup.currentSummaryId && summaryManager.summaries[backup.currentSummaryId]) {
+                            summaryManager.currentSummaryId = backup.currentSummaryId;
+                        } else {
+                            summaryManager.currentSummaryId = Object.keys(summaryManager.summaries)[0];
+                        }
+                        
+                        // Save to localStorage
+                        saveAllSummaries();
+                        
+                        // Load the current summary
+                        loadCurrentSummary();
+                        updateSummarySelector();
+                        
+                        alert(`✅ הגיבוי שוחזר בהצלחה!\n\nשוחזרו ${Object.keys(summaryManager.summaries).length} סיכומים.`);
+                        
+                    } catch (error) {
+                        alert('❌ שגיאה בייבוא הגיבוי:\n' + error.message);
+                        console.error('Import error:', error);
+                    }
+                    
+                    // Reset file input
+                    event.target.value = '';
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // --- Settings Modal Handlers ---
+            dom.settingsBtn.addEventListener('click', () => {
+                dom.settingsModal.classList.add('active');
+            });
+            dom.closeSettingsModalBtn.addEventListener('click', () => {
+                dom.settingsModal.classList.remove('active');
+            });
+            dom.settingsModal.addEventListener('click', (e) => {
+                if (e.target === dom.settingsModal) dom.settingsModal.classList.remove('active');
+            });
+            
+            dom.metaAuthorName.addEventListener('input', (e) => {
+                state.meta.authorName = e.target.value;
+                renderPreview();
+                saveCurrentSummary();
+            });
+            dom.metaShowTimestamp.addEventListener('change', (e) => {
+                state.meta.showTimestamp = e.target.checked;
+                renderPreview();
+                saveCurrentSummary();
+            });
+            
+            dom.clearDataBtn.addEventListener('click', () => {
+                if (!confirm("האם אתה בטוח? פעולה זו תמחק את כל התוכן וההגדרות של הסיכום הנוכחי.")) return;
+                
+                const mode = state.mode;
+                state.items[mode] = (mode === 'text') ? "" : [];
+                state.design[mode] = { ...defaultDesign };
+                
+                state.meta.authorName = "";
+                state.meta.showTimestamp = false;
+                dom.metaAuthorName.value = "";
+                dom.metaShowTimestamp.checked = false;
+
+                saveCurrentSummary();
+                
+                syncDesignUIToState();
+                if(mode === 'text') {
+                    document.getElementById('text-input').value = "";
+                } else {
+                    renderItemList();
+                }
+                renderPreview();
+                
+                dom.settingsModal.classList.remove('active');
+            });
+
+            // --- SUMMARY MANAGER EVENT LISTENERS ---
+            
+            dom.summarySelect.addEventListener('change', (e) => {
+                switchSummary(e.target.value);
+            });
+            
+            dom.newSummaryBtn.addEventListener('click', () => {
+                dom.newSummaryModal.classList.add('active');
+                dom.newSummaryName.value = '';
+                dom.newSummaryName.focus();
+            });
+            
+            dom.closeNewSummaryModal.addEventListener('click', () => {
+                dom.newSummaryModal.classList.remove('active');
+            });
+            
+            dom.cancelNewSummary.addEventListener('click', () => {
+                dom.newSummaryModal.classList.remove('active');
+            });
+            
+            dom.confirmNewSummary.addEventListener('click', () => {
+                const name = dom.newSummaryName.value.trim();
+                createNewSummary(name);
+                dom.newSummaryModal.classList.remove('active');
+            });
+            
+            dom.newSummaryName.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const name = dom.newSummaryName.value.trim();
+                    createNewSummary(name);
+                    dom.newSummaryModal.classList.remove('active');
+                }
+            });
+            
+            dom.renameSummaryBtn.addEventListener('click', () => {
+                dom.renameSummaryInput.value = summaryManager.summaries[summaryManager.currentSummaryId].name;
+                dom.renameSummaryModal.classList.add('active');
+                dom.renameSummaryInput.focus();
+                dom.renameSummaryInput.select();
+            });
+            
+            dom.closeRenameModal.addEventListener('click', () => {
+                dom.renameSummaryModal.classList.remove('active');
+            });
+            
+            dom.cancelRename.addEventListener('click', () => {
+                dom.renameSummaryModal.classList.remove('active');
+            });
+            
+            dom.confirmRename.addEventListener('click', () => {
+                const newName = dom.renameSummaryInput.value.trim();
+                if (newName) {
+                    renameSummary(newName);
+                    dom.renameSummaryModal.classList.remove('active');
+                }
+            });
+            
+            dom.renameSummaryInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const newName = dom.renameSummaryInput.value.trim();
+                    if (newName) {
+                        renameSummary(newName);
+                        dom.renameSummaryModal.classList.remove('active');
+                    }
+                }
+            });
+            
+            dom.deleteSummaryBtn.addEventListener('click', deleteSummary);
+            
+            // New feature buttons
+            dom.printCombinedBtn.addEventListener('click', handlePrintCombined);
+            dom.exportDataBtn.addEventListener('click', handleExportData);
+            dom.importDataBtn.addEventListener('click', handleImportData);
+            dom.importFileInput.addEventListener('change', handleFileImport);
+            
+            // Close modals on backdrop click
+            dom.newSummaryModal.addEventListener('click', (e) => {
+                if (e.target === dom.newSummaryModal) dom.newSummaryModal.classList.remove('active');
+            });
+            dom.renameSummaryModal.addEventListener('click', (e) => {
+                if (e.target === dom.renameSummaryModal) dom.renameSummaryModal.classList.remove('active');
+            });
+
+            // --- EVENT LISTENERS ---
+            dom.modeButtons.forEach(btn => {
+                btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+            });
+            dom.tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+            dom.printBtn.addEventListener('click', handlePrint);
+            
+            dom.designTitle.addEventListener('input', handleDesignChange);
+            dom.designTheme.addEventListener('change', handleDesignChange);
+            dom.designFontSize.addEventListener('change', handleDesignChange);
+            dom.designColumns.addEventListener('change', handleDesignChange);
+            dom.designMargins.addEventListener('change', handleDesignChange);
+            dom.designSpacing.addEventListener('change', handleDesignChange);
+
+            // --- DARK MODE ---
+            const toggleBtn = document.getElementById('dark-mode-toggle');
+            const moonIcon = document.querySelector('.moon-icon');
+            const sunIcon = document.querySelector('.sun-icon');
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+            toggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                moonIcon.style.display = isDark ? 'none' : 'block';
+                sunIcon.style.display = isDark ? 'block' : 'none';
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                lucide.createIcons();
+            });
+
+            // Format help toggle
+            const helpBox = document.getElementById('format-help-box');
+            const helpContent = document.getElementById('format-help-content');
+            const helpToggle = document.getElementById('format-help-toggle');
+            
+            helpBox.addEventListener('click', () => {
+                helpContent.classList.toggle('open');
+                helpToggle.classList.toggle('open');
+                lucide.createIcons();
+            });
+
+            // --- PRESENTATION MODE (Flashcards) ---
+            let presentationMode = false;
+            let currentCardIndex = 0;
+            let isCardFlipped = false;
+            
+            // Add presentation button to header
+            const presentationBtn = document.createElement('button');
+            presentationBtn.id = 'presentation-btn';
+            presentationBtn.className = 'btn-primary';
+            presentationBtn.style.marginRight = '0.5rem';
+            presentationBtn.innerHTML = '<i data-lucide="presentation"></i><span>מצב מצגת</span>';
+            presentationBtn.title = 'מצב כרטיסיות לימוד';
+            
+            const printBtn = dom.printBtn;
+            printBtn.parentNode.insertBefore(presentationBtn, printBtn);
+            
+            presentationBtn.addEventListener('click', togglePresentationMode);
+            
+            function togglePresentationMode() {
+                presentationMode = !presentationMode;
+                
+                if (presentationMode) {
+                    startPresentation();
+                } else {
+                    exitPresentation();
+                }
+            }
+            
+            function startPresentation() {
+                currentCardIndex = 0;
+                isCardFlipped = false;
+                
+                // Hide normal preview, show presentation
+                dom.a4PreviewWrapper.style.display = 'none';
+                
+                // Create presentation container
+                const presentationContainer = document.createElement('div');
+                presentationContainer.id = 'presentation-container';
+                presentationContainer.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    background: var(--bg-light);
+                `;
+                
+                dom.a4PreviewWrapper.parentNode.appendChild(presentationContainer);
+                
+                renderCard();
+                
+                presentationBtn.innerHTML = '<i data-lucide="x"></i><span>צא ממצב מצגת</span>';
+                lucide.createIcons();
+            }
+            
+            function exitPresentation() {
+                dom.a4PreviewWrapper.style.display = 'block';
+                const presentationContainer = document.getElementById('presentation-container');
+                if (presentationContainer) {
+                    presentationContainer.remove();
+                }
+                presentationBtn.innerHTML = '<i data-lucide="presentation"></i><span>מצב מצגת</span>';
+                lucide.createIcons();
+            }
+            
+            function renderCard() {
+                const container = document.getElementById('presentation-container');
+                if (!container) return;
+                
+                const mode = state.mode;
+                let items = [];
+                
+                if (mode === 'glossary') {
+                    items = state.items.glossary;
+                } else if (mode === 'math') {
+                    items = state.items.math;
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary-light);">מצב מצגת זמין רק לדף מושגים ודף נוסחאות</div>';
+                    return;
+                }
+                
+                if (items.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary-light);">אין פריטים להצגה</div>';
+                    return;
+                }
+                
+                const item = items[currentCardIndex];
+                
+                container.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 1rem; color: var(--text-secondary-light); font-size: 0.9rem;">
+                        כרטיסייה ${currentCardIndex + 1} מתוך ${items.length}
+                    </div>
+                    
+                    <div id="flashcard" style="
+                        width: 100%;
+                        max-width: 600px;
+                        min-height: 300px;
+                        background: var(--bg-lighter);
+                        border: 2px solid var(--border-light);
+                        border-radius: var(--radius-xl);
+                        padding: 3rem;
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                        color: var(--text-primary-light);
+                    " onclick="flipCard()">
+                        ${isCardFlipped ? getCardBack(item, mode) : getCardFront(item, mode)}
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button onclick="previousCard()" class="btn-secondary" ${currentCardIndex === 0 ? 'disabled' : ''}>
+                            <i data-lucide="chevron-right"></i>
+                            הקודם
+                        </button>
+                        <button onclick="flipCard()" class="btn-primary">
+                            ${isCardFlipped ? 'הסתר תשובה' : 'הצג תשובה'}
+                        </button>
+                        <button onclick="nextCard()" class="btn-secondary" ${currentCardIndex === items.length - 1 ? 'disabled' : ''}>
+                            הבא
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                    </div>
+                `;
+                
+                lucide.createIcons();
+                
+                // Render MathJax if needed
+                if (mode === 'math' && isCardFlipped && window.MathJax) {
+                    MathJax.typesetPromise([document.getElementById('flashcard')]).catch(e => console.error(e));
+                }
+            }
+            
+            function getCardFront(item, mode) {
+                if (mode === 'glossary') {
+                    return parseFormattedText(item.term).replace(/<br>/g, ' ');
+                } else if (mode === 'math') {
+                    return parseFormattedText(item.name || 'נוסחה').replace(/<br>/g, ' ');
+                }
+                return '';
+            }
+            
+            function getCardBack(item, mode) {
+                if (mode === 'glossary') {
+                    return parseFormattedText(item.def);
+                } else if (mode === 'math') {
+                    return `$${item.formula}$`;
+                }
+                return '';
+            }
+            
+            window.flipCard = function() {
+                isCardFlipped = !isCardFlipped;
+                renderCard();
+            };
+            
+            window.nextCard = function() {
+                const mode = state.mode;
+                const items = mode === 'glossary' ? state.items.glossary : state.items.math;
+                if (currentCardIndex < items.length - 1) {
+                    currentCardIndex++;
+                    isCardFlipped = false;
+                    renderCard();
+                }
+            };
+            
+            window.previousCard = function() {
+                if (currentCardIndex > 0) {
+                    currentCardIndex--;
+                    isCardFlipped = false;
+                    renderCard();
+                }
+            };
+
+            // --- WELCOME MODAL ---
+            const welcomeModal = document.getElementById('welcome-modal');
+            const welcomeOk = document.getElementById('welcome-ok');
+            const dontShowAgain = document.getElementById('dont-show-again');
+            
+            // Check if should show welcome
+            const hideWelcome = localStorage.getItem('hideWelcome');
+            if (hideWelcome === 'true') {
+                welcomeModal.classList.add('hidden');
+            }
+            
+            welcomeOk.addEventListener('click', () => {
+                if (dontShowAgain.checked) {
+                    localStorage.setItem('hideWelcome', 'true');
+                }
+                welcomeModal.classList.add('hidden');
+                lucide.createIcons();
+            });
+            
+            // --- SUBTITLE BUTTONS ---
+            function setupSubtitleButtons() {
+                const glossarySubtitleBtn = document.getElementById('add-glossary-subtitle-btn');
+                const mathSubtitleBtn = document.getElementById('add-math-subtitle-btn');
+                
+                if (glossarySubtitleBtn) {
+                    glossarySubtitleBtn.addEventListener('click', () => {
+                        const title = prompt('הזן את תת-הכותרת:');
+                        if (title && title.trim()) {
+                            state.items.glossary.push({
+                                term: `###${title.trim()}`,
+                                def: '',
+                                isSubtitle: true
+                            });
+                            renderItemList();
+                            renderPreview();
+                            saveCurrentSummary();
+                        }
+                    });
+                }
+                
+                if (mathSubtitleBtn) {
+                    mathSubtitleBtn.addEventListener('click', () => {
+                        const title = prompt('הזן את תת-הכותרת:');
+                        if (title && title.trim()) {
+                            state.items.math.push({
+                                name: `###${title.trim()}`,
+                                formula: '',
+                                isSubtitle: true
+                            });
+                            renderItemList();
+                            renderPreview();
+                            saveCurrentSummary();
+                        }
+                    });
+                }
+            }
+            
+            // Call setup when switching modes
+            const originalSwitchMode = switchMode;
+            switchMode = function(mode) {
+                originalSwitchMode.call(this, mode);
+                setTimeout(() => {
+                    setupSubtitleButtons();
+                    lucide.createIcons();
+                }, 100);
+            };
+            
+            // Initial setup
+            setTimeout(() => {
+                setupSubtitleButtons();
+            }, 500);
+            
+            // Update renderPreview to handle subtitles without colons
+            const originalGenerateContent = renderPreview;
+            renderPreview = async function() {
+                const page = dom.a4Page;
+                const design = state.design[state.mode];
+                
+                page.className = `a4-page ${design.theme}`;
+                page.style.setProperty('--page-font-size', design.fontSize);
+                page.style.setProperty('--page-columns', design.columns);
+                page.style.setProperty('--page-margins', design.margins);
+                
+                let headerHtml = '';
+                let contentHtml = '';
+                
+                if (design.title || state.meta.authorName || state.meta.showTimestamp) {
+                    headerHtml += '<div class="page-header">';
+                    if (design.title) {
+                        headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
+                    }
+                    if (state.meta.authorName || state.meta.showTimestamp) {
+                        const author = state.meta.authorName;
+                        const date = state.meta.showTimestamp ? new Date().toLocaleDateString('he-IL') : '';
+                        headerHtml += `<div class="page-meta">${author} ${author && date ? '•' : ''} ${date}</div>`;
+                    }
+                    headerHtml += '</div>';
+                }
+                
+                switch (state.mode) {
+                    case 'text':
+                        contentHtml += parseFormattedText(state.items.text);
+                        break;
+                    case 'glossary':
+                        contentHtml += state.items.glossary.map(item => {
+                            // Check if it's a subtitle
+                            if (item.term.startsWith('###')) {
+                                const title = item.term.substring(3);
+                                return parseFormattedText(`### ${title}`);
+                            }
+                            const term = parseFormattedText(item.term);
+                            const def = parseFormattedText(item.def);
+                            return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
+                        }).join('');
+                        break;
+                    case 'math':
+                        contentHtml += state.items.math.map(item => {
+                            // Check if it's a subtitle
+                            if (item.name.startsWith('###')) {
+                                const title = item.name.substring(3);
+                                return parseFormattedText(`### ${title}`);
+                            }
+                            let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
+                            let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
+                            return `<p>${name} ${formula}</p>`;
+                        }).join('');
+                        break;
+                }
+                
+                page.innerHTML = `${headerHtml}<div class="page-content">${contentHtml}</div>`;
+                
+                if(design.increasedSpacing) {
+                    page.querySelector('.page-content').classList.add('increased-spacing');
+                }
+
+                if (window.MathJax && state.isMathJaxReady) {
+                    try {
+                        await MathJax.typesetPromise([page]);
+                    } catch(e) { console.error("MathJax typesetting error:", e); }
+                }
+
+                updatePageCount();
+                dom.a4PreviewWrapper.scrollTop = 0;
+            };
+
+            // --- INITIALIZATION ---
+            function init() {
+                lucide.createIcons();
+                loadAllSummaries();
+                loadCurrentSummary();
+                updateSummarySelector();
+                
+                if (window.MathJax && window.MathJax.startup.promise) {
+                    window.MathJax.startup.promise.then(() => {
+                        state.isMathJaxReady = true;
+                        renderPreview();
+                    });
+                }
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
