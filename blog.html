@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circademic - בלוג ועדכונים</title>
+    <link rel="icon" href="favicon2.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* משתני עיצוב (Design System) */
+        :root {
+            --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
+            --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
+            --accent: #F59E0B; --accent-light: #FBBF24; --accent-dark: #D97706;
+            --bg-light: #F9FAFB; --bg-dark: #0F172A; --bg-dark-card: #1E293B;
+            --border-light: #E5E7EB; --border-dark: #374151;
+        }
+
+        body { font-family: 'Heebo', sans-serif; background: var(--bg-light); transition: background-color 0.3s ease; }
+        body.dark { background: var(--bg-dark); }
+        h1, h2, h3 { font-family: 'Rubik', sans-serif; font-weight: 700; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .sidebar { background: white; box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; z-index: 40; }
+        .dark .sidebar { background: var(--bg-dark-card); box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3); }
+        @media (max-width: 768px) { .sidebar { position: fixed; top: 0; right: -100%; height: 100vh; width: 280px; } .sidebar.open { right: 0; } }
+        
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 12px; color: #6B7280; text-decoration: none; transition: all 0.2s ease; }
+        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); color: var(--primary); font-weight: 600; }
+        .dark .nav-item { color: #9CA3AF; }
+        .dark .nav-item:hover { background: rgba(59, 130, 246, 0.2); color: #60A5FA; }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+
+        .blog-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(59, 130, 246, 0.1); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; }
+        .dark .blog-card { background: var(--bg-dark-card); border-color: rgba(59, 130, 246, 0.2); }
+        .blog-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); }
+        .card-image { height: 180px; background: linear-gradient(135deg, #60A5FA, #A78BFA); display: flex; align-items: center; justify-content: center; color: white; position: relative; overflow: hidden; }
+        .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .blog-card:hover .card-image img { transform: scale(1.05); }
+        
+        .tag { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 999px; background: rgba(59, 130, 246, 0.1); color: var(--primary); font-weight: 600; display: inline-block; }
+        .dark .tag { background: rgba(59, 130, 246, 0.2); color: #60A5FA; }
+        
+        .filter-btn { padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.875rem; transition: all 0.2s; border: 1px solid transparent; }
+        .filter-btn.active { background: var(--primary); color: white; }
+        .filter-btn:not(.active) { background: white; color: #6B7280; border-color: #E5E7EB; }
+        .dark .filter-btn:not(.active) { background: #1E293B; color: #9CA3AF; border-color: #374151; }
+        
+        .prose h1 { font-size: 2em; font-weight: 700; margin-top: 1.5em; margin-bottom: 0.5em; color: var(--primary); }
+        .prose h2 { font-family: 'Rubik', sans-serif; font-size: 1.5em; font-weight: 700; margin-top: 1.5em; margin-bottom: 0.5em; color: var(--primary); border-bottom: 2px solid var(--border-light); padding-bottom: 0.3em; }
+        .dark .prose h2 { color: #60A5FA; border-color: var(--border-dark); }
+        .prose strong { font-weight: 800; color: #111827; }
+        .dark .prose strong { color: #F3F4F6; }
+        .prose u { text-decoration-color: var(--primary); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+        .prose a { color: var(--primary); font-weight: 600; text-decoration: underline; transition: color 0.2s; }
+        .prose a:hover { color: #1D4ED8; }
+        .prose p { margin-bottom: 1em; line-height: 1.8; }
+        
+        .input-field { width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 12px; background: var(--bg-light); }
+        .dark .input-field { background: #030712; border-color: var(--border-dark); color: white; }
+
+        .loading { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: var(--bg-light); z-index: 100; }
+        .dark .loading { background: var(--bg-dark); }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(59, 130, 246, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge.new { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+    
+    <div id="loading-screen" class="loading"><div class="spinner"></div></div>
+
+    <div id="app" class="hidden">
+        <button id="mobile-menu-toggle" class="md:hidden fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg"><i data-lucide="menu" class="w-5 h-5 text-gray-700 dark:text-gray-300"></i></button>
+        <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+        <div class="flex min-h-screen">
+            
+            <aside id="sidebar" class="sidebar w-64 flex-shrink-0 md:relative md:translate-x-0">
+                <div class="p-6 h-full flex flex-col">
+                    <div class="mb-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <img src="LOGO.png" alt="Logo" class="w-12 h-12">
+                            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">Circademic</h1>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="user-avatar" id="user-avatar">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="font-semibold text-gray-800 dark:text-gray-200 truncate" id="user-name">אורח</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate" id="user-email">לא מחובר</p>
+                                </div>
+                            </div>
+                            
+                            <div id="guest-actions" class="hidden">
+                                <a href="login.html" class="block w-full text-center bg-blue-600 text-white text-sm py-2 rounded-lg font-bold hover:bg-blue-700 transition">התחבר למערכת</a>
+                            </div>
+
+                            <div id="user-actions" class="hidden gap-2">
+                                <button id="profile-settings" class="text-xs px-3 py-1 bg-white dark:bg-gray-700 rounded-lg hover:shadow-md transition-all w-full text-center">הגדרות</button>
+                                <button id="logout-btn" class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:shadow-md transition-all w-full text-center">יציאה</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav class="flex-1 space-y-1">
+                        <a href="index.html" class="nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>לוח בקרה</span></a>
+                        <a href="AcademicStatus.html" class="nav-item"><i data-lucide="graduation-cap" class="w-5 h-5"></i><span>מעקב אקדמי</span></a>
+                        <a href="blog.html" class="nav-item active"><i data-lucide="book-open" class="w-5 h-5"></i><span>בלוג ועדכונים</span></a>
+                        <a href="#" onclick="alert('בקרוב!')" class="nav-item"><i data-lucide="calendar" class="w-5 h-5"></i><span>מערכת שעות</span></a>
+                        <a href="#" onclick="alert('בקרוב!')" class="nav-item"><i data-lucide="file-text" class="w-5 h-5"></i><span>סיכומים</span></a>
+                        <hr class="my-4 border-gray-200 dark:border-gray-700">
+                        <a href="contact.html" class="nav-item"><i data-lucide="send" class="w-5 h-5"></i><span>צור קשר</span></a>
+                        <a href="about.html" class="nav-item"><i data-lucide="info" class="w-5 h-5"></i><span>אודות המערכת</span></a>
+                    </nav>
+                    <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button id="dark-mode-toggle" class="nav-item w-full"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i><span>מצב כהה</span></button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
+                
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div id="header-text">
+                        <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-1">הבלוג שלנו ✍️</h2>
+                        <p class="text-gray-600 dark:text-gray-400">טיפים ללמידה, עדכוני מערכת וחדשות אקדמיות</p>
+                    </div>
+                    <button id="create-post-btn" style="display: none;" class="btn-primary"><i data-lucide="plus-circle" class="w-5 h-5"></i><span>פוסט חדש</span></button>
+                </header>
+
+                <div id="main-view">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                            <div class="relative w-full md:w-1/3">
+                                <i data-lucide="search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                                <input type="text" id="search-input" placeholder="חיפוש בבלוג..." class="input-field" style="padding-right: 2.5rem;">
+                            </div>
+                            <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide" id="category-filters">
+                                <button class="filter-btn active" data-category="all">הכל</button>
+                                <button class="filter-btn" data-category="עדכון מערכת">עדכונים</button>
+                                <button class="filter-btn" data-category="טיפים ללמידה">טיפים</button>
+                                <button class="filter-btn" data-category="חדשות">חדשות</button>
+                                <button class="filter-btn" data-category="כללי">כללי</button>
+                            </div>
+                            <div class="w-full md:w-auto">
+                                <select id="sort-select" class="input-field cursor-pointer"><option value="newest">הכי חדש</option><option value="oldest">הכי ישן</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="blog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8"></div>
+                </div>
+
+                <div id="post-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center sticky top-0 z-10">
+                        <button id="back-to-list" class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 font-medium"><i data-lucide="arrow-right"></i> חזרה לרשימה</button>
+                        <div class="flex items-center gap-3">
+                            <button id="edit-post-btn" class="hidden flex items-center gap-1 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i> עריכה</button>
+                            <span id="view-tag" class="tag cursor-default"></span>
+                        </div>
+                    </div>
+                    <div class="p-8 md:p-12">
+                        <div class="mb-8 text-center">
+                            <h1 id="view-title" class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"></h1>
+                            <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                <span class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> <span id="view-date"></span></span>
+                                <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> <span id="view-author"></span></span>
+                            </div>
+                        </div>
+                        <div id="view-image-container" class="hidden w-full h-64 md:h-96 rounded-xl bg-gray-100 dark:bg-gray-900 mb-10 items-center justify-center overflow-hidden"></div>
+                        <div id="view-content" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 text-lg leading-relaxed whitespace-pre-wrap"></div>
+                        <div class="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700">
+                            <p class="text-sm text-gray-500 mb-4 font-semibold">נושאים קשורים:</p>
+                            <div id="view-tags-container" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="post-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto relative">
+            <button id="close-modal" class="absolute top-4 left-4 text-gray-500 hover:text-gray-800 dark:hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h2 id="modal-title" class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2"><i data-lucide="pen-tool" class="text-blue-500"></i> כתיבת פוסט</h2>
+            <form id="post-form" class="space-y-4">
+                <input type="hidden" id="edit-post-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">כותרת</label><input type="text" id="post-title" required class="input-field"></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם כותב (לתצוגה)</label><input type="text" id="post-author-custom" class="input-field" placeholder="השאר ריק לשם שלך"></div>
+                </div>
+                <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">קישור לתמונה (אופציונלי)</label><input type="url" id="post-image" class="input-field"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">קטגוריה</label>
+                        <select id="post-tag" class="input-field">
+                            <option value="טיפים ללמידה">טיפים ללמידה</option>
+                            <option value="עדכון מערכת">עדכון מערכת</option>
+                            <option value="חדשות">חדשות</option>
+                            <option value="כללי">כללי</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תקציר</label><input type="text" id="post-excerpt" required class="input-field"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תוכן הפוסט</label>
+                    <textarea id="post-content" required rows="10" class="input-field resize-y font-mono text-sm"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">עיצוב טקסט: <b>*מודגש*</b> , <u>_קו תחתון_</u> , <span class="text-blue-500 font-bold">## כותרת משנה</span> , קישורים ב-HTML רגיל.</p>
+                </div>
+                <div class="flex justify-end gap-4 pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+                    <button type="button" id="cancel-post" class="px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">ביטול</button>
+                    <button type="submit" class="btn-primary shadow-lg">שמור ופרסם</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDj1V85FXrcZ8Tg1kezkTsO50bgMOLcnPk",
+            authDomain: "circademic-582dc.firebaseapp.com",
+            projectId: "circademic-582dc",
+            storageBucket: "circademic-582dc.firebasestorage.app",
+            messagingSenderId: "296566462689",
+            appId: "1:296566462689:web:d23a6f74078de2332bbfa0",
+            measurementId: "G-SPD143KGDK"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let isWriter = false;
+        let allPosts = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentSort = 'newest';
+
+        const userNameEl = document.getElementById('user-name');
+        const userEmailEl = document.getElementById('user-email');
+        const userAvatarEl = document.getElementById('user-avatar');
+        const guestActions = document.getElementById('guest-actions');
+        const userActions = document.getElementById('user-actions');
+
+        // --- AUTH & INIT (Handle Guest/User) ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // --- LOGGED IN ---
+                currentUser = user;
+                
+                // Update Sidebar for User
+                if(userNameEl) userNameEl.textContent = user.displayName || 'משתמש';
+                if(userEmailEl) userEmailEl.textContent = user.email;
+                if(userAvatarEl) {
+                    userAvatarEl.textContent = (user.displayName || 'U').charAt(0).toUpperCase();
+                    userAvatarEl.classList.remove('hidden');
+                }
+                
+                if(guestActions) guestActions.classList.add('hidden');
+                if(userActions) {
+                    userActions.classList.remove('hidden');
+                    userActions.classList.add('flex');
+                }
+
+                await checkPermissions(user.uid);
+            } else {
+                // --- GUEST MODE ---
+                currentUser = null;
+                isWriter = false;
+
+                // Update Sidebar for Guest
+                if(userNameEl) userNameEl.textContent = 'שלום אורח';
+                if(userEmailEl) userEmailEl.textContent = 'התחבר כדי לשמור נתונים';
+                if(userAvatarEl) userAvatarEl.innerHTML = '<i data-lucide="user" class="w-5 h-5"></i>';
+                
+                if(userActions) userActions.classList.add('hidden');
+                if(guestActions) guestActions.classList.remove('hidden');
+                
+                // Hide Create Button
+                const btn = document.getElementById('create-post-btn');
+                if(btn) btn.style.display = 'none';
+            }
+
+            // Common Logic (Load content for everyone)
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            loadPosts(); 
+            handleRouting();
+            lucide.createIcons();
+        });
+
+        async function checkPermissions(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists && doc.data().isWriter === true) {
+                    isWriter = true;
+                    document.getElementById('create-post-btn').style.display = 'inline-flex';
+                }
+            } catch (e) { console.warn(e); }
+        }
+
+        // --- DATA ---
+        function loadPosts() {
+            db.collection('posts').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                allPosts = [];
+                snapshot.forEach(doc => allPosts.push({ id: doc.id, ...doc.data() }));
+                renderList();
+                
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('id') && !document.getElementById('post-view').classList.contains('hidden')) {
+                    showPostView(params.get('id')); 
+                }
+            });
+        }
+
+        // --- TEXT FORMATTER ---
+        function formatText(text) {
+            if (!text) return '';
+            let formatted = text;
+            formatted = formatted.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6 mb-3">$1</h2>');
+            formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/_(.*?)_/g, '<u>$1</u>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        // --- VIEWS ---
+        function handleRouting() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (id) {
+                if(allPosts.length === 0) setTimeout(() => showPostView(id), 800);
+                else showPostView(id);
+            } else showListView();
+        }
+        window.addEventListener('popstate', handleRouting);
+
+        function showListView() {
+            document.getElementById('main-view').classList.remove('hidden');
+            document.getElementById('post-view').classList.add('hidden');
+            document.getElementById('header-text').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function showPostView(id) {
+            const post = allPosts.find(p => p.id === id);
+            if (!post) return;
+
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('post-view').classList.remove('hidden');
+            document.getElementById('header-text').classList.add('hidden');
+
+            document.getElementById('view-title').textContent = post.title;
+            document.getElementById('view-tag').textContent = post.tag;
+            document.getElementById('view-date').textContent = post.createdAt ? new Date(post.createdAt.seconds*1000).toLocaleDateString('he-IL') : '';
+            document.getElementById('view-author').textContent = post.authorName;
+            
+            document.getElementById('view-content').innerHTML = formatText(post.content);
+
+            const imgContainer = document.getElementById('view-image-container');
+            if (post.imageUrl) {
+                imgContainer.classList.remove('hidden');
+                imgContainer.classList.add('flex');
+                imgContainer.innerHTML = `<img src="${post.imageUrl}" class="w-full h-full object-cover" alt="${post.title}">`;
+            } else {
+                imgContainer.classList.add('hidden');
+                imgContainer.classList.remove('flex');
+            }
+
+            document.getElementById('view-tags-container').innerHTML = `<span class="tag">#${post.tag.replace(/\s+/g, '_')}</span> <span class="tag">#Circademic</span>`;
+            
+            const editBtn = document.getElementById('edit-post-btn');
+            if (isWriter) {
+                editBtn.classList.remove('hidden');
+                editBtn.onclick = () => openEditModal(post);
+            } else editBtn.classList.add('hidden');
+
+            window.scrollTo(0,0);
+            lucide.createIcons();
+        }
+
+        document.getElementById('back-to-list').addEventListener('click', () => {
+            const url = new URL(window.location);
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
+            showListView();
+        });
+
+        function renderList() {
+            const grid = document.getElementById('blog-grid');
+            grid.innerHTML = '';
+            let filtered = allPosts.filter(p => (currentFilter === 'all' || p.tag === currentFilter) && (!currentSearch || p.title.toLowerCase().includes(currentSearch.toLowerCase())));
+            filtered.sort((a, b) => currentSort === 'newest' ? (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0) : (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400"><p>לא נמצאו פוסטים.</p></div>`;
+                return;
+            }
+
+            filtered.forEach(post => {
+                const date = post.createdAt ? new Date(post.createdAt.seconds*1000).toLocaleDateString('he-IL') : '';
+                const card = document.createElement('div');
+                card.className = 'blog-card cursor-pointer group h-full';
+                card.onclick = () => {
+                    const url = new URL(window.location);
+                    url.searchParams.set('id', post.id);
+                    window.history.pushState({id: post.id}, '', url);
+                    showPostView(post.id);
+                };
+
+                let imageHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="${post.title}">` : `<i data-lucide="${getIcon(post.tag)}" class="w-12 h-12 text-white transform group-hover:scale-110 transition-transform duration-300 drop-shadow-md"></i>`;
+                let tagHtml = `<div class="absolute top-4 right-4"><span class="tag bg-white/90 text-blue-600 backdrop-blur-sm shadow-sm">${post.tag}</span></div>`;
+
+                card.innerHTML = `
+                    <div class="card-image">${imageHtml}${tagHtml}</div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">${post.title}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4 flex-grow">${post.excerpt}</p>
+                        <div class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">${date} • ${post.authorName}</span>
+                            <span class="text-blue-600 dark:text-blue-400 text-sm font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">קרא עוד <i data-lucide="arrow-left" class="w-4 h-4"></i></span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function getIcon(tag) { return tag.includes('טיפ') ? 'lightbulb' : tag.includes('עדכון') ? 'zap' : 'file-text'; }
+
+        // --- CREATE / EDIT ---
+        const modal = document.getElementById('post-modal');
+        const modalTitle = document.getElementById('modal-title');
+        
+        function openCreateModal() {
+            document.getElementById('post-form').reset();
+            document.getElementById('edit-post-id').value = '';
+            modalTitle.innerHTML = `<i data-lucide="plus-circle" class="text-blue-500"></i> כתיבת פוסט חדש`;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function openEditModal(post) {
+            document.getElementById('edit-post-id').value = post.id;
+            document.getElementById('post-title').value = post.title;
+            document.getElementById('post-author-custom').value = post.authorName === 'מערכת' ? '' : post.authorName; 
+            document.getElementById('post-image').value = post.imageUrl || '';
+            document.getElementById('post-tag').value = post.tag;
+            document.getElementById('post-excerpt').value = post.excerpt;
+            document.getElementById('post-content').value = post.content;
+            modalTitle.innerHTML = `<i data-lucide="edit-3" class="text-blue-500"></i> עריכת פוסט`;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        document.getElementById('create-post-btn').addEventListener('click', openCreateModal);
+        document.getElementById('close-modal').addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('cancel-post').addEventListener('click', () => modal.classList.add('hidden'));
+
+        document.getElementById('post-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const oldText = btn.innerHTML; btn.innerHTML = 'שומר...'; btn.disabled = true;
+            
+            const editId = document.getElementById('edit-post-id').value;
+            const customAuthor = document.getElementById('post-author-custom').value.trim();
+            
+            let authorName = customAuthor || (currentUser ? currentUser.displayName : 'מערכת') || 'מערכת';
+
+            const postData = {
+                title: document.getElementById('post-title').value,
+                imageUrl: document.getElementById('post-image').value || null,
+                tag: document.getElementById('post-tag').value,
+                excerpt: document.getElementById('post-excerpt').value,
+                content: document.getElementById('post-content').value,
+                authorName: authorName
+            };
+
+            try {
+                if (editId) {
+                    await db.collection('posts').doc(editId).update(postData);
+                } else {
+                    postData.authorId = currentUser ? currentUser.uid : 'unknown';
+                    postData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('posts').add(postData);
+                }
+                modal.classList.add('hidden');
+            } catch (err) { alert('שגיאה: ' + err.message); } 
+            finally { btn.innerHTML = oldText; btn.disabled = false; }
+        });
+
+        // UI
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        document.getElementById('mobile-menu-toggle').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.remove('hidden'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.add('hidden'); });
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            lucide.createIcons();
+        });
+        if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+        document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('לצאת?')) await auth.signOut(); });
+        document.getElementById('search-input').addEventListener('input', (e) => { currentSearch = e.target.value; renderList(); });
+        document.getElementById('sort-select').addEventListener('change', (e) => { currentSort = e.target.value; renderList(); });
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.category;
+                renderList();
+            });
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>
