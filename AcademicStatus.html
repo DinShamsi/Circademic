@@ -4,7 +4,7 @@
     <link rel="icon" href="favicon2.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת מעקב אקדמי משופרת</title>
+    <title>הזנת קורסים</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -140,11 +140,11 @@
         
         <header class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl sm:text-4xl font-bold header-title mb-2" id="header-title">לוח בקרה אקדמי</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold header-title mb-2" id="header-title">הזנת נתוני קורסים</h1>
                 <p class="text-gray-600 dark:text-gray-400 text-lg" id="header-subtitle">ברוך הבא!</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="/" class="icon-btn text-gray-600 dark:text-gray-300" title="חזרה ללוח הבקרה">
+                <a href="/" class="icon-btn text-gray-600 dark:text-gray-300" title="חזרה לדף הבית">
                     <i data-lucide="layout-grid"></i>
                 </a>
                 <button id="settings-btn" class="icon-btn text-gray-600 dark:text-gray-300">
@@ -576,7 +576,7 @@
     function updateHeader() {
         headerSubtitle.textContent = state.userInfo.name ? `ברוך הבא, ${state.userInfo.name}!` : `ברוך הבא!`;
         if (state.userInfo.major) {
-            headerTitle.textContent = `מעקב אקדמי: ${state.userInfo.major}`;
+            headerTitle.textContent = `מקצוע: ${state.userInfo.major}`;
         }
     }
 
@@ -1013,4 +1013,5 @@
     </script>
 </body>
 </html>
+
 
