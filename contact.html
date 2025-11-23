@@ -22,169 +22,115 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-        /* Design System Variables (זהה ל-index.html) */
+        /* Design System Variables */
         :root {
             --primary: #3B82F6; --primary-light: #60A5FA; --primary-dark: #2563EB;
             --secondary: #8B5CF6; --secondary-light: #A78BFA; --secondary-dark: #7C3AED;
             --accent: #F59E0B; --accent-light: #FBBF24; --accent-dark: #D97706;
-            --success: #10B981; --success-light: #34D399; --success-dark: #059669;
-            --bg-light: #F9FAFB; --bg-lighter: #FFFFFF; --bg-dark: #0F172A;
-            --bg-darker: #030712; --bg-dark-card: #1E293B;
-            --text-primary-light: #111827; --text-secondary-light: #6B7280;
-            --text-primary-dark: #F9FAFB; --text-secondary-dark: #9CA3AF;
+            --bg-light: #F9FAFB; --bg-dark: #0F172A; --bg-dark-card: #1E293B;
             --border-light: #E5E7EB; --border-dark: #374151;
-            --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
+            --radius-lg: 16px; --radius-md: 12px;
         }
 
         body { 
             font-family: 'Heebo', sans-serif;
             background: var(--bg-light);
+            transition: background-color 0.3s ease;
         }
         body.dark { background: var(--bg-dark); }
         h1, h2, h3 { font-family: 'Rubik', sans-serif; font-weight: 700; }
         
-        /* כל שאר הסגנונות מ-index.html */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .sidebar { background: white; box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 40; }
-        .dark .sidebar { background: var(--bg-dark-card); box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3); }
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; top: 0; right: -100%; height: 100vh; width: 280px; }
-            .sidebar.open { right: 0; }
-        }
-        .dashboard-card { background: white; border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); animation: fadeInUp 0.5s ease-out; }
-        .dark .dashboard-card { background: var(--bg-dark-card); border-color: rgba(59, 130, 246, 0.2); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
-        .stat-number { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: var(--radius-md); color: var(--text-secondary-light); text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
-        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--primary); transform: translateX(-4px); }
-        .nav-item.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); color: var(--primary); font-weight: 600; }
-        .dark .nav-item { color: var(--text-secondary-dark); }
-        .dark .nav-item:hover { background: rgba(59, 130, 246, 0.2); color: var(--primary-light); }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        .mobile-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 35; }
-        .mobile-overlay.active { display: block; }
-        .loading { display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .spinner { width: 50px; height: 50px; border: 4px solid rgba(59, 130, 246, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .user-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 700; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        /* Components */
+        .sidebar { background: white; box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; z-index: 40; }
+        .dark .sidebar { background: var(--bg-dark-card); box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3); }
+        @media (max-width: 768px) { .sidebar { position: fixed; top: 0; right: -100%; height: 100vh; width: 280px; } .sidebar.open { right: 0; } }
+        
+        .dashboard-card { background: white; border-radius: var(--radius-lg); padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); animation: fadeInUp 0.5s ease-out; }
+        .dark .dashboard-card { background: var(--bg-dark-card); border-color: rgba(59, 130, 246, 0.2); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 12px; color: #6B7280; text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
+        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); color: var(--primary); font-weight: 600; }
+        .dark .nav-item { color: #9CA3AF; }
+        .dark .nav-item:hover { background: rgba(59, 130, 246, 0.2); color: var(--primary-light); }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        .input-field, select, textarea { padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: 12px; background: var(--bg-light); width: 100%; transition: all 0.2s; }
+        .input-field:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .dark .input-field, .dark select, .dark textarea { background: #030712; border-color: var(--border-dark); color: white; }
+        .dark .input-field:focus, .dark select:focus, .dark textarea:focus { background: var(--bg-dark); border-color: var(--primary-light); }
+
+        .loading { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: var(--bg-light); z-index: 100; }
+        .dark .loading { background: var(--bg-dark); }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(59, 130, 246, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        
+        .loading-spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
         .badge { display: inline-block; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .badge.new { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
-        
-        /* סגנונות ספציפיים לטופס יצירת קשר */
-        .input-field, select, textarea {
-            padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: var(--radius-md);
-            background: var(--bg-light); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.938rem; width: 100%;
-        }
-        .input-field:focus, select:focus, textarea:focus {
-            outline: none; border-color: var(--primary); background: white;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-        .dark .input-field, .dark select, .dark textarea {
-            background: var(--bg-darker); border-color: var(--border-dark); color: var(--text-primary-dark);
-        }
-        .dark .input-field:focus, .dark select:focus, .dark textarea:focus {
-            background: var(--bg-dark); border-color: var(--primary-light);
-        }
-        label {
-            display: block; text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2;
-        }
-        .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-left: 0.5rem;
-        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
     
-    <div id="loading-screen" class="loading">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading-screen" class="loading"><div class="spinner"></div></div>
 
     <div id="app" class="hidden">
         
         <button id="mobile-menu-toggle" class="md:hidden fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg">
             <i data-lucide="menu" class="w-5 h-5 text-gray-700 dark:text-gray-300"></i>
         </button>
-
-        <div id="mobile-overlay" class="mobile-overlay"></div>
+        <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
 
         <div class="flex min-h-screen">
             
             <aside id="sidebar" class="sidebar w-64 flex-shrink-0 md:relative md:translate-x-0">
                 <div class="p-6 h-full flex flex-col">
-                    
                     <div class="mb-8">
                         <div class="flex items-center gap-3 mb-6">
                             <img src="LOGO.png" alt="Logo" class="w-12 h-12">
-                            <h1 class="text-2xl font-bold stat-number">Circademic</h1>
+                            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">Circademic</h1>
                         </div>
                         
                         <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="user-avatar" id="user-avatar">
-                                    <span id="user-initial">?</span>
+                                    <i data-lucide="user" class="w-5 h-5"></i>
                                 </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800 dark:text-gray-200" id="user-name">טוען...</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400" id="user-email">...</p>
+                                <div class="overflow-hidden">
+                                    <p class="font-semibold text-gray-800 dark:text-gray-200 truncate" id="user-name">טוען...</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate" id="user-email">...</p>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button id="profile-settings" class="text-xs px-3 py-1 bg-white dark:bg-gray-700 rounded-lg hover:shadow-md transition-all">
-                                    <i data-lucide="settings" class="w-3 h-3 inline ml-1"></i>
-                                    הגדרות
-                                </button>
-                                <button id="logout-btn" class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:shadow-md transition-all">
-                                    <i data-lucide="log-out" class="w-3 h-3 inline ml-1"></i>
-                                    יציאה
-                                </button>
+                            
+                            <div id="guest-actions" class="hidden">
+                                <a href="login.html" class="block w-full text-center bg-blue-600 text-white text-sm py-2 rounded-lg font-bold hover:bg-blue-700 transition">התחבר למערכת</a>
+                            </div>
+
+                            <div id="user-actions" class="hidden gap-2">
+                                <button id="profile-settings" class="text-xs px-3 py-1 bg-white dark:bg-gray-700 rounded-lg hover:shadow-md transition-all w-full text-center">הגדרות</button>
+                                <button id="logout-btn" class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:shadow-md transition-all w-full text-center">יציאה</button>
                             </div>
                         </div>
                     </div>
 
-                    <nav class="flex-1">
-                        <a href="/" class="nav-item">
-                            <i data-lucide="home" class="w-5 h-5"></i>
-                            <span>לוח בקרה</span>
-                        </a>
-                        <a href="AcademicStatus.html" class="nav-item">
-                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                            <span>מעקב אקדמי</span>
-                        </a>
-                        <a href="#" class="nav-item" id="schedule-link">
-                            <i data-lucide="calendar" class="w-5 h-5"></i>
-                            <span>מערכת שעות</span>
-                            <span class="badge new mr-auto">בקרוב</span>
-                        </a>
-                        <a href="#" class="nav-item" id="notes-link">
-                            <i data-lucide="file-text" class="w-5 h-5"></i>
-                            <span>סיכומים ונוסחאות</span>
-                            <span class="badge new mr-auto">בקרוב</span>
-                        </a>
-                        <a href="#" class="nav-item" id="tasks-link">
-                            <i data-lucide="check-square" class="w-5 h-5"></i>
-                            <span>משימות</span>
-                            <span class="badge new mr-auto">בקרוב</span>
-                        </a>
+                    <nav class="flex-1 space-y-1">
+                        <a href="index.html" class="nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>לוח בקרה</span></a>
+                        <a href="AcademicStatus.html" class="nav-item"><i data-lucide="graduation-cap" class="w-5 h-5"></i><span>מעקב אקדמי</span></a>
+                        <a href="blog.html" class="nav-item"><i data-lucide="book-open" class="w-5 h-5"></i><span>בלוג ועדכונים</span></a>
+                        <a href="#" onclick="alert('בקרוב!')" class="nav-item"><i data-lucide="calendar" class="w-5 h-5"></i><span>מערכת שעות</span><span class="badge new mr-auto">בקרוב</span></a>
+                        <a href="#" onclick="alert('בקרוב!')" class="nav-item"><i data-lucide="file-text" class="w-5 h-5"></i><span>סיכומים</span><span class="badge new mr-auto">בקרוב</span></a>
                         
                         <hr class="my-4 border-gray-200 dark:border-gray-700">
                         
-                        <a href="contact.html" class="nav-item active"> <i data-lucide="send" class="w-5 h-5"></i>
-                            <span>צור קשר</span>
-                        </a>
-                        <a href="about.html" class="nav-item">
-                            <i data-lucide="info" class="w-5 h-5"></i>
-                            <span>אודות המערכת</span>
-                        </a>
-
+                        <a href="contact.html" class="nav-item active"><i data-lucide="send" class="w-5 h-5"></i><span>צור קשר</span></a>
+                        <a href="about.html" class="nav-item"><i data-lucide="info" class="w-5 h-5"></i><span>אודות המערכת</span></a>
                     </nav>
 
                     <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -197,7 +143,7 @@
                 </div>
             </aside>
 
-            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
                 
                 <header class="mb-8">
                     <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">
@@ -215,28 +161,28 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="contact-name">שם מלא</label>
+                                <label for="contact-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label>
                                 <input type="text" id="contact-name" class="input-field" required>
                             </div>
                             <div>
-                                <label for="contact-email">כתובת אימייל</label>
+                                <label for="contact-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">כתובת אימייל</label>
                                 <input type="email" id="contact-email" class="input-field" required>
                             </div>
                         </div>
 
                         <div>
-                            <label for="contact-subject">נושא הפנייה</label>
+                            <label for="contact-subject" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">נושא הפנייה</label>
                             <select id="contact-subject" class="input-field" required>
                                 <option value="" disabled selected>בחר נושא...</option>
                                 <option value="דיווח על תקלה">דיווח על תקלה</option>
                                 <option value="הצעה לפיצ'ר">הצעה לפיצ'ר</option>
                                 <option value="שאלה כללית">שאלה כללית</option>
-                                <option value_value="אחר">אחר</option>
+                                <option value="אחר">אחר</option>
                             </select>
                         </div>
 
                         <div>
-                            <label for="contact-message">ההודעה שלך</label>
+                            <label for="contact-message" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ההודעה שלך</label>
                             <textarea id="contact-message" rows="6" class="input-field" placeholder="כתוב כאן את הודעתך..." required></textarea>
                         </div>
 
@@ -256,18 +202,9 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-md w-full" style="animation: fadeInUp 0.3s ease-out;">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">הגדרות פרופיל</h2>
             <form id="settings-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label>
-                    <input type="text" id="settings-name" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label>
-                    <input type="text" id="settings-institution" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label>
-                    <input type="text" id="settings-major" class="input-field w-full">
-                </div>
+                <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">שם מלא</label><input type="text" id="settings-name" class="input-field"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">מוסד לימודים</label><input type="text" id="settings-institution" class="input-field"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">תחום לימוד</label><input type="text" id="settings-major" class="input-field"></div>
                 <div class="flex gap-4 pt-4">
                     <button type="submit" class="btn-primary flex-1">שמור שינויים</button>
                     <button type="button" id="close-settings" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">ביטול</button>
@@ -276,9 +213,7 @@
         </div>
     </div>
 
-
     <script>
-        // Firebase Configuration (זהה)
         const firebaseConfig = {
             apiKey: "AIzaSyDj1V85FXrcZ8Tg1kezkTsO50bgMOLcnPk",
             authDomain: "circademic-582dc.firebaseapp.com",
@@ -289,242 +224,177 @@
             measurementId: "G-SPD143KGDK"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Global Variables
         let currentUser = null;
         let userData = null;
-        let academicData = null;
 
         // DOM Elements
         const loadingScreen = document.getElementById('loading-screen');
         const app = document.getElementById('app');
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileOverlay = document.getElementById('mobile-overlay');
-        const settingsModal = document.getElementById('settings-modal');
-        const profileSettingsBtn = document.getElementById('profile-settings');
-        const closeSettingsBtn = document.getElementById('close-settings');
-        const settingsForm = document.getElementById('settings-form');
-        
-        // --- DOM Elements חדשים ---
+        const userNameEl = document.getElementById('user-name');
+        const userEmailEl = document.getElementById('user-email');
+        const userAvatarEl = document.getElementById('user-avatar');
+        const guestActions = document.getElementById('guest-actions');
+        const userActions = document.getElementById('user-actions');
         const contactForm = document.getElementById('contact-form');
-        const messageContainer = document.getElementById('message-container');
         const submitBtn = document.getElementById('submit-btn');
+        const messageContainer = document.getElementById('message-container');
+        const settingsModal = document.getElementById('settings-modal');
 
-        // Auth State Observer
+        // Auth State
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                // --- USER MODE ---
                 currentUser = user;
-                await loadUserData();
-                await loadAcademicData();
-                updateUserProfile();
                 
-                initializePage(); // פונקציה לאתחול הדף
-                
-                loadingScreen.classList.add('hidden');
-                app.classList.remove('hidden');
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if(doc.exists) userData = doc.data();
+                } catch (e) { console.warn(e); }
+
+                // Update Sidebar
+                if(userNameEl) userNameEl.textContent = user.displayName || 'משתמש';
+                if(userEmailEl) userEmailEl.textContent = user.email;
+                if(userAvatarEl) {
+                    userAvatarEl.textContent = (user.displayName || 'U').charAt(0).toUpperCase();
+                    userAvatarEl.innerHTML = (user.displayName || 'U').charAt(0).toUpperCase();
+                }
+
+                // Pre-fill Form
+                document.getElementById('contact-name').value = userData?.name || user.displayName || '';
+                document.getElementById('contact-email').value = userData?.email || user.email || '';
+
+                if(guestActions) guestActions.classList.add('hidden');
+                if(userActions) {
+                    userActions.classList.remove('hidden');
+                    userActions.classList.add('flex');
+                }
+
             } else {
-                window.location.href = 'login.html';
+                // --- GUEST MODE ---
+                currentUser = null;
+                userData = null;
+
+                if(userNameEl) userNameEl.textContent = 'שלום אורח';
+                if(userEmailEl) userEmailEl.textContent = 'התחבר כדי לשמור נתונים';
+                if(userAvatarEl) userAvatarEl.innerHTML = '<i data-lucide="user" class="w-5 h-5"></i>';
+
+                if(userActions) userActions.classList.add('hidden');
+                if(guestActions) guestActions.classList.remove('hidden');
             }
+
+            loadingScreen.classList.add('hidden');
+            app.classList.remove('hidden');
+            lucide.createIcons();
         });
 
-        // --- פונקציות טעינת נתונים (זהות ל-index) ---
-        async function loadUserData() {
-            try {
-                const doc = await db.collection('users').doc(currentUser.uid).get();
-                if (doc.exists) {
-                    userData = doc.data();
-                }
-            } catch (error) { console.error('Error loading user data:', error); }
-        }
-        async function loadAcademicData() {
-             try {
-                const doc = await db.collection('academicData').doc(currentUser.uid).get();
-                if (doc.exists) {
-                    academicData = doc.data();
-                }
-            } catch (error) { console.error('Error loading academic data:', error); }
-        }
-        function updateUserProfile() {
-            const userName = userData?.name || academicData?.userInfo?.name || currentUser.displayName || 'משתמש';
-            const userEmail = userData?.email || currentUser.email;
-            const initial = userName.charAt(0).toUpperCase();
-            document.getElementById('user-name').textContent = userName;
-            document.getElementById('user-email').textContent = userEmail;
-            document.getElementById('user-initial').textContent = initial;
-            // אין צורך לעדכן את welcome-name בדף זה
-        }
-
-        // --- פונקציית אתחול ראשית לדף ---
-        function initializePage() {
-            lucide.createIcons();
-            
-            // טעינת מצב כהה
-            const darkMode = localStorage.getItem('theme') === 'dark';
-            if (darkMode) {
-                document.documentElement.classList.add('dark');
-            }
-            
-            // מילוי אוטומטי של הטופס
-            document.getElementById('contact-name').value = userData?.name || academicData?.userInfo?.name || currentUser.displayName || '';
-            document.getElementById('contact-email').value = userData?.email || currentUser.email || '';
-            
-            // האזנה לטופס
-            contactForm.addEventListener('submit', handleFormSubmit);
-            
-            // הפעלת כל הפונקציות של התפריט (זהה ל-index.html)
-            setupSidebarControls();
-        }
-        
-        // --- פונקציה חדשה: שליחת טופס ---
-        async function handleFormSubmit(e) {
+        // Form Submit Logic
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setLoading(true);
-            clearMessages();
+            messageContainer.innerHTML = '';
 
             const name = document.getElementById('contact-name').value;
             const email = document.getElementById('contact-email').value;
             const subject = document.getElementById('contact-subject').value;
             const message = document.getElementById('contact-message').value;
 
-            if (!name || !email || !subject || !message) {
-                showMessage('אנא מלא את כל השדות.', 'error');
-                setLoading(false);
-                return;
-            }
-            
             try {
-                // שמירה ב-Firestore
                 await db.collection('contactSubmissions').add({
-                    name: name,
-                    email: email,
-                    subject: subject,
-                    message: message,
-                    userId: currentUser.uid,
+                    name,
+                    email,
+                    subject,
+                    message,
+                    userId: currentUser ? currentUser.uid : 'guest', // Handle guest ID
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'new' // לניהול עתידי
+                    status: 'new'
                 });
                 
                 showMessage('הודעתך נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
-                contactForm.reset(); // איפוס הטופס
-                // מילוי מחדש של פרטי המשתמש
-                document.getElementById('contact-name').value = userData?.name || academicData?.userInfo?.name || currentUser.displayName || '';
-                document.getElementById('contact-email').value = userData?.email || currentUser.email || '';
+                contactForm.reset();
+                
+                // Re-fill for logged in users
+                if (currentUser) {
+                    document.getElementById('contact-name').value = userData?.name || currentUser.displayName || '';
+                    document.getElementById('contact-email').value = userData?.email || currentUser.email || '';
+                }
 
             } catch (error) {
-                console.error("Error sending message:", error);
-                showMessage('אירעה שגיאה בשליחת ההודעה. נסה שוב מאוחר יותר.', 'error');
+                console.error("Error:", error);
+                showMessage('אירעה שגיאה בשליחה. וודא שיש לך חיבור לאינטרנט.', 'error');
             } finally {
                 setLoading(false);
             }
-        }
-        
-        // --- פונקציות עזר לטופס ---
+        });
+
         function setLoading(isLoading) {
-            const textSpan = document.getElementById('submit-btn-text');
+            const text = document.getElementById('submit-btn-text');
             const spinner = document.getElementById('submit-spinner');
-            
             submitBtn.disabled = isLoading;
-            if (isLoading) {
-                textSpan.style.display = 'none';
-                spinner.classList.remove('hidden');
-            } else {
-                textSpan.style.display = 'inline';
-                spinner.classList.add('hidden');
-            }
+            if(isLoading) { text.style.display = 'none'; spinner.classList.remove('hidden'); }
+            else { text.style.display = 'block'; spinner.classList.add('hidden'); }
         }
 
-        function showMessage(message, type = 'error') {
-            const isError = type === 'error';
+        function showMessage(msg, type) {
+            const color = type === 'error' ? 'red' : 'green';
             messageContainer.innerHTML = `
-                <div class="${isError ? 'bg-red-100 dark:bg-red-900 border-red-400 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900 border-green-400 text-green-700 dark:text-green-300'} border-r-4 p-4 rounded-lg" role="alert">
-                    <p class="font-bold">${isError ? 'שגיאה' : 'הצלחה'}</p>
-                    <p>${message}</p>
-                </div>
-            `;
-        }
-        
-        function clearMessages() {
-            messageContainer.innerHTML = '';
+                <div class="bg-${color}-100 dark:bg-${color}-900 border border-${color}-400 text-${color}-700 dark:text-${color}-200 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span class="block sm:inline">${msg}</span>
+                </div>`;
         }
 
-        // --- פונקציות תפריט (זהות ל-index.html) ---
-        function setupSidebarControls() {
-            darkModeToggle.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme',
-                    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-                );
-                lucide.createIcons();
-            });
+        // UI Interactions
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        document.getElementById('mobile-menu-toggle').addEventListener('click', () => { sidebar.classList.add('open'); mobileOverlay.classList.remove('hidden'); });
+        mobileOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); mobileOverlay.classList.add('hidden'); });
 
-            mobileMenuToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                mobileOverlay.classList.toggle('active');
-            });
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            lucide.createIcons();
+        });
 
-            mobileOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                mobileOverlay.classList.remove('active');
-            });
+        document.getElementById('profile-settings').addEventListener('click', () => {
+            if(!currentUser) return;
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
+            document.getElementById('settings-name').value = userData?.name || currentUser.displayName || '';
+            document.getElementById('settings-institution').value = userData?.institution || '';
+            document.getElementById('settings-major').value = userData?.major || '';
+        });
 
-            profileSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.remove('hidden');
-                settingsModal.classList.add('flex');
-                document.getElementById('settings-name').value = userData?.name || academicData?.userInfo?.name || '';
-                document.getElementById('settings-institution').value = userData?.institution || academicData?.userInfo?.institution || '';
-                document.getElementById('settings-major').value = userData?.major || academicData?.userInfo?.major || '';
-            });
+        document.getElementById('close-settings').addEventListener('click', () => settingsModal.classList.add('hidden'));
 
-            closeSettingsBtn.addEventListener('click', () => {
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) return;
+            const name = document.getElementById('settings-name').value;
+            const institution = document.getElementById('settings-institution').value;
+            const major = document.getElementById('settings-major').value;
+            try {
+                await db.collection('users').doc(currentUser.uid).set({ name, institution, major }, { merge: true });
+                if(name) await currentUser.updateProfile({ displayName: name });
+                userData = { ...userData, name, institution, major };
+                userNameEl.textContent = name;
                 settingsModal.classList.add('hidden');
-                settingsModal.classList.remove('flex');
-            });
+                alert('ההגדרות נשמרו!');
+            } catch(e) { alert('שגיאה בשמירה'); }
+        });
 
-            settingsForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('settings-name').value;
-                const institution = document.getElementById('settings-institution').value;
-                const major = document.getElementById('settings-major').value;
-                try {
-                    await db.collection('users').doc(currentUser.uid).update({ name, institution, major });
-                    await db.collection('academicData').doc(currentUser.uid).update({
-                        'userInfo.name': name, 'userInfo.institution': institution, 'userInfo.major': major
-                    });
-                    if (name) await currentUser.updateProfile({ displayName: name });
-                    if (userData) { userData.name = name; userData.institution = institution; userData.major = major; }
-                    if (academicData) { academicData.userInfo.name = name; academicData.userInfo.institution = institution; academicData.userInfo.major = major; }
-                    updateUserProfile();
-                    settingsModal.classList.add('hidden');
-                    settingsModal.classList.remove('flex');
-                    alert('ההגדרות נשמרו בהצלחה!');
-                } catch (error) {
-                    console.error('Error updating profile:', error);
-                    alert('אירעה שגיאה בשמירת ההגדרות.');
-                }
-            });
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if(confirm('לצאת מהמערכת?')) {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            }
+        });
 
-            document.getElementById('logout-btn').addEventListener('click', async () => {
-                if (confirm('האם אתה בטוח שברצונך לצאת?')) {
-                    try {
-                        await auth.signOut();
-                        window.location.href = 'login.html';
-                    } catch (error) { console.error('Error signing out:', error); }
-                }
-            });
-
-            document.querySelectorAll('#schedule-link, #notes-link, #tasks-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    alert('פיצ׳ר זה יהיה זמין בקרוב! 🚀');
-                });
-            });
-        }
+        lucide.createIcons();
     </script>
 </body>
 </html>
