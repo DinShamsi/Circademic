@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta name="description" content="Circademic היא מערכת מתקדמת לסטודנטים. נהל את הקורסים שלך, עקוב אחר ממוצע הציונים, חשב נקודות זכות והשג את מטרות התואר בקלות.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Circademic - לוח בקרה</title>
@@ -188,10 +187,8 @@
 
         <div class="flex min-h-screen">
             
-            <aside id="sidebar" class="sidebar w-64 flex-shrink-0 md:relative md:translate-x-0">
-                <div class="p-6 h-full flex flex-col">
-                    
-                    <div class="mb-8">
+<aside id="sidebar" class="sidebar w-64 flex-shrink-0 md:relative md:translate-x-0">
+                <div class="p-6 h-full flex flex-col overflow-y-auto"> <div class="mb-8">
                         <div class="flex items-center gap-3 mb-6">
                             <img src="LOGO.png" alt="Logo" class="w-12 h-12">
                             <h1 class="text-2xl font-bold stat-number">Circademic</h1>
@@ -208,42 +205,45 @@
                             </div>
                             <div class="flex gap-2">
                                 <button id="profile-settings" class="text-xs px-3 py-1 bg-white dark:bg-gray-700 rounded-lg hover:shadow-md transition-all">
-                                    <i data-lucide="settings" class="w-3 h-3 inline ml-1"></i>
-                                    הגדרות
+                                    <i data-lucide="settings" class="w-3 h-3 inline ml-1"></i> הגדרות
                                 </button>
                                 <button id="logout-btn" class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:shadow-md transition-all">
-                                    <i data-lucide="log-out" class="w-3 h-3 inline ml-1"></i>
-                                    יציאה
+                                    <i data-lucide="log-out" class="w-3 h-3 inline ml-1"></i> יציאה
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <nav class="flex-1">
-                        <a href="#" class="nav-item active">
+                    <nav class="mb-4 space-y-1">
+                        <a href="index.html" class="nav-item active">
                             <i data-lucide="home" class="w-5 h-5"></i>
                             <span>לוח בקרה</span>
                         </a>
                         <a href="AcademicStatus.html" class="nav-item">
                             <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                            <span>הזנת קורסים</span>
+                            <span>מעקב אקדמי</span>
+                        </a>
+                        <a href="blog.html" class="nav-item">
+                            <i data-lucide="book-open" class="w-5 h-5"></i>
+                            <span>בלוג ועדכונים</span>
                         </a>
                         <a href="#" class="nav-item" id="schedule-link">
                             <i data-lucide="calendar" class="w-5 h-5"></i>
                             <span>מערכת שעות</span>
                             <span class="badge new mr-auto">בקרוב</span>
                         </a>
-                        <a href="#" class="nav-item" id="notes-link">
+                        <a href="notes.html" class="nav-item">
                             <i data-lucide="file-text" class="w-5 h-5"></i>
                             <span>סיכומים ונוסחאות</span>
-                            <span class="badge new mr-auto">בקרוב</span>
                         </a>
                         <a href="#" class="nav-item" id="tasks-link">
                             <i data-lucide="check-square" class="w-5 h-5"></i>
                             <span>משימות</span>
                             <span class="badge new mr-auto">בקרוב</span>
                         </a>
+                        
                         <hr class="my-4 border-gray-200 dark:border-gray-700">
+                        
                         <a href="contact.html" class="nav-item">
                             <i data-lucide="send" class="w-5 h-5"></i>
                             <span>צור קשר</span>
@@ -254,7 +254,7 @@
                         </a>
                     </nav>
 
-                    <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button id="dark-mode-toggle" class="nav-item w-full">
                             <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
                             <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
@@ -365,16 +365,18 @@
                             <i data-lucide="bell" class="inline w-5 h-5 ml-2"></i>
                             הודעות ועדכונים
                         </h3>
-                        <div id="announcements-container">
-                            <div class="announcement">
-                                <p class="font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                                    ברוכים הבאים ל-Circademic! 🎉
-                                </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    המערכת החדשה שלך למעקב אקדמי. התחל להזין את הקורסים שלך כדי לראות את כל הסטטיסטיקות המעניינות.
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">לפני 2 שעות</p>
-                            </div>
+                       <div class="dashboard-card lg:col-span-1 no-print">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">
+                                <i data-lucide="bell" class="inline w-5 h-5 ml-2"></i>
+                                הודעות ועדכונים
+                            </h3>
+                            <a href="blog.html" class="text-sm text-blue-500 hover:underline">לכל העדכונים</a>
+                        </div>
+                        <div id="announcements-container" class="space-y-2 h-64 overflow-y-auto pr-2">
+                            <p class="text-gray-400 text-center mt-10">טוען עדכונים...</p>
+                        </div>
+                    </div>
                         </div>
                     </div>
 
@@ -781,6 +783,7 @@
             } catch(error) {
                 console.error('Error loading academic data:',error);
             }
+loadRecentAnnouncements();
         }
         
         function updateUserProfile(){
@@ -1618,8 +1621,53 @@
                 alert("אירעה שגיאה בשמירת היעד.");
             }
         }
-        
+        // --- פונקציה חדשה לטעינת הודעות מהבלוג ---
+        function loadRecentAnnouncements() {
+            const container = document.getElementById('announcements-container');
+            if(!container) return;
+            
+            // מושך את 3 הפוסטים האחרונים
+            db.collection('posts').orderBy('createdAt', 'desc').limit(3).onSnapshot(snapshot => {
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                            <i data-lucide="inbox" class="w-8 h-8 mb-2 opacity-50"></i>
+                            <p class="text-sm">אין עדכונים חדשים</p>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const post = doc.data();
+                    const date = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString('he-IL') : '';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'announcement';
+                    // לחיצה מעבירה לדף הבלוג עם ה-ID של הפוסט
+                    div.onclick = () => window.location.href = `blog.html?id=${doc.id}`;
+                    
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <p class="font-semibold text-gray-800 dark:text-gray-200 text-sm line-clamp-1">${post.title}</p>
+                            <span class="text-xs text-gray-500 whitespace-nowrap mr-2">${date}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">${post.excerpt}</p>
+                        <div class="mt-2 flex items-center gap-1 text-xs text-blue-500 font-medium">
+                            <span>קרא עוד</span>
+                            <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+                lucide.createIcons();
+            }, err => {
+                console.error("Error loading announcements:", err);
+                container.innerHTML = `<p class="text-red-500 text-xs text-center mt-4">שגיאה בטעינת עדכונים</p>`;
+            });
+        }
     </script>
 </body>
 </html>
-
