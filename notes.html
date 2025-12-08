@@ -126,11 +126,11 @@
         .format-help-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.5s ease-in-out;
         }
         
         .format-help-content.open {
-            max-height: 500px;
+            max-height: 1500px;
             margin-top: 0.75rem;
         }
         
@@ -188,8 +188,7 @@
             flex-shrink: 0;
         }
         .header-title-section h1 {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            color: white;
             font-size: 2.5rem; margin-bottom: var(--spacing-sm);
             display: flex; align-items: center; gap: 12px;
         }
@@ -246,6 +245,36 @@
             display: inline-flex; align-items: center; gap: 0.5rem;
         }
         .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5); }
+
+        /* Header Buttons */
+        .btn-header:hover {
+            background: rgba(255,255,255,0.3) !important;
+            border-color: rgba(255,255,255,0.5) !important;
+            transform: translateY(-2px);
+        }
+        .icon-btn-header:hover {
+            background: rgba(255,255,255,0.25) !important;
+            border-color: rgba(255,255,255,0.3) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Action Buttons */
+        .btn-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        
+        /* Select Styling */
+        #summary-select:hover {
+            border-color: #3b82f6;
+            background: white;
+        }
+        #summary-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
         /* Summary Manager Bar */
         .summary-manager-bar {
@@ -423,6 +452,41 @@
             width: 1rem; height: 1rem;
             accent-color: var(--primary);
         }
+
+        /* Direction Buttons */
+        .btn-direction {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: var(--text-secondary-light);
+        }
+        .btn-direction:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-direction.active {
+            background: var(--primary-light);
+            color: white;
+            border-color: var(--primary);
+        }
+        body.dark-mode .btn-direction {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+            color: var(--text-secondary-dark);
+        }
+        body.dark-mode .btn-direction.active {
+            background: var(--primary-light);
+            color: white;
+        }
         
         /* Specific panel content */
         .add-form {
@@ -452,7 +516,7 @@
         }
         .list-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             background: var(--bg-light);
             border-radius: var(--radius-md);
@@ -460,16 +524,18 @@
             border: 1px solid var(--border-light);
             cursor: grab;
             transition: all 0.2s ease;
+            gap: var(--spacing-md);
         }
         body.dark-mode .list-item { background: var(--bg-dark); border-color: var(--border-dark); }
         .list-item span {
             font-size: 0.875rem;
             font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            flex: 1;
+            min-width: 0;
         }
-        .list-item .item-controls { display: flex; gap: var(--spacing-sm); }
+        .list-item .item-controls { display: flex; gap: var(--spacing-sm); flex-shrink: 0; }
         .list-item .edit-btn {
             background: transparent; color: var(--text-secondary-light);
             border: none; cursor: pointer; padding: 0.25rem;
@@ -485,6 +551,10 @@
         }
         .list-item .delete-btn:hover {
             color: var(--danger);
+        }
+        .icon-sm {
+            width: 16px;
+            height: 16px;
         }
         .list-item.dragging {
             opacity: 0.5;
@@ -575,6 +645,16 @@
             font-size: var(--page-font-size, 11pt);
             line-height: 1.4;
             padding: var(--page-margins, 20mm);
+            direction: var(--page-direction, rtl);
+        }
+        
+        .a4-page.dir-ltr {
+            --page-direction: ltr;
+            text-align: left;
+        }
+        .a4-page.dir-rtl {
+            --page-direction: rtl;
+            text-align: right;
         }
         
         /* Rendered Content Styles */
@@ -604,11 +684,69 @@
             column-gap: 10mm;
         }
         
+        /* Generic Break Avoidance Rules */
         .page-content p { 
             margin-bottom: 0.75em; 
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
+        .page-content h1, 
+        .page-content h2, 
+        .page-content h3, 
+        .page-content h4, 
+        .page-content h5, 
+        .page-content h6 {
+            page-break-after: avoid;
+            break-after: avoid;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .page-content img, 
+        .page-content svg, 
+        .page-content canvas, 
+        .page-content .math-display {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            max-width: 100%;
+        }
+        .page-content table {
+            break-inside: auto; /* Tables can split */
+        }
+        .page-content tr {
+            break-inside: avoid; /* Rows shouldn't split */
+            page-break-inside: avoid;
+        }
+        .page-content pre {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .page-content ul, .page-content ol {
+            page-break-inside: auto;
+        }
+        .page-content li {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
         .page-content.increased-spacing p {
             margin-bottom: 1.5em;
+        }
+        
+        /* Inverse Direction Block (for >> syntax) */
+        .inverse-dir-block {
+            margin-bottom: 0.75em;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        /* If page is RTL, block is LTR */
+        .a4-page.dir-rtl .inverse-dir-block {
+            direction: ltr;
+            text-align: left;
+        }
+        /* If page is LTR, block is RTL */
+        .a4-page.dir-ltr .inverse-dir-block {
+            direction: rtl;
+            text-align: right;
         }
         
         .page-content .glossary-term, .page-content .math-name {
@@ -619,6 +757,11 @@
         .page-content .math-formula {
             direction: ltr;
             margin-right: var(--spacing-sm);
+        }
+        /* If LTR page, math formula margin should be on left */
+        .a4-page.dir-ltr .math-formula {
+            margin-right: 0;
+            margin-left: var(--spacing-sm);
         }
 
         /* Theme Classes */
@@ -661,6 +804,8 @@
             --page-color-text: #1a4d2e;
             --page-color-accent: #22c55e;
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-ocean {
@@ -669,6 +814,8 @@
             --page-color-text: #0c4a6e;
             --page-color-accent: #0ea5e9;
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-sunset {
@@ -677,6 +824,8 @@
             --page-color-text: #7c2d12;
             --page-color-accent: #f97316;
             background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-lavender {
@@ -685,6 +834,8 @@
             --page-color-text: #4c1d95;
             --page-color-accent: #a855f7;
             background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-rose {
@@ -693,6 +844,8 @@
             --page-color-text: #881337;
             --page-color-accent: #f43f5e;
             background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-charcoal {
@@ -701,6 +854,8 @@
             --page-color-text: #fafafa;
             --page-color-accent: #a3a3a3;
             background: linear-gradient(135deg, #27272a 0%, #18181b 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-emerald {
@@ -709,6 +864,8 @@
             --page-color-text: #064e3b;
             --page-color-accent: #10b981;
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
         
         .a4-page.theme-golden {
@@ -717,6 +874,213 @@
             --page-color-text: #78350f;
             --page-color-accent: #f59e0b;
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* Premium Themes */
+        .a4-page.theme-cyberpunk {
+            --page-font-body: 'Courier New', monospace;
+            --page-font-heading: 'Courier New', monospace;
+            --page-color-text: #00ff41;
+            --page-color-accent: #ff00ff;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-forest {
+            --page-font-body: 'Georgia', serif;
+            --page-font-heading: 'Georgia', serif;
+            --page-color-text: #1e3a1a;
+            --page-color-accent: #2d5f2b;
+            background: linear-gradient(135deg, #e8f5e3 0%, #c8e6c0 50%, #a8d7a0 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-royal {
+            --page-font-body: 'Times New Roman', serif;
+            --page-font-heading: 'Times New Roman', serif;
+            --page-color-text: #1e3a8a;
+            --page-color-accent: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+            border: 3px solid #1e40af;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-sakura {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #881337;
+            --page-color-accent: #fb7185;
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 30%, #fecdd3 60%, #fda4af 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-midnight {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #e0f2fe;
+            --page-color-accent: #38bdf8;
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-autumn {
+            --page-font-body: 'David Libre', serif;
+            --page-font-heading: 'David Libre', serif;
+            --page-color-text: #7c2d12;
+            --page-color-accent: #ea580c;
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 30%, #fdba74 60%, #fb923c 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* הוספות לצבעוניות */
+        .a4-page.theme-coral {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #9a3412;
+            --page-color-accent: #f97316;
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 40%, #fca5a5 70%, #fb7185 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-mint {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #064e3b;
+            --page-color-accent: #14b8a6;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #99f6e4 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-arctic {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #0c4a6e;
+            --page-color-accent: #67e8f9;
+            background: linear-gradient(135deg, #ecfeff 0%, #cffafe 30%, #a5f3fc 60%, #67e8f9 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-desert {
+            --page-font-body: 'Georgia', serif;
+            --page-font-heading: 'Georgia', serif;
+            --page-color-text: #78350f;
+            --page-color-accent: #d97706;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 30%, #fcd34d 60%, #f59e0b 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* אומנותי */
+        .a4-page.theme-vangogh {
+            --page-font-body: 'Georgia', serif;
+            --page-font-heading: 'Georgia', serif;
+            --page-color-text: #1e3a8a;
+            --page-color-accent: #eab308;
+            background: linear-gradient(135deg, #fef9c3 0%, #fde047 25%, #3b82f6 50%, #1e40af 75%, #fcd34d 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-mondrian {
+            --page-font-body: 'Arial', sans-serif;
+            --page-font-heading: 'Arial Black', sans-serif;
+            --page-color-text: #000000;
+            --page-color-accent: #ef4444;
+            background: 
+                linear-gradient(to right, #000 0px, #000 2px, transparent 2px) 0 0,
+                linear-gradient(to bottom, #000 0px, #000 2px, transparent 2px) 0 0,
+                linear-gradient(135deg, #ffffff 0%, #fef3c7 25%, #fecaca 50%, #bfdbfe 75%, #fef3c7 100%);
+            background-size: 150px 150px, 150px 150px, 100% 100%;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-monet {
+            --page-font-body: 'Georgia', serif;
+            --page-font-heading: 'Georgia', serif;
+            --page-color-text: #1e40af;
+            --page-color-accent: #8b5cf6;
+            background: linear-gradient(135deg, #ddd6fe 0%, #c7d2fe 20%, #bae6fd 40%, #a5f3fc 60%, #c7d2fe 80%, #ddd6fe 100%);
+            filter: blur(0.3px);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-kandinsky {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #1e1b4b;
+            --page-color-accent: #f59e0b;
+            background: 
+                radial-gradient(circle at 20% 30%, #ef4444 0%, transparent 25%),
+                radial-gradient(circle at 70% 20%, #3b82f6 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, #eab308 0%, transparent 25%),
+                radial-gradient(circle at 30% 80%, #8b5cf6 0%, transparent 20%),
+                linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* אפקטים */
+        .a4-page.theme-neon {
+            --page-font-body: 'Courier New', monospace;
+            --page-font-heading: 'Courier New', monospace;
+            --page-color-text: #fde047;
+            --page-color-accent: #f0abfc;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            text-shadow: 0 0 10px currentColor;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-pastel {
+            --page-font-body: 'Heebo', sans-serif;
+            --page-font-heading: 'Rubik', sans-serif;
+            --page-color-text: #64748b;
+            --page-color-accent: #f472b6;
+            background: linear-gradient(135deg, #fae8ff 0%, #ddd6fe 25%, #fbcfe8 50%, #fed7aa 75%, #fef3c7 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-grunge {
+            --page-font-body: 'Courier New', monospace;
+            --page-font-heading: 'Impact', sans-serif;
+            --page-color-text: #1c1917;
+            --page-color-accent: #dc2626;
+            background: 
+                repeating-linear-gradient(45deg, #e7e5e4 0px, #e7e5e4 2px, transparent 2px, transparent 10px),
+                repeating-linear-gradient(-45deg, #d6d3d1 0px, #d6d3d1 2px, transparent 2px, transparent 10px),
+                linear-gradient(135deg, #f5f5f4 0%, #e7e5e4 50%, #d6d3d1 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .a4-page.theme-stained {
+            --page-font-body: 'Georgia', serif;
+            --page-font-heading: 'Georgia', serif;
+            --page-color-text: #1e1b4b;
+            --page-color-accent: #7c3aed;
+            background: 
+                radial-gradient(ellipse at 30% 30%, rgba(239, 68, 68, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 70%, rgba(234, 179, 8, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
 
         /* Modal */
@@ -745,6 +1109,52 @@
         }
         .modal-actions { display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg); }
         
+        /* Graph Modal Custom Width */
+        #graph-modal .modal-container {
+            max-width: 900px;
+            width: 95%;
+        }
+
+        /* Graph Layout */
+        .graph-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .graph-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .graph-canvas-container {
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: white; /* Always white for graph legibility */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .graph-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .range-inputs {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .range-inputs input {
+            text-align: center;
+        }
+
         /* Welcome Modal */
         .welcome-modal {
             display: flex;
@@ -871,6 +1281,7 @@
             background: var(--bg-light);
             border-radius: var(--radius-md);
             cursor: pointer;
+            user-select: none; /* מונע סימון טקסט בזמן לחיצה */
         }
         
         body.dark-mode .welcome-checkbox {
@@ -879,48 +1290,207 @@
         
         .welcome-checkbox input {
             cursor: pointer;
+            width: 1.2rem; /* קצת הגדלתי שיהיה ברור */
+            height: 1.2rem;
         }
         
-        .welcome-checkbox label {
+        .welcome-checkbox span { /* שיניתי מ-label ל-span כדי להתאים למבנה החדש */
             cursor: pointer;
             font-size: 0.9rem;
             color: var(--text-secondary-light);
         }
         
-        body.dark-mode .welcome-checkbox label {
+        body.dark-mode .welcome-checkbox span {
             color: var(--text-secondary-dark);
+        }
+        
+        /* Academic Mode Styles - Table of Contents */
+        .toc-page {
+            padding: 2rem;
+            min-height: 100%;
+            page-break-before: always;
+        }
+        
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .toc-item {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .toc-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(-5px);
+        }
+        
+        .toc-link {
+            display: flex;
+            justify-content: flex-start;
+            align-items: baseline;
+            text-decoration: none;
+            color: inherit;
+            gap: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .toc-link:hover {
+            color: var(--primary);
+        }
+        
+        .toc-text {
+            flex: 1;
+        }
+        
+        .toc-item.level-1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            padding-right: 0;
+        }
+        
+        .toc-item.level-2 {
+            font-size: 1rem;
+            font-weight: 600;
+            padding-right: 2rem;
+        }
+        
+        .toc-item.level-3 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding-right: 4rem;
+            color: var(--text-secondary-light);
+        }
+        
+        body.dark-mode .toc-item.level-3 {
+            color: var(--text-secondary-dark);
+        }
+        
+        /* Import Options Modal Styles */
+        .import-option-card {
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        body.dark-mode .import-option-card {
+            border-color: var(--border-dark);
+            background: var(--bg-dark);
+        }
+        
+        .import-option-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .import-option-card.danger:hover {
+            border-color: var(--danger);
+        }
+        
+        .import-option-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .import-option-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary-light);
         }
 
         /* Print Mount & Media Query */
         #print-mount { display: none; visibility: hidden; }
         
         @media print {
+            /* Hide everything except print area */
             body > :not(#print-mount) {
                 display: none !important;
-                visibility: hidden !important;
             }
-            body, html { background: white !important; color: black !important; }
-            #print-mount, #print-mount * {
+            
+            /* Reset print container */
+            #print-mount {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 display: block !important;
                 visibility: visible !important;
+                /* FORCE BACKGROUND COLORS */
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
             }
-            #print-mount { position: absolute; top: 0; left: 0; width: 100%; }
-            @page { size: A4; margin: 0; }
-            .a4-page {
+            
+            /* Keep ALL styles from preview */
+            #print-mount * {
+                visibility: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            /* Ensure links are preserved in PDF */
+            #print-mount a[href^="#"] {
+                color: inherit !important;
+                text-decoration: none !important;
+                pointer-events: auto !important;
+            }
+            
+            /* Ensure heading IDs are preserved */
+            #print-mount [id^="heading-"] {
+                position: relative !important;
+            }
+            
+            /* Page setup will be injected via JS based on user selection */
+            /* Default fallback */
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+            
+            /* IMPORTANT: Override .a4-page settings for print 
+               We use @page margins instead of div padding to ensure all pages have margins
+            */
+            #print-mount .a4-page {
                 box-shadow: none !important;
                 margin: 0 !important;
-                border: none !important;
+                padding: 0 !important; /* Let @page handle margins */
                 width: 100% !important;
+                max-width: none !important;
                 min-height: 0 !important;
-                height: auto !important;
-                page-break-inside: avoid;
-                break-before: avoid;
             }
-            .a4-page .page-header { 
-                page-break-inside: avoid; 
-                break-before: avoid;
+            
+            /* Force page break after each "section" in combined print */
+            #print-mount > .a4-page {
+                page-break-after: always;
             }
-            .page-content p { page-break-inside: avoid; }
+            #print-mount > .a4-page:last-child {
+                page-break-after: auto;
+            }
         }
         
         /* Responsive */
@@ -939,6 +1509,15 @@
         }
 
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
 </head>
 <body class="">
 
@@ -949,7 +1528,7 @@
                 <i data-lucide="info"></i>
             </div>
             
-            <h2 class="welcome-title">ברוך הבא למחולל הסיכומים! 📚</h2>
+            <h2 class="welcome-title">ברוך הבא למחולל סיכומים! 📚</h2>
             
             <div class="welcome-text">
                 <p style="margin-bottom: 1rem;">
@@ -992,10 +1571,11 @@
                 כדי לשמור את הסיכומים שלך לקובץ JSON במחשב!
             </div>
             
-            <div class="welcome-checkbox" onclick="document.getElementById('dont-show-again').click()">
+            <!-- שיניתי ל-label שעוטף הכל - זה פותר את בעיית הלחיצה -->
+            <label class="welcome-checkbox" for="dont-show-again">
                 <input type="checkbox" id="dont-show-again">
-                <label for="dont-show-again">אל תציג הודעה זו שוב</label>
-            </div>
+                <span>אל תציג הודעה זו שוב</span>
+            </label>
             
             <div class="welcome-actions">
                 <button class="btn-primary" id="welcome-ok" style="flex: 2;">
@@ -1006,61 +1586,66 @@
         </div>
     </div>
 
-    <header>
-        <div class="header-title-section">
-            <h1>
-                <i data-lucide="edit-3"></i>
-                מחולל סיכומים
-            </h1>
-            <p>צור דפי נוסחאות וסיכומים מעוצבים להדפסה</p>
-        </div>
-        
-        <div class="header-buttons">
-            <a href="/" class="icon-btn" title="חזרה לדף הבית">
-                <i data-lucide="layout-grid"></i>
-            </a>
-            <button id="settings-btn" class="icon-btn" title="הגדרות">
-                <i data-lucide="settings"></i>
-            </button>
-            <button id="dark-mode-toggle" class="icon-btn" title="מצב כהה/בהיר">
-                <i data-lucide="moon" class="moon-icon"></i>
-                <i data-lucide="sun" class="sun-icon" style="display: none;"></i>
-            </button>
+    <header style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); box-shadow: 0 4px 20px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100;">
+        <div class="header-content" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <!-- Left: Title -->
+            <div class="header-title-section">
+                <h1 style="margin: 0; color: white; font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                    <i data-lucide="book-open" style="width: 32px; height: 32px;"></i>
+                    מחולל סיכומים עברי
+                </h1>
+                <p style="margin: 0.25rem 0 0 0; color: rgba(255,255,255,0.9); font-size: 0.9rem;">LaTeX • טבלאות • Markdown מלא</p>
+            </div>
+            
+            <!-- Right: Buttons (Cleaned up) -->
+            <div class="header-buttons" style="display: flex; gap: 0.75rem; align-items: center;">
+                <button id="graph-tool-btn" class="icon-btn-header" style="background: rgba(255,255,255,0.15); color: white; width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s;" title="יוצר גרפים">
+                    <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
+                </button>
+                <button id="settings-btn" class="icon-btn-header" style="background: rgba(255,255,255,0.15); color: white; width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s;" title="הגדרות וגיבוי">
+                    <i data-lucide="settings" style="width: 20px; height: 20px;"></i>
+                </button>
+                <button id="dark-mode-toggle" class="icon-btn-header" style="background: rgba(255,255,255,0.15); color: white; width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s;" title="מצב כהה/בהיר">
+                    <i data-lucide="moon" class="moon-icon" style="width: 20px; height: 20px;"></i>
+                    <i data-lucide="sun" class="sun-icon" style="width: 20px; height: 20px; display: none;"></i>
+                </button>
+            </div>
         </div>
     </header>
 
     <div class="container">
-        <!-- Summary Manager Bar -->
-        <div class="summary-manager-bar">
-            <div class="summary-selector">
-                <label for="summary-select">
-                    <i data-lucide="folder"></i>
-                    סיכום נוכחי:
-                </label>
-                <select id="summary-select"></select>
-            </div>
-            <div class="summary-actions">
-                <button id="new-summary-btn" class="btn-success" title="צור סיכום חדש">
-                    <i data-lucide="plus"></i>
-                    <span>חדש</span>
-                </button>
-                <button id="rename-summary-btn" class="icon-btn" title="שנה שם לסיכום">
-                    <i data-lucide="edit"></i>
-                </button>
-                <button id="delete-summary-btn" class="icon-btn" title="מחק סיכום">
-                    <i data-lucide="trash-2"></i>
-                </button>
-                <div style="border-right: 2px solid var(--border-light); height: 2rem; margin: 0 0.5rem;"></div>
-                <button id="print-combined-btn" class="icon-btn" title="הדפס PDF משולב (כל 3 הסוגים)">
-                    <i data-lucide="book-open"></i>
-                </button>
-                <button id="export-data-btn" class="icon-btn" title="ייצא גיבוי של כל הסיכומים">
-                    <i data-lucide="download"></i>
-                </button>
-                <button id="import-data-btn" class="icon-btn" title="ייבא גיבוי">
-                    <i data-lucide="upload"></i>
-                </button>
-                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+        <!-- Summary Manager Bar - Redesigned -->
+        <div class="summary-manager-bar" style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center;">
+                <!-- Summary Selector -->
+                <div class="summary-selector">
+                    <label for="summary-select" style="display: flex; align-items: center; gap: 0.5rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        <i data-lucide="folder" style="width: 18px; height: 18px; color: #3b82f6;"></i>
+                        בחר סיכום
+                    </label>
+                    <select id="summary-select" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 2px solid #e5e7eb; background: #f9fafb; font-size: 1rem; font-weight: 500; color: #1f2937; transition: all 0.2s; cursor: pointer;"></select>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="summary-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button id="new-summary-btn" class="btn-action" style="background: #10b981; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25); transition: all 0.2s; border: none;">
+                        <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                        <span>חדש</span>
+                    </button>
+                    <button id="rename-summary-btn" class="btn-action" style="background: #3b82f6; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25); transition: all 0.2s; border: none;" title="שנה שם">
+                        <i data-lucide="edit" style="width: 18px; height: 18px;"></i>
+                        <span>שנה שם</span>
+                    </button>
+                    <button id="delete-summary-btn" class="btn-action" style="background: #ef4444; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25); transition: all 0.2s; border: none;" title="מחק">
+                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                        <span>מחק</span>
+                    </button>
+                    <div style="width: 2px; background: #e5e7eb; margin: 0 0.25rem;"></div>
+                    <button id="print-combined-btn" class="btn-action" style="background: #8b5cf6; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25); transition: all 0.2s; border: none;" title="הדפס PDF משולב">
+                        <i data-lucide="printer" style="width: 18px; height: 18px;"></i>
+                        <span>הדפס הכל</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1074,27 +1659,64 @@
                 <i data-lucide="chevron-down" class="format-help-toggle" id="format-help-toggle"></i>
             </div>
             <div class="format-help-content" id="format-help-content">
+                
+                <div style="margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--primary);">עיצוב טקסט</div>
                 <div class="format-help-grid">
-                    <div class="format-help-item">
-                        <strong>הדגשה:</strong> <code>*טקסט*</code>
+                    <div class="format-help-item"><strong>הדגשה:</strong> <code>*טקסט*</code></div>
+                    <div class="format-help-item"><strong>קו תחתון:</strong> <code>_טקסט_</code></div>
+                    <div class="format-help-item"><strong>מרקר צהוב:</strong> <code>==טקסט==</code></div>
+                    <div class="format-help-item"><strong>קוד בשורה:</strong> <code>`קוד`</code></div>
+                    <div class="format-help-item"><strong>נוסחה:</strong> <code>$E=mc^2$</code></div>
+                    <div class="format-help-item"><strong>הערת שוליים:</strong> <code>[^1]</code></div>
+                </div>
+
+                <div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--primary);">מבנה ורשימות</div>
+                <div class="format-help-grid">
+                    <div class="format-help-item"><strong>כותרת ראשית:</strong> <code># כותרת</code></div>
+                    <div class="format-help-item"><strong>כותרת משנית:</strong> <code>## כותרת</code></div>
+                    <div class="format-help-item"><strong>קו מפריד:</strong> <code>---</code></div>
+                    <div class="format-help-item"><strong>ציטוט:</strong> <code>&gt; טקסט</code></div>
+                    <div class="format-help-item"><strong>תבליטים:</strong> <code>- פריט</code></div>
+                    <div class="format-help-item"><strong>מספור:</strong> <code>1. פריט</code></div>
+                    <div class="format-help-item"><strong>תיבת סימון:</strong> <code>- [ ] משימה</code></div>
+                    <div class="format-help-item"><strong>בוצע:</strong> <code>- [x] משימה</code></div>
+                    <div class="format-help-item" style="grid-column: span 2; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+                        <strong>🌐 שינוי כיוון שפה (חדש!):</strong> רשום <code>&gt;&gt; טקסט</code> בתחילת שורה כדי להפוך כיוון (מאנגלית לעברית או להפך).
                     </div>
-                    <div class="format-help-item">
-                        <strong>קו תחתון:</strong> <code>_טקסט_</code>
+                </div>
+
+                <div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--primary);">מדיה וקישורים</div>
+                <div class="format-help-grid">
+                    <div class="format-help-item"><strong>קישור:</strong> <code>[טקסט](url)</code></div>
+                    <div class="format-help-item"><strong>תמונה (URL):</strong> <code>![תיאור](url)</code></div>
+                    <div class="format-help-item" style="grid-column: span 2; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                        <strong>📸 חדש! הדבקת תמונות:</strong> פשוט עשה <code>Ctrl+V</code> בתיבת הטקסט להדבקת צילום מסך
                     </div>
-                    <div class="format-help-item">
-                        <strong>כותרת:</strong> <code>### כותרת</code>
+                </div>
+
+                <div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--primary);">צבעים מיוחדים</div>
+                <div class="format-help-grid">
+                    <div class="format-help-item" style="color:#EF4444"><code>{אדום: טקסט}</code></div>
+                    <div class="format-help-item" style="color:#3B82F6"><code>{כחול: טקסט}</code></div>
+                    <div class="format-help-item" style="color:#10B981"><code>{ירוק: טקסט}</code></div>
+                    <div class="format-help-item" style="color:#F59E0B"><code>{כתום: טקסט}</code></div>
+                    <div class="format-help-item" style="color:#8B5CF6"><code>{סגול: טקסט}</code></div>
+                    <div class="format-help-item" style="color:#EC4899"><code>{ורוד: טקסט}</code></div>
+                </div>
+                
+                <div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--primary);">מתקדם: טבלאות ובלוק קוד</div>
+                <div style="font-size: 0.8rem; background: var(--bg-lighter); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-light); display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">יצירת טבלה:</div>
+                        <code style="display:block; white-space:pre; font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 4px;">| כותרת 1 | כותרת 2 |
+|---------|---------|
+| תא A    | תא B    |</code>
                     </div>
-                    <div class="format-help-item">
-                        <strong>אדום:</strong> <code>{אדום: טקסט}</code>
-                    </div>
-                    <div class="format-help-item">
-                        <strong>כחול:</strong> <code>{כחול: טקסט}</code>
-                    </div>
-                    <div class="format-help-item">
-                        <strong>ירוק:</strong> <code>{ירוק: טקסט}</code>
-                    </div>
-                    <div class="format-help-item">
-                        <strong>LaTeX:</strong> <code>$x^2$</code>
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">בלוק קוד (python/c):</div>
+                        <code style="display:block; white-space:pre; font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 4px;">```python
+print("Hello")
+```</code>
                     </div>
                 </div>
             </div>
@@ -1127,6 +1749,23 @@
                         <label for="design-title">כותרת ראשית</label>
                         <input type="text" id="design-title" placeholder="לדוגמה: סיכום למבחן בחדו''א">
                     </div>
+                    
+                    <!-- הועבר מהגדרות: פרטי כותרת נוספים -->
+                    <div class="form-group">
+                        <label for="meta-author-name">שם יוצר/ת</label>
+                        <input type="text" id="meta-author-name" placeholder="הקלד את שמך">
+                    </div>
+                    <div class="form-group-row">
+                        <input type="checkbox" id="meta-show-timestamp">
+                        <label for="meta-show-timestamp">הצג תאריך הדפסה</label>
+                    </div>
+                    <div class="form-group-row">
+                        <input type="checkbox" id="design-show-toc">
+                        <label for="design-show-toc">הצג מקרא (תוכן עניינים)</label>
+                    </div>
+                    
+                    <hr style="border-color: var(--border-light); margin: 1rem 0;">
+                    
                     <div class="form-group">
                         <label for="design-theme">ערכת נושא</label>
                         <select id="design-theme">
@@ -1144,12 +1783,58 @@
                                 <option value="theme-charcoal">⚫ פחם כהה</option>
                                 <option value="theme-emerald">💎 אמרלד ירוק</option>
                                 <option value="theme-golden">✨ זהב מלכותי</option>
+                                <option value="theme-coral">🪸 אלמוגים חמים</option>
+                                <option value="theme-mint">🍃 מנטה קריר</option>
+                            </optgroup>
+                            <optgroup label="─── פרימיום 💎 ───">
+                                <option value="theme-cyberpunk">🎮 סייברפאנק</option>
+                                <option value="theme-forest">🌲 יער עמוק</option>
+                                <option value="theme-royal">👑 מלכותי כחול</option>
+                                <option value="theme-sakura">🌸 סאקורה יפני</option>
+                                <option value="theme-midnight">🌙 חצות כחול</option>
+                                <option value="theme-autumn">🍂 סתיו חם</option>
+                                <option value="theme-arctic">❄️ קרח ארקטי</option>
+                                <option value="theme-desert">🏜️ מדבר חולי</option>
+                            </optgroup>
+                            <optgroup label="─── אומנותי 🎨 ───">
+                                <option value="theme-vangogh">🌻 ואן גוך</option>
+                                <option value="theme-mondrian">🟥 מונדריאן</option>
+                                <option value="theme-monet">🌅 מונה</option>
+                                <option value="theme-kandinsky">⭕ קנדינסקי</option>
+                            </optgroup>
+                            <optgroup label="─── אפקטים ✨ ───">
+                                <option value="theme-neon">💡 ניאון זוהר</option>
+                                <option value="theme-pastel">🎀 פסטל עדין</option>
+                                <option value="theme-grunge">🎸 גראנג' מחוספס</option>
+                                <option value="theme-stained">🪟 ויטראז' צבעוני</option>
                             </optgroup>
                         </select>
                     </div>
                     
                     <hr style="border-color: var(--border-light);">
                     
+                    <div class="form-group">
+                        <label for="design-font-size">גודל גופן</label>
+                        <select id="design-font-size">
+                            <option value="9pt">קטן</option>
+                            <option value="11pt" selected>בינוני</option>
+                            <option value="13pt">גדול</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>כיוון כתיבה ראשי</label>
+                        <div class="direction-selector" style="display: flex; gap: 0.5rem;">
+                            <button type="button" class="btn-direction active" data-dir="rtl" title="מימין לשמאל (עברית)">
+                                <i data-lucide="align-right"></i> RTL
+                            </button>
+                            <button type="button" class="btn-direction" data-dir="ltr" title="משמאל לימין (אנגלית)">
+                                <i data-lucide="align-left"></i> LTR
+                            </button>
+                        </div>
+                        <input type="hidden" id="design-direction" value="rtl">
+                    </div>
+
                     <div class="form-group">
                         <label for="design-columns">מספר טורים</label>
                         <select id="design-columns">
@@ -1164,14 +1849,6 @@
                             <option value="10mm">צרים (10 מ"מ)</option>
                             <option value="20mm" selected>רגילים (20 מ"מ)</option>
                             <option value="30mm">רחבים (30 מ"מ)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="design-font-size">גודל גופן</label>
-                        <select id="design-font-size">
-                            <option value="9pt">קטן</option>
-                            <option value="11pt" selected>בינוני</option>
-                            <option value="13pt">גדול</option>
                         </select>
                     </div>
                     
@@ -1209,30 +1886,151 @@
     
     <div id="print-mount"></div>
 
-    <!-- Settings Modal -->
+    <!-- Graph Generator Modal -->
+    <div class="modal-backdrop" id="graph-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>מחולל גרפים מתמטי</h2>
+                <button class="icon-btn" id="close-graph-modal" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="graph-layout">
+                <div class="graph-controls">
+                    <div class="form-group">
+                        <label for="graph-equation">משוואה (פונקציה של x)</label>
+                        <input type="text" id="graph-equation" placeholder="למשל: sin(x) או x^2 - 2" dir="ltr" style="font-family: monospace;">
+                        <span style="font-size: 0.8rem; color: var(--text-secondary-light);">ניתן להשתמש ב-sin, cos, tan, log, sqrt, abs ועוד.</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>טווח ציר X (מ.. עד)</label>
+                        <div class="range-inputs">
+                            <input type="number" id="graph-xmin" value="-10">
+                            <input type="number" id="graph-xmax" value="10">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>טווח ציר Y (מ.. עד)</label>
+                        <div class="range-inputs">
+                            <input type="number" id="graph-ymin" value="-10">
+                            <input type="number" id="graph-ymax" value="10">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="graph-title">כותרת הגרף</label>
+                        <input type="text" id="graph-title" placeholder="גרף הפונקציה">
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="graph-xlabel">תווית ציר X</label>
+                            <input type="text" id="graph-xlabel" placeholder="X">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="graph-ylabel">תווית ציר Y</label>
+                            <input type="text" id="graph-ylabel" placeholder="Y">
+                        </div>
+                    </div>
+                    
+                    <button class="btn-secondary" id="graph-refresh-btn" style="justify-content: center;">
+                        <i data-lucide="refresh-cw"></i> רענן תצוגה
+                    </button>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="graph-canvas-container">
+                        <canvas id="graph-canvas" width="400" height="300" style="width: 100%; height: auto;"></canvas>
+                    </div>
+                    <button class="btn-primary" id="graph-add-btn" style="justify-content: center;">
+                        <i data-lucide="plus-circle"></i> הוסף לסיכום
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Updated with Backup Options) -->
     <div class="modal-backdrop" id="settings-modal">
         <div class="modal-container">
             <div class="modal-header">
-                <h2>הגדרות סיכום</h2>
+                <h2>הגדרות וגיבוי</h2>
                 <button class="icon-btn" id="close-settings-modal-btn" style="background: transparent;">
                     <i data-lucide="x"></i>
                 </button>
             </div>
+            
+            <!-- Backup Section -->
             <div class="form-group">
-                <label for="meta-author-name">שם יוצר/ת (אופציונלי)</label>
-                <input type="text" id="meta-author-name" placeholder="הקלד את שמך">
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                    גיבוי ושחזור
+                </label>
+                <p style="color: var(--text-secondary-light); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    שמור את כל הסיכומים שלך לקובץ במחשב או טען גיבוי קיים.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <button id="export-data-btn" class="btn-secondary" style="flex: 1; justify-content: center;">
+                        <i data-lucide="download"></i> ייצא גיבוי
+                    </button>
+                    <button id="import-data-btn" class="btn-secondary" style="flex: 1; justify-content: center;">
+                        <i data-lucide="upload"></i> טען גיבוי
+                    </button>
+                    <!-- Hidden input for file import logic -->
+                    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                </div>
             </div>
-            <div class="form-group-row">
-                <input type="checkbox" id="meta-show-timestamp">
-                <label for="meta-show-timestamp">הצג חותמת תאריך בעמוד</label>
-            </div>
-            <hr style="border-color: var(--border-light); margin: var(--spacing-lg) 0;">
+            
+            <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+
+            <!-- Optimization Section (New) -->
             <div class="form-group">
-                <label>ניהול נתונים</label>
-                <button class="btn-danger" id="clear-data-btn" style="justify-content: center;">
-                    <i data-lucide="trash-2"></i>
-                    <span>נקה את כל התוכן של סיכום זה</span>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="wrench" style="width: 16px; height: 16px;"></i>
+                    אופטימיזציה וניקוי
+                </label>
+                <p style="color: var(--text-secondary-light); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    נקה תמונות וגרפים שאינם בשימוש בטקסט כדי לחסוך מקום ולשפר ביצועים.
+                </p>
+                <button id="cleanup-media-btn" class="btn-secondary" style="justify-content: center; width: 100%;">
+                    <i data-lucide="sparkles"></i>
+                    <span>נקה מדיה לא בשימוש (מכל הסיכומים)</span>
                 </button>
+            </div>
+
+            <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+            
+            <!-- Data Management Section -->
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--danger);">
+                    <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                    אזור מסוכן
+                </label>
+                
+                <!-- Clear Current Summary -->
+                <div style="margin-bottom: 1rem;">
+                    <p style="color: var(--text-secondary-light); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        מחיקת תוכן הסיכום <strong>הנוכחי</strong> בלבד (השאר יישמרו).
+                    </p>
+                    <button class="btn-secondary" id="clear-data-btn" style="justify-content: center; width: 100%; border-color: var(--danger); color: var(--danger);">
+                        <i data-lucide="eraser"></i>
+                        <span>נקה את הסיכום הנוכחי</span>
+                    </button>
+                </div>
+
+                <!-- Delete ALL Summaries -->
+                <div style="border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                    <p style="color: var(--danger); font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem;">
+                        ⚠️ מחיקת כל הסיכומים במערכת
+                    </p>
+                    <button class="btn-danger" id="delete-all-data-btn" style="justify-content: center; width: 100%;">
+                        <i data-lucide="trash-2"></i>
+                        <span>מחק את כל הסיכומים (איפוס מלא)</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1253,6 +2051,48 @@
             <div class="modal-actions">
                 <button class="btn-secondary" id="cancel-new-summary">ביטול</button>
                 <button class="btn-primary" id="confirm-new-summary">צור</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import Options Modal -->
+    <div class="modal-backdrop" id="import-options-modal">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>כיצד לייבא את הנתונים?</h2>
+                <button class="icon-btn" id="close-import-modal" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary-light);">
+                נמצאו סיכומים בקובץ הגיבוי. אנא בחר כיצד ברצונך לייבא אותם:
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="import-option-card" id="btn-import-merge">
+                    <div style="color: var(--success); margin-bottom: 0.5rem;">
+                        <i data-lucide="git-merge" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <div class="import-option-title">מיזוג (בטוח)</div>
+                    <div class="import-option-desc">
+                        מוסיף את הסיכומים מהקובץ לרשימה הקיימת שלך. שום דבר לא יימחק.
+                    </div>
+                </div>
+                
+                <div class="import-option-card danger" id="btn-import-replace">
+                    <div style="color: var(--danger); margin-bottom: 0.5rem;">
+                        <i data-lucide="refresh-cw" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <div class="import-option-title">החלפה מלאה</div>
+                    <div class="import-option-desc">
+                        מוחק את כל הסיכומים הקיימים ומחליף אותם בתוכן הקובץ.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions" style="justify-content: center; margin-top: 1.5rem;">
+                <button class="btn-secondary" id="cancel-import-action" style="min-width: 120px;">ביטול</button>
             </div>
         </div>
     </div>
@@ -1277,6 +2117,35 @@
         </div>
     </div>
 
+    <!-- Generic Confirmation Modal (New) -->
+    <div class="modal-backdrop" id="confirm-modal" style="z-index: 200;">
+        <div class="modal-container" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="confirm-modal-title">אישור פעולה</h2>
+                <button class="icon-btn" id="close-confirm-modal" style="background: transparent;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div id="confirm-modal-message" style="margin-bottom: 1.5rem; color: var(--text-secondary-light); line-height: 1.6; white-space: pre-line;"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="confirm-modal-cancel" style="flex: 1;">ביטול</button>
+                <button class="btn-primary" id="confirm-modal-ok" style="flex: 1;">אישור</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Generic Alert Modal (New) -->
+    <div class="modal-backdrop" id="alert-modal" style="z-index: 210;">
+        <div class="modal-container" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 1rem; color: var(--primary); display: flex; justify-content: center;">
+                <i data-lucide="info" style="width: 48px; height: 48px;" id="alert-icon"></i>
+            </div>
+            <h2 id="alert-modal-title" style="margin-bottom: 0.5rem; font-size: 1.25rem;">הודעה</h2>
+            <div id="alert-modal-message" style="margin-bottom: 1.5rem; color: var(--text-secondary-light); line-height: 1.6;"></div>
+            <button class="btn-primary" id="alert-modal-ok" style="width: 100%;">הבנתי</button>
+        </div>
+    </div>
+
 
     <template id="template-glossary-content">
         <div class="add-form">
@@ -1286,15 +2155,23 @@
                 <input type="text" id="glossary-term" placeholder="הסדרת התנהגות">
             </div>
             <div class="form-group">
-                <label for="glossary-def">הגדרה</label>
+                <label for="glossary-def">הגדרה (הדבק כאן תמונות עם Ctrl+V)</label>
                 <textarea id="glossary-def" placeholder="חוקים קובעים כללים להתנהגות..."></textarea>
             </div>
             <button id="add-glossary-btn" class="btn-primary">
                 <i data-lucide="plus"></i> <span class="btn-text">הוסף מושג</span>
             </button>
-            <button id="add-glossary-subtitle-btn" class="btn-secondary" style="margin-top: 0.5rem; width: 100%;">
-                <i data-lucide="heading-3"></i> הוסף תת-כותרת
-            </button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button id="add-glossary-h1-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-1"></i> כותרת
+                </button>
+                <button id="add-glossary-h2-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-2"></i> משנית
+                </button>
+                <button id="add-glossary-h3-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-3"></i> תת-כותרת
+                </button>
+            </div>
             <div class="edit-controls" style="display: none;">
                 <button type="button" id="cancel-edit-btn" class="btn-secondary">בטל עריכה</button>
                 <button type="button" id="delete-item-btn" class="btn-danger-outline">
@@ -1309,21 +2186,61 @@
         <div class="add-form">
             <h3 id="math-form-title" style="font-size: 1.25rem; margin-bottom: 0.5rem;">הוסף נוסחה חדשה</h3>
             <div class="form-group">
-                <label for="math-name">שם / תיאור</label>
+                <label for="math-name">שם / תיאור (הדבק כאן תמונות עם Ctrl+V)</label>
                 <input type="text" id="math-name" placeholder="חוק ניוטון השני">
             </div>
             <div class="form-group">
                 <label for="math-formula">נוסחה (בכתיב LaTeX)</label>
                 <div class="symbol-bar">
-                    <button type="button" data-symbol="\sqrt{}">√</button>
+                    <!-- Basic Structures -->
                     <button type="button" data-symbol="\frac{}{}">a/b</button>
-                    <button type="button" data-symbol="^{}">a²</button>
-                    <button type="button" data-symbol="_{}">a₁</button>
-                    <button type="button" data-symbol="\sum">Σ</button>
+                    <button type="button" data-symbol="\sqrt{}">√</button>
+                    <button type="button" data-symbol="^{}">x²</button>
+                    <button type="button" data-symbol="_{}">x₁</button>
+                    
+                    <!-- Operators -->
+                    <button type="button" data-symbol="\cdot">·</button>
+                    <button type="button" data-symbol="\times">×</button>
+                    <button type="button" data-symbol="\pm">±</button>
+                    <button type="button" data-symbol="\neq">≠</button>
+                    <button type="button" data-symbol="\approx">≈</button>
+                    <button type="button" data-symbol="\leq">≤</button>
+                    <button type="button" data-symbol="\geq">≥</button>
+                    
+                    <!-- Calculus -->
+                    <button type="button" data-symbol="\infty">∞</button>
+                    <button type="button" data-symbol="\sum_{}^{}">Σ</button>
+                    <button type="button" data-symbol="\prod">Π</button>
                     <button type="button" data-symbol="\int">∫</button>
+                    <button type="button" data-symbol="\partial">∂</button>
+                    <button type="button" data-symbol="\lim_{x \to \infty}">lim</button>
+                    
+                    <!-- Logic/Set -->
+                    <button type="button" data-symbol="\to">→</button>
+                    <button type="button" data-symbol="\Rightarrow">⇒</button>
+                    <button type="button" data-symbol="\iff">⇔</button>
+                    <button type="button" data-symbol="\forall">∀</button>
+                    <button type="button" data-symbol="\exists">∃</button>
+                    <button type="button" data-symbol="\in">∈</button>
+                    <button type="button" data-symbol="\notin">∉</button>
+                    <button type="button" data-symbol="\emptyset">∅</button>
+                    <button type="button" data-symbol="\mathbb{R}">ℝ</button>
+                    
+                    <!-- Greek -->
                     <button type="button" data-symbol="\alpha">α</button>
                     <button type="button" data-symbol="\beta">β</button>
+                    <button type="button" data-symbol="\gamma">γ</button>
+                    <button type="button" data-symbol="\theta">θ</button>
+                    <button type="button" data-symbol="\lambda">λ</button>
+                    <button type="button" data-symbol="\sigma">σ</button>
                     <button type="button" data-symbol="\pi">π</button>
+                    <button type="button" data-symbol="\omega">ω</button>
+                    <button type="button" data-symbol="\Delta">Δ</button>
+                    
+                    <!-- Accents -->
+                    <button type="button" data-symbol="\bar{}">x̄</button>
+                    <button type="button" data-symbol="\hat{}">x̂</button>
+                    <button type="button" data-symbol="\vec{}">x⃗</button>
                 </div>
                 <input type="text" id="math-formula" placeholder="F=ma">
                 <div id="math-live-preview" class="math-live-preview"></div>
@@ -1331,9 +2248,17 @@
             <button id="add-math-btn" class="btn-primary">
                 <i data-lucide="plus"></i> <span class="btn-text">הוסף נוסחה</span>
             </button>
-            <button id="add-math-subtitle-btn" class="btn-secondary" style="margin-top: 0.5rem; width: 100%;">
-                <i data-lucide="heading-3"></i> הוסף תת-כותרת
-            </button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button id="add-math-h1-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-1"></i> כותרת
+                </button>
+                <button id="add-math-h2-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-2"></i> משנית
+                </button>
+                <button id="add-math-h3-btn" class="btn-secondary" style="flex: 1;">
+                    <i data-lucide="heading-3"></i> תת-כותרת
+                </button>
+            </div>
             <div class="edit-controls" style="display: none;">
                 <button type="button" id="cancel-edit-btn" class="btn-secondary">בטל עריכה</button>
                 <button type="button" id="delete-item-btn" class="btn-danger-outline">
@@ -1346,7 +2271,7 @@
     
     <template id="template-text-content">
         <div class="form-group" style="flex-grow: 1; min-height: 0; display: flex; flex-direction: column;">
-            <label>תוכן רציף</label>
+            <label>תוכן רציף (הדבק כאן תמונות עם Ctrl+V)</label>
             <textarea id="text-input" style="flex-grow: 1; resize: none;" placeholder="הקלד או הדבק את הסיכום שלך כאן..."></textarea>
         </div>
     </template>
@@ -1355,11 +2280,88 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
+            // --- Custom Modal Helpers ---
+            function showConfirm(title, message) {
+                return new Promise((resolve) => {
+                    const modal = document.getElementById('confirm-modal');
+                    const titleEl = document.getElementById('confirm-modal-title');
+                    const messageEl = document.getElementById('confirm-modal-message');
+                    const okBtn = document.getElementById('confirm-modal-ok');
+                    const cancelBtn = document.getElementById('confirm-modal-cancel');
+                    const closeBtn = document.getElementById('close-confirm-modal');
+                    
+                    titleEl.textContent = title;
+                    messageEl.textContent = message;
+                    
+                    const cleanup = () => {
+                        okBtn.onclick = null;
+                        cancelBtn.onclick = null;
+                        closeBtn.onclick = null;
+                        modal.classList.remove('active');
+                    };
+                    
+                    okBtn.onclick = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+                    
+                    cancelBtn.onclick = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+                    
+                    closeBtn.onclick = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+                    
+                    modal.classList.add('active');
+                });
+            }
+
+            function showAlert(title, message, iconType = 'info') {
+                return new Promise((resolve) => {
+                    const modal = document.getElementById('alert-modal');
+                    const titleEl = document.getElementById('alert-modal-title');
+                    const messageEl = document.getElementById('alert-modal-message');
+                    const okBtn = document.getElementById('alert-modal-ok');
+                    const iconEl = document.getElementById('alert-icon');
+                    
+                    titleEl.textContent = title;
+                    messageEl.textContent = message;
+                    
+                    // Set icon
+                    iconEl.setAttribute('data-lucide', iconType === 'success' ? 'check-circle' : (iconType === 'error' ? 'alert-circle' : 'info'));
+                    lucide.createIcons();
+                    
+                    // Set color based on type
+                    if (iconType === 'success') iconEl.style.color = 'var(--success)';
+                    else if (iconType === 'error') iconEl.style.color = 'var(--danger)';
+                    else iconEl.style.color = 'var(--primary)';
+                    
+                    const cleanup = () => {
+                        okBtn.onclick = null;
+                        modal.classList.remove('active');
+                    };
+                    
+                    okBtn.onclick = () => {
+                        cleanup();
+                        resolve();
+                    };
+                    
+                    modal.classList.add('active');
+                });
+            }
+
+
             // --- SUMMARY MANAGEMENT STATE ---
             const summaryManager = {
                 currentSummaryId: null,
                 summaries: {} // { id: { name, data } }
             };
+            
+            // Holds import data temporarily until user chooses action
+            let pendingImportData = null;
             
             const SUMMARIES_KEY = 'allSummaries_v1';
             const CURRENT_SUMMARY_KEY = 'currentSummaryId_v1';
@@ -1371,16 +2373,81 @@
                 fontSize: "11pt",
                 columns: "1",
                 margins: "20mm",
-                increasedSpacing: false
+                direction: "rtl",
+                increasedSpacing: false,
+                showTOC: false
             };
             
             const state = {
-                mode: 'glossary',
+                mode: 'text',
                 items: {
                     glossary: [],
                     math: [],
-                    text: ""
+                    text: `# בדיקת פיצ'רים מלאה 🧪
+
+## הדבקת תמונות (חדש!) 📸
+ניתן להדביק תמונות ישירות לתיבת הטקסט עם **Ctrl+V**.
+התמונה תישמר במאגר פנימי ובטקסט יופיע קוד קצר, למשל:
+\`![תמונה](img_12345)\`
+
+## כיוון כתיבה 🌐
+טקסט זה הוא מימין לשמאל (ברירת מחדל).
+
+>> This paragraph starts with ">>" so it is automatically aligned left-to-right (LTR) because the main document is RTL. Great for English blocks!
+
+חזרה לעברית רגילה.
+
+## עיצוב בסיסי
+טקסט רגיל, **טקסט מודגש**, _קו תחתון (נטוי)_, וגם ==מרקר צהוב להדגשה==.
+שילוב של **_הכל ביחד_**.
+
+## צבעים 🎨
+ניתן לצבוע טקסט: {אדום: אדום בוהק}, {כחול: כחול עמוק}, {ירוק: ירוק רענן}, {כתום: כתום}, {סגול: סגול}, {ורוד: ורוד} ו{טורקיז: טורקיז}.
+
+## מתמטיקה וקוד 🧮
+נוסחה בתוך שורה: $E=mc^2$ או $a^2+b^2=c^2$.
+קוד בתוך שורה: \`console.log(x)\`.
+
+블וק קוד מלא:
+\`\`\`python
+def greeting(name):
+    # פונקציה לדוגמה
+    print(f"Hello, {name}!")
+    return True
+\`\`\`
+
+## רשימות ומבנה 📝
+1. רשימה ממוספרת ראשית
+2. פריט שני
+   - תת פריט (הזחה)
+      - תת-תת פריט
+
+רשימת משימות:
+- [x] משימה שהושלמה
+- [ ] משימה שנותרה לבצע
+
+## טבלאות 📊
+| שם מוצר | מחיר | מלאי |
+|---------|------|------|
+| מחשב נייד | ₪2500 | ✅ |
+| עכבר אלחוטי | ₪40 | ❌ |
+| מקלדת | ₪120 | ✅ |
+
+---
+
+## עבודה עם בינה מלאכותית (AI) 🤖
+רוצה ש-ChatGPT, Claude או Gemini יכתבו לך סיכום שמוכן להדבקה כאן?
+העתק את ההנחיות הבאות (PROMPT) ושלח להם כחלק מהבקשה שלך:
+
+\`\`\`\`text
+בכל תשובה שלך, הצג לי תמיד את הטקסט כקוד מקור גולמי (Raw Markdown) בתוך בלוק קוד מסוג text (כלומר: text ... ).
+אל תרנדר את הטקסט, אל תצור קבצים להורדה ואל תשתמש ב-Preview. המטרה שלי היא להעתיק את הקוד עם הסימנים.
+...
+\`\`\`\`
+`
                 },
+                images: {}, // Store for pasted images { 'img_id': 'base64...' }
+                graphs: {}, // Store for generated graphs { 'graph_id': 'base64...' }
                 design: {
                     glossary: { ...defaultDesign },
                     math: { ...defaultDesign, theme: "theme-professional" },
@@ -1407,6 +2474,7 @@
                 exportDataBtn: document.getElementById('export-data-btn'),
                 importDataBtn: document.getElementById('import-data-btn'),
                 importFileInput: document.getElementById('import-file-input'),
+                cleanupMediaBtn: document.getElementById('cleanup-media-btn'), // New Button
                 
                 // Modals
                 newSummaryModal: document.getElementById('new-summary-modal'),
@@ -1421,6 +2489,29 @@
                 cancelRename: document.getElementById('cancel-rename'),
                 confirmRename: document.getElementById('confirm-rename'),
                 
+                // Import Options Modal
+                importOptionsModal: document.getElementById('import-options-modal'),
+                closeImportModal: document.getElementById('close-import-modal'),
+                cancelImportAction: document.getElementById('cancel-import-action'),
+                btnImportMerge: document.getElementById('btn-import-merge'),
+                btnImportReplace: document.getElementById('btn-import-replace'),
+                
+                // Graph Modal
+                graphToolBtn: document.getElementById('graph-tool-btn'),
+                graphModal: document.getElementById('graph-modal'),
+                closeGraphModal: document.getElementById('close-graph-modal'),
+                graphEquation: document.getElementById('graph-equation'),
+                graphXmin: document.getElementById('graph-xmin'),
+                graphXmax: document.getElementById('graph-xmax'),
+                graphYmin: document.getElementById('graph-ymin'),
+                graphYmax: document.getElementById('graph-ymax'),
+                graphTitle: document.getElementById('graph-title'),
+                graphXlabel: document.getElementById('graph-xlabel'),
+                graphYlabel: document.getElementById('graph-ylabel'),
+                graphRefreshBtn: document.getElementById('graph-refresh-btn'),
+                graphAddBtn: document.getElementById('graph-add-btn'),
+                graphCanvas: document.getElementById('graph-canvas'),
+
                 // App elements
                 modeButtons: document.querySelectorAll('.mode-btn'),
                 tabButtons: document.querySelectorAll('.tab-btn'),
@@ -1437,8 +2528,11 @@
                 designFontSize: document.getElementById('design-font-size'),
                 designColumns: document.getElementById('design-columns'),
                 designMargins: document.getElementById('design-margins'),
+                designDirection: document.getElementById('design-direction'),
+                directionButtons: document.querySelectorAll('.btn-direction'),
                 spacingControls: document.getElementById('spacing-controls'),
                 designSpacing: document.getElementById('design-spacing'),
+                designShowTOC: document.getElementById('design-show-toc'),
                 
                 printMount: document.getElementById('print-mount'),
                 
@@ -1447,7 +2541,8 @@
                 closeSettingsModalBtn: document.getElementById('close-settings-modal-btn'),
                 metaAuthorName: document.getElementById('meta-author-name'),
                 metaShowTimestamp: document.getElementById('meta-show-timestamp'),
-                clearDataBtn: document.getElementById('clear-data-btn')
+                clearDataBtn: document.getElementById('clear-data-btn'),
+                deleteAllDataBtn: document.getElementById('delete-all-data-btn') // New Element
             };
             
             // --- TEMPLATES ---
@@ -1503,10 +2598,29 @@
                 state.mode = summaryData.mode || 'glossary';
                 state.activeTab = summaryData.activeTab || 'content';
                 
+                // Load images/graphs store
+                state.images = summaryData.images || {};
+                state.graphs = summaryData.graphs || {};
+
                 if (summaryData.items) {
                     state.items.glossary = JSON.parse(JSON.stringify(summaryData.items.glossary || []));
                     state.items.math = JSON.parse(JSON.stringify(summaryData.items.math || []));
                     state.items.text = summaryData.items.text || "";
+                    
+                    // FIX: Add missing IDs to old items
+                    state.items.glossary.forEach(item => {
+                        if (!item.id) {
+                            item.id = Date.now() + Math.floor(Math.random() * 1000);
+                        }
+                    });
+                    state.items.math.forEach(item => {
+                        if (!item.id) {
+                            item.id = Date.now() + Math.floor(Math.random() * 1000);
+                        }
+                    });
+                    
+                    // Save the fixed data
+                    saveCurrentSummary();
                 }
                 
                 if (summaryData.meta) {
@@ -1567,6 +2681,8 @@
                             math: [],
                             text: ""
                         },
+                        images: {}, // Initialize empty image store
+                        graphs: {}, // Initialize empty graph store
                         design: {
                             glossary: { ...defaultDesign },
                             math: { ...defaultDesign, theme: "theme-professional" },
@@ -1590,13 +2706,13 @@
                 updateSummarySelector();
             }
             
-            function deleteSummary() {
+            async function deleteSummary() {
                 if (Object.keys(summaryManager.summaries).length <= 1) {
-                    alert("לא ניתן למחוק את הסיכום האחרון!");
+                    await showAlert("שגיאה", "לא ניתן למחוק את הסיכום האחרון!", "error");
                     return;
                 }
                 
-                if (!confirm(`האם אתה בטוח שברצונך למחוק את "${summaryManager.summaries[summaryManager.currentSummaryId].name}"?`)) {
+                if (!await showConfirm("מחיקת סיכום", `האם אתה בטוח שברצונך למחוק את "${summaryManager.summaries[summaryManager.currentSummaryId].name}"?`)) {
                     return;
                 }
                 
@@ -1619,7 +2735,9 @@
                 state.design[mode].fontSize = dom.designFontSize.value;
                 state.design[mode].columns = dom.designColumns.value;
                 state.design[mode].margins = dom.designMargins.value;
+                state.design[mode].direction = dom.designDirection.value;
                 state.design[mode].increasedSpacing = dom.designSpacing.checked;
+                state.design[mode].showTOC = dom.designShowTOC.checked;
             }
             
             function syncDesignUIToState() {
@@ -1629,7 +2747,15 @@
                 dom.designFontSize.value = state.design[mode].fontSize;
                 dom.designColumns.value = state.design[mode].columns;
                 dom.designMargins.value = state.design[mode].margins;
+                dom.designDirection.value = state.design[mode].direction || 'rtl';
+                
+                // Update direction buttons visual state
+                dom.directionButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.dir === dom.designDirection.value);
+                });
+
                 dom.designSpacing.checked = state.design[mode].increasedSpacing;
+                dom.designShowTOC.checked = state.design[mode].showTOC || false;
                 
                 dom.spacingControls.style.display = (mode === 'text') ? 'none' : 'flex';
             }
@@ -1639,6 +2765,419 @@
                 state.isMathJaxReady = true;
                 renderPreview();
             };
+
+            // --- IMAGE PASTE & COMPRESSION LOGIC ---
+
+            function compressImage(file, quality = 0.7, maxWidth = 800) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = event => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const elem = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                            elem.width = width;
+                            elem.height = height;
+                            const ctx = elem.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Return compressed base64 JPEG
+                            resolve(elem.toDataURL('image/jpeg', quality));
+                        };
+                        img.onerror = error => reject(error);
+                    };
+                    reader.onerror = error => reject(error);
+                });
+            }
+
+            async function handlePaste(e) {
+                const clipboardData = e.clipboardData || window.clipboardData;
+                if (!clipboardData) return;
+
+                const items = clipboardData.items;
+                let hasImage = false;
+
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf("image") !== -1) {
+                        hasImage = true;
+                        e.preventDefault(); // Stop normal paste
+                        
+                        const blob = items[i].getAsFile();
+                        
+                        try {
+                            // Compress image
+                            const base64Data = await compressImage(blob);
+                            
+                            // Generate unique ID
+                            const imgId = `img_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                            
+                            // Store in state
+                            if (!state.images) state.images = {};
+                            state.images[imgId] = base64Data;
+                            
+                            // Insert placeholder at cursor position
+                            const textarea = e.target;
+                            const start = textarea.selectionStart;
+                            const end = textarea.selectionEnd;
+                            const text = textarea.value;
+                            const before = text.substring(0, start);
+                            const after = text.substring(end, text.length);
+                            
+                            const placeholder = `![תמונה](${imgId})`;
+                            textarea.value = before + placeholder + after;
+                            
+                            // Restore cursor position
+                            textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
+                            
+                            // Update state logic manually since we bypassed 'input' event
+                            if (textarea.id === 'text-input') {
+                                state.items.text = textarea.value;
+                            } else if (textarea.id === 'glossary-def') {
+                                // Handled by handleAddItem later, just UI update here mostly
+                            }
+                            
+                            saveCurrentSummary();
+                            renderPreview();
+                            
+                        } catch (err) {
+                            console.error("Image paste error:", err);
+                            alert("שגיאה בהדבקת התמונה");
+                        }
+                    }
+                }
+            }
+            
+            // --- CLEANUP (GARBAGE COLLECTION) LOGIC ---
+            async function cleanupUnusedMedia() {
+                if (!await showConfirm("ניקוי מדיה", "פעולה זו תסרוק את כל הסיכומים (כולל אלו שאינם פתוחים כרגע) ותמחק מהזיכרון תמונות וגרפים שאינם בשימוש בטקסט.\n\nהאם להמשיך?")) return;
+
+                // 1. Ensure current work is saved to main object
+                saveCurrentSummary();
+
+                let totalRemovedImages = 0;
+                let totalRemovedGraphs = 0;
+                let totalSizeSaved = 0; // in bytes (approx)
+
+                // 2. Iterate over ALL summaries in the manager
+                Object.values(summaryManager.summaries).forEach(summary => {
+                    const data = summary.data;
+                    const usedIds = new Set();
+
+                    // Helper to scan text for IDs: (img_...) or (graph_...)
+                    // Matches patterns like ![alt](img_123) or just (img_123)
+                    const scanText = (text) => {
+                        if (!text) return;
+                        // Regex to find ID inside parens: (img_...) or (graph_...)
+                        const matches = text.match(/\((img_\d+_\d+|graph_\d+_\d+)\)/g);
+                        if (matches) {
+                            matches.forEach(match => {
+                                // remove parenthesis to get ID
+                                const id = match.slice(1, -1);
+                                usedIds.add(id);
+                            });
+                        }
+                    };
+
+                    // Scan Text Mode content
+                    scanText(data.items.text);
+
+                    // Scan Glossary content
+                    if (data.items.glossary) {
+                        data.items.glossary.forEach(item => {
+                            scanText(item.term);
+                            scanText(item.def);
+                        });
+                    }
+
+                    // Scan Math content
+                    if (data.items.math) {
+                        data.items.math.forEach(item => {
+                            scanText(item.name);
+                            scanText(item.formula);
+                        });
+                    }
+
+                    // Clean Images
+                    if (data.images) {
+                        Object.keys(data.images).forEach(imgId => {
+                            if (!usedIds.has(imgId)) {
+                                const size = data.images[imgId].length;
+                                totalSizeSaved += size;
+                                delete data.images[imgId];
+                                totalRemovedImages++;
+                            }
+                        });
+                    }
+
+                    // Clean Graphs
+                    if (data.graphs) {
+                        Object.keys(data.graphs).forEach(graphId => {
+                            if (!usedIds.has(graphId)) {
+                                const size = data.graphs[graphId].length;
+                                totalSizeSaved += size;
+                                delete data.graphs[graphId];
+                                totalRemovedGraphs++;
+                            }
+                        });
+                    }
+                });
+
+                // 3. Save optimized data back to storage
+                saveAllSummaries();
+                
+                // 4. Reload current state (in case we deleted something from current summary)
+                loadCurrentSummary();
+
+                // 5. Report results
+                const sizeInMB = (totalSizeSaved / (1024 * 1024)).toFixed(2);
+                await showAlert("הניקוי הסתיים", `✅ התהליך הושלם בהצלחה!\n\n🗑️ נמחקו: ${totalRemovedImages} תמונות ו-${totalRemovedGraphs} גרפים.\n💾 נחסך כ-${sizeInMB} MB בזיכרון הדפדפן.`, "success");
+            }
+
+            if (dom.cleanupMediaBtn) {
+                dom.cleanupMediaBtn.addEventListener('click', cleanupUnusedMedia);
+            }
+            
+            // --- GRAPH GENERATOR LOGIC ---
+            
+            // Graph Modal Handlers
+            dom.graphToolBtn.addEventListener('click', () => {
+                dom.graphModal.classList.add('active');
+                drawGraph(); // Initial draw
+            });
+            
+            dom.closeGraphModal.addEventListener('click', () => {
+                dom.graphModal.classList.remove('active');
+            });
+            
+            dom.graphModal.addEventListener('click', (e) => {
+                if (e.target === dom.graphModal) dom.graphModal.classList.remove('active');
+            });
+            
+            dom.graphRefreshBtn.addEventListener('click', drawGraph);
+            
+            dom.graphAddBtn.addEventListener('click', () => {
+                const canvas = dom.graphCanvas;
+                const base64Graph = canvas.toDataURL('image/png');
+                
+                // Generate Unique ID
+                const graphId = `graph_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                
+                // Store in state.graphs
+                if (!state.graphs) state.graphs = {};
+                state.graphs[graphId] = base64Graph;
+                
+                // Insert into current active textarea
+                let targetTextarea = null;
+                if (state.mode === 'text') {
+                    targetTextarea = document.getElementById('text-input');
+                } else if (state.mode === 'glossary') {
+                    targetTextarea = document.getElementById('glossary-def');
+                } else if (state.mode === 'math') {
+                    targetTextarea = document.getElementById('math-name'); // Or math-formula? Usually name makes more sense for text/images
+                }
+                
+                if (targetTextarea) {
+                    const start = targetTextarea.selectionStart;
+                    const end = targetTextarea.selectionEnd;
+                    const text = targetTextarea.value;
+                    const before = text.substring(0, start);
+                    const after = text.substring(end, text.length);
+                    
+                    const placeholder = `![גרף](${graphId})`;
+                    targetTextarea.value = before + placeholder + after;
+                    
+                    // Trigger input event to update state logic
+                    const event = new Event('input', { bubbles: true });
+                    targetTextarea.dispatchEvent(event);
+                } else {
+                    alert("נא להיכנס למצב עריכה כדי להוסיף את הגרף");
+                    return;
+                }
+                
+                saveCurrentSummary();
+                renderPreview();
+                dom.graphModal.classList.remove('active');
+            });
+            
+            // Math Expression Evaluation (Client Side Safe)
+            function evaluateMath(expression, x) {
+                try {
+                    // Replace standard ^ with JS **
+                    let jsExpr = expression.replace(/\^/g, '**');
+                    
+                    // Allow simple math functions (sin, cos, etc) to be called without Math.
+                    // We construct a Function that executes inside a 'with(Math)' block.
+                    // This is generally safe for client-side tool like this.
+                    const func = new Function('x', `with(Math) { return ${jsExpr} }`);
+                    return func(x);
+                } catch (e) {
+                    return null;
+                }
+            }
+            
+            function drawGraph() {
+                const canvas = dom.graphCanvas;
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // Parameters
+                const xMin = parseFloat(dom.graphXmin.value);
+                const xMax = parseFloat(dom.graphXmax.value);
+                const yMin = parseFloat(dom.graphYmin.value);
+                const yMax = parseFloat(dom.graphYmax.value);
+                const expression = dom.graphEquation.value;
+                const title = dom.graphTitle.value;
+                const xLabel = dom.graphXlabel.value;
+                const yLabel = dom.graphYlabel.value;
+                
+                if (isNaN(xMin) || isNaN(xMax) || isNaN(yMin) || isNaN(yMax) || xMin >= xMax || yMin >= yMax) {
+                    return;
+                }
+
+                // Clear and Fill White Background (Important for PNG export)
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, width, height);
+                
+                // Mapping functions
+                const mapX = (x) => ((x - xMin) / (xMax - xMin)) * width;
+                const mapY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
+                
+                // Draw Grid
+                ctx.strokeStyle = "#e5e7eb";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                
+                // Vertical Grid Lines (simple approach: 10 steps)
+                const xStep = (xMax - xMin) / 10;
+                for (let x = xMin; x <= xMax; x += xStep) {
+                    const px = mapX(x);
+                    ctx.moveTo(px, 0);
+                    ctx.lineTo(px, height);
+                }
+                
+                // Horizontal Grid Lines
+                const yStep = (yMax - yMin) / 10;
+                for (let y = yMin; y <= yMax; y += yStep) {
+                    const py = mapY(y);
+                    ctx.moveTo(0, py);
+                    ctx.lineTo(width, py);
+                }
+                ctx.stroke();
+                
+                // Draw Axes
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                // Y Axis
+                if (xMin <= 0 && xMax >= 0) {
+                    const zeroX = mapX(0);
+                    ctx.moveTo(zeroX, 0);
+                    ctx.lineTo(zeroX, height);
+                } else if (xMin > 0) {
+                    // Draw on left edge
+                    ctx.moveTo(0, 0); ctx.lineTo(0, height);
+                } else {
+                     // Draw on right edge
+                     ctx.moveTo(width, 0); ctx.lineTo(width, height);
+                }
+
+                // X Axis
+                if (yMin <= 0 && yMax >= 0) {
+                    const zeroY = mapY(0);
+                    ctx.moveTo(0, zeroY);
+                    ctx.lineTo(width, zeroY);
+                } else if (yMin > 0) {
+                    // Draw on bottom edge
+                    ctx.moveTo(0, height); ctx.lineTo(width, height);
+                } else {
+                    // Draw on top edge
+                    ctx.moveTo(0, 0); ctx.lineTo(width, 0);
+                }
+                ctx.stroke();
+                
+                // Draw Function Curve
+                if (expression.trim()) {
+                    ctx.strokeStyle = "#3b82f6"; // Blue
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    
+                    let firstPoint = true;
+                    // Iterate through pixels for smooth curve
+                    for (let px = 0; px <= width; px++) {
+                        // Reverse map pixel X to logical X
+                        const x = xMin + (px / width) * (xMax - xMin);
+                        const y = evaluateMath(expression, x);
+                        
+                        if (y !== null && !isNaN(y) && isFinite(y)) {
+                            // Clamp huge values to avoid weird rendering issues
+                            if (y > yMax * 2 || y < yMin * 2) {
+                                firstPoint = true; // Lift pen
+                                continue;
+                            }
+                            
+                            const py = mapY(y);
+                            if (firstPoint) {
+                                ctx.moveTo(px, py);
+                                firstPoint = false;
+                            } else {
+                                ctx.lineTo(px, py);
+                            }
+                        } else {
+                            firstPoint = true;
+                        }
+                    }
+                    ctx.stroke();
+                }
+                
+                // Draw Labels
+                ctx.fillStyle = "black";
+                ctx.font = "14px Arial";
+                ctx.textAlign = "center";
+                
+                // Title
+                if (title) {
+                    ctx.font = "bold 16px Arial";
+                    ctx.fillText(title, width / 2, 20);
+                }
+                
+                // Axis Labels
+                ctx.font = "12px Arial";
+                if (xLabel) {
+                    ctx.fillText(xLabel, width - 20, mapY(0) - 10);
+                }
+                if (yLabel) {
+                    ctx.fillText(yLabel, mapX(0) + 15, 15);
+                }
+                
+                // Numbers (Ticks) - Simplified
+                ctx.font = "10px Arial";
+                ctx.fillStyle = "#666";
+                // X Ticks
+                for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+                    if (x === 0) continue; // Skip origin for clarity
+                    const px = mapX(x);
+                    const py = mapY(0);
+                    ctx.fillText(x, px, py + 15);
+                }
+                // Y Ticks
+                for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+                    if (y === 0) continue;
+                    const px = mapX(0);
+                    const py = mapY(y);
+                    ctx.fillText(y, px - 15, py + 3);
+                }
+            }
+
 
             // --- CORE FUNCTIONS ---
             
@@ -1690,6 +3229,16 @@
                     document.getElementById('glossary-list').addEventListener('dragend', handleDragEnd);
                     document.getElementById('cancel-edit-btn').addEventListener('click', cancelEdit);
                     document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
+                    
+                    // Paste handler for glossary definition
+                    const defArea = document.getElementById('glossary-def');
+                    if (defArea) defArea.addEventListener('paste', handlePaste);
+
+                    // Add headers listeners
+                    document.getElementById('add-glossary-h1-btn').addEventListener('click', () => handleAddHeader('glossary', 1));
+                    document.getElementById('add-glossary-h2-btn').addEventListener('click', () => handleAddHeader('glossary', 2));
+                    document.getElementById('add-glossary-h3-btn').addEventListener('click', () => handleAddHeader('glossary', 3));
+
                 } else if (mode === 'math') {
                     document.getElementById('add-math-btn').addEventListener('click', handleAddItem);
                     document.getElementById('math-list').addEventListener('click', handleItemClick);
@@ -1702,8 +3251,21 @@
                     document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
                     document.querySelector('.symbol-bar').addEventListener('click', handleSymbolClick);
                     document.getElementById('math-formula').addEventListener('input', handleMathPreview);
+
+                    // Paste handler for math name (less likely, but possible)
+                    const mathName = document.getElementById('math-name');
+                    if (mathName) mathName.addEventListener('paste', handlePaste);
+                    
+                    // Add headers listeners
+                    document.getElementById('add-math-h1-btn').addEventListener('click', () => handleAddHeader('math', 1));
+                    document.getElementById('add-math-h2-btn').addEventListener('click', () => handleAddHeader('math', 2));
+                    document.getElementById('add-math-h3-btn').addEventListener('click', () => handleAddHeader('math', 3));
+
                 } else if (mode === 'text') {
-                    document.getElementById('text-input').addEventListener('input', handleTextInput);
+                    const textInput = document.getElementById('text-input');
+                    textInput.addEventListener('input', handleTextInput);
+                    // Paste handler for main text input
+                    textInput.addEventListener('paste', handlePaste);
                 }
             }
 
@@ -1743,6 +3305,31 @@
                 renderPreview();
                 saveCurrentSummary();
             }
+
+            // Generic function to add headers
+            function handleAddHeader(mode, level) {
+                const title = prompt(`הזן את כותרת ${level === 1 ? 'ראשית' : (level === 2 ? 'משנית' : 'תת-כותרת')}:`);
+                if (title && title.trim()) {
+                    const prefix = '#'.repeat(level);
+                    const itemData = {
+                        id: Date.now(),
+                        isSubtitle: true // Use same flag for all headers for simplicity
+                    };
+
+                    if (mode === 'glossary') {
+                        itemData.term = `${prefix} ${title.trim()}`;
+                        itemData.def = '';
+                    } else if (mode === 'math') {
+                        itemData.name = `${prefix} ${title.trim()}`;
+                        itemData.formula = '';
+                    }
+
+                    state.items[mode].push(itemData);
+                    renderItemList();
+                    renderPreview();
+                    saveCurrentSummary();
+                }
+            }
             
             function handleTextInput(e) {
                 state.items.text = e.target.value;
@@ -1758,18 +3345,24 @@
                 if (editBtn) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const id = Number(editBtn.closest('.list-item').dataset.id);
+                    const listItem = editBtn.closest('.list-item');
+                    const id = Number(listItem?.dataset.id);
                     enterEditMode(id);
                 } else if (deleteBtn) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const id = Number(deleteBtn.closest('.list-item').dataset.id);
+                    const listItem = deleteBtn.closest('.list-item');
+                    const id = Number(listItem?.dataset.id);
                     deleteSubtitle(id);
                 }
             }
             
-            function deleteSubtitle(id) {
-                if (!confirm("האם למחוק את תת-הכותרת?")) return;
+            async function deleteSubtitle(id) {
+                if (isNaN(id)) {
+                    return;
+                }
+                
+                if (!await showConfirm("מחיקת כותרת", "האם למחוק את הכותרת?")) return;
                 
                 const mode = state.mode;
                 state.items[mode] = state.items[mode].filter(i => i.id !== id);
@@ -1786,19 +3379,23 @@
 
                 state.editingId = id;
                 
-                // Check if it's a subtitle
-                const isSubtitle = (item.term && item.term.startsWith('###')) || (item.name && item.name.startsWith('###'));
+                // Flexible regex to check for any level of header (#, ##, ###, etc.)
+                const rawText = item.term || item.name;
+                const headerMatch = rawText ? rawText.match(/^(#{1,6})\s+(.+)/) : null;
                 
-                if (isSubtitle) {
-                    // Edit subtitle
-                    const currentTitle = item.term ? item.term.substring(3) : item.name.substring(3);
-                    const newTitle = prompt('ערוך תת-כותרת:', currentTitle);
+                if (headerMatch) {
+                    // It is a header
+                    const prefix = headerMatch[1]; // e.g., "###"
+                    const currentTitle = headerMatch[2]; // e.g., "Title"
+                    
+                    const newTitle = prompt('ערוך כותרת:', currentTitle);
                     
                     if (newTitle !== null && newTitle.trim()) {
+                        const newFullText = `${prefix} ${newTitle.trim()}`;
                         if (mode === 'glossary') {
-                            item.term = `###${newTitle.trim()}`;
+                            item.term = newFullText;
                         } else if (mode === 'math') {
-                            item.name = `###${newTitle.trim()}`;
+                            item.name = newFullText;
                         }
                         
                         renderItemList();
@@ -1807,7 +3404,7 @@
                     }
                     state.editingId = null;
                 } else {
-                    // Regular edit mode
+                    // Regular item edit
                     if (mode === 'glossary') {
                         document.getElementById('glossary-form-title').textContent = "עריכת מושג";
                         document.getElementById('glossary-term').value = item.term;
@@ -1838,9 +3435,9 @@
                 }
             }
 
-            function handleDeleteItem() {
+            async function handleDeleteItem() {
                 if (!state.editingId) return;
-                if (!confirm("האם אתה בטוח שברצונך למחוק פריט זה?")) return;
+                if (!await showConfirm("מחיקת פריט", "האם אתה בטוח שברצונך למחוק פריט זה?")) return;
 
                 const mode = state.mode;
                 state.items[mode] = state.items[mode].filter(i => i.id !== state.editingId);
@@ -1874,29 +3471,43 @@
                 }
                 
                 listEl.innerHTML = '';
-                items.forEach(item => {
+                items.forEach((item, index) => {
                     const li = document.createElement('div');
                     li.className = 'list-item';
-                    li.dataset.id = item.id;
                     li.draggable = true;
                     
-                    // Check if it's a subtitle
-                    const isSubtitle = (item.term && item.term.startsWith('###')) || (item.name && item.name.startsWith('###'));
-                    let text;
+                    const rawText = item.term || item.name || '';
+                    const headerMatch = rawText.match(/^(#{1,6})\s+(.+)/);
                     
-                    if (isSubtitle) {
-                        // Display subtitle without ###
-                        text = item.term ? item.term.substring(3) : item.name.substring(3);
+                    if (headerMatch) {
+                        const level = headerMatch[1].length;
+                        const text = headerMatch[2];
+                        
+                        let style = '';
+                        let icon = '';
+                        
+                        if (level === 1) {
+                            style = 'font-size: 1.1em; font-weight: 800; border-bottom: 2px solid var(--primary); margin-top: 10px; color: var(--primary-dark);';
+                            icon = 'heading-1';
+                        } else if (level === 2) {
+                            style = 'font-size: 1em; font-weight: 700; color: var(--primary); margin-top: 5px;';
+                            icon = 'heading-2';
+                        } else {
+                            style = 'font-size: 0.9em; font-weight: 600; opacity: 0.9; color: var(--text-secondary-light);';
+                            icon = 'heading-3';
+                        }
+
                         li.innerHTML = `
-                            <span style="color: var(--primary); font-weight: 600;">📋 ${text}</span>
+                            <span style="${style} display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="${icon}" style="width:14px; height:14px;"></i> ${text}
+                            </span>
                             <div class="item-controls">
-                                <button class="edit-btn" title="ערוך תת-כותרת"><i data-lucide="edit-2" class="icon-sm"></i></button>
-                                <button class="delete-btn" title="מחק תת-כותרת"><i data-lucide="trash-2" class="icon-sm"></i></button>
+                                <button class="edit-btn" title="ערוך כותרת"><i data-lucide="edit-2" class="icon-sm"></i></button>
+                                <button class="delete-btn" title="מחק כותרת"><i data-lucide="trash-2" class="icon-sm"></i></button>
                             </div>
                         `;
                     } else {
-                        // Regular item
-                        text = item.term || item.name || (item.formula ? "נוסחה ללא שם" : "פריט ריק");
+                        const text = rawText || (item.formula ? "נוסחה ללא שם" : "פריט ריק");
                         li.innerHTML = `
                             <span>${text}</span>
                             <div class="item-controls">
@@ -1905,8 +3516,10 @@
                         `;
                     }
                     
+                    li.dataset.id = item.id;
                     listEl.appendChild(li);
                 });
+                
                 lucide.createIcons();
             }
             
@@ -2008,29 +3621,171 @@
                 saveCurrentSummary();
             }
 
+            dom.directionButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const dir = e.currentTarget.dataset.dir;
+                    dom.designDirection.value = dir;
+                    handleDesignChange();
+                });
+            });
+
             // --- Preview Renderer ---
-            
-            // פונקציה לפרסור טקסט עם פורמט מיוחד
             function parseFormattedText(text) {
                 if (!text) return '';
                 
-                // Escape HTML
                 let result = text
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;');
                 
-                // 1. כותרות משנה: ### כותרת (בתחילת שורה)
-                result = result.replace(/^### (.+)$/gm, '<h3 style="color: var(--primary); font-size: 1.2rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem;">$1</h3>');
+                const latexMap = new Map();
+                let latexIndex = 0;
                 
-                // 2. Underline: _טקסט_
+                result = result.replace(/\$\$(.+?)\$\$/gs, (match) => {
+                    const placeholder = `XLATEXDISPLAYX${latexIndex}X`;
+                    latexMap.set(placeholder, match);
+                    latexIndex++;
+                    return placeholder;
+                });
+                
+                result = result.replace(/\$(.+?)\$/g, (match) => {
+                    const placeholder = `XLATEXINLINEX${latexIndex}X`;
+                    latexMap.set(placeholder, match);
+                    latexIndex++;
+                    return placeholder;
+                });
+                
+                const codeBlockMap = new Map();
+                let codeBlockIndex = 0;
+                
+                result = result.replace(/````(\w*)\n([\s\S]+?)````/g, (match, lang, code) => {
+                    const placeholder = `XCODEBLOCK4X${codeBlockIndex}X`;
+                    const langDisplay = lang ? lang.toUpperCase() : 'TEXT';
+                    const html = `<div style="margin: 1em 0; background: #1e293b; border-radius: 5px; overflow: hidden; direction: ltr; text-align: left; -webkit-print-color-adjust: exact; print-color-adjust: exact; break-inside: avoid; page-break-inside: avoid;">
+                        <div style="background: #334155; padding: 0.3em 0.8em; color: #e2e8f0; font-size: 0.85em; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact;">${langDisplay}</div>
+                        <pre style="margin: 0; padding: 1em; color: #e2e8f0; overflow-x: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact;"><code style="font-family: 'Source Code Pro', 'Courier New', monospace; font-size: 0.9em; line-height: 1.5;">${code.trim()}</code></pre>
+                    </div>`;
+                    
+                    codeBlockMap.set(placeholder, html);
+                    codeBlockIndex++;
+                    return placeholder;
+                });
+
+                result = result.replace(/```(\w*)\n([\s\S]+?)```/g, (match, lang, code) => {
+                    const placeholder = `XCODEBLOCK3X${codeBlockIndex}X`;
+                    const langDisplay = lang ? lang.toUpperCase() : 'CODE';
+                    const html = `<div style="margin: 1em 0; background: #1e293b; border-radius: 5px; overflow: hidden; direction: ltr; text-align: left; -webkit-print-color-adjust: exact; print-color-adjust: exact; break-inside: avoid; page-break-inside: avoid;">
+                        <div style="background: #334155; padding: 0.3em 0.8em; color: #e2e8f0; font-size: 0.85em; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact;">${langDisplay}</div>
+                        <pre style="margin: 0; padding: 1em; color: #e2e8f0; overflow-x: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact;"><code style="font-family: 'Source Code Pro', 'Courier New', monospace; font-size: 0.9em; line-height: 1.5;">${code.trim()}</code></pre>
+                    </div>`;
+                    
+                    codeBlockMap.set(placeholder, html);
+                    codeBlockIndex++;
+                    return placeholder;
+                });
+                
+                // INVERSE DIRECTION BLOCK (Before generic replacements)
+                // Matches ">> text" at start of line
+                result = result.replace(/^&gt;&gt; (.+)$/gm, '<div class="inverse-dir-block">$1</div>');
+                result = result.replace(/^>> (.+)$/gm, '<div class="inverse-dir-block">$1</div>');
+
+                const codeMap = new Map();
+                let codeIndex = 0;
+                result = result.replace(/`([^`]+)`/g, (match, code) => {
+                    const placeholder = `XCODEINLINEX${codeIndex}X`;
+                    codeMap.set(placeholder, `<code style="background: #f3f4f6; padding: 0.2em 0.4em; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #dc2626; direction: ltr; display: inline-block; unicode-bidi: embed;">${code}</code>`);
+                    codeIndex++;
+                    return placeholder;
+                });
+                
+                result = result.replace(/^# (.+)$/gm, '<h1 style="text-align: center; color: var(--page-color-accent, black); font-size: 24pt; font-weight: bold; margin: 1.5em 0 1em 0;">$1</h1>');
+                result = result.replace(/^## (.+)$/gm, '<h2 style="color: var(--page-color-accent, black); font-size: 18pt; font-weight: bold; margin: 1.2em 0 0.8em 0;">$1</h2>');
+                result = result.replace(/^### (.+)$/gm, '<h3 style="color: var(--primary); font-size: 14pt; font-weight: 600; margin: 1rem 0 0.5rem 0;">$1</h3>');
+                result = result.replace(/^#### (.+)$/gm, '<h4 style="color: var(--page-color-text, black); font-size: 12pt; font-weight: 600; margin: 0.8em 0 0.4em 0;">$1</h4>');
+                
+                result = result.replace(/^---$/gm, '<hr style="border: none; border-top: 2px solid var(--page-color-accent, #ccc); margin: 1.5em 0;">');
+                result = result.replace(/^\*\*\*$/gm, '<hr style="border: none; border-top: 2px solid var(--page-color-accent, #ccc); margin: 1.5em 0;">');
+                
+                result = result.replace(/^&gt; (.+)$/gm, '<blockquote style="border-right: 4px solid var(--page-color-accent, #ccc); padding: 0.5em 1em; margin: 1em 0; background: rgba(0,0,0,0.03); font-style: italic; break-inside: avoid; page-break-inside: avoid;">$1</blockquote>');
+                
+                // IMAGE & GRAPH REPLACEMENT LOGIC
+                result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+                    let actualSrc = src;
+                    // Check if the src is a key in our internal image store or graph store
+                    if (state.images && state.images[src]) {
+                        actualSrc = state.images[src];
+                    } else if (state.graphs && state.graphs[src]) {
+                        actualSrc = state.graphs[src];
+                    }
+                    return `<img src="${actualSrc}" alt="${alt}" style="max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); break-inside: avoid; page-break-inside: avoid;">`;
+                });
+                
+                result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--page-color-accent, #3b82f6); text-decoration: underline;">$1</a>');
+                
+                result = result.replace(/^(\d+)\. (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0;"><span style="color: var(--page-color-accent, black); font-weight: 600; min-width: 1.5em;">$1.</span><span>$2</span></div>');
+                
+                result = result.replace(/^- \[x\] (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0;"><span style="color: var(--page-color-accent, #10b981);">☑</span><span style="text-decoration: line-through; opacity: 0.7;">$1</span></div>');
+                result = result.replace(/^- \[ \] (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0;"><span style="color: var(--page-color-accent, black);">☐</span><span>$1</span></div>');
+                
+                result = result.replace(/^      - (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0; padding-right: 2em;"><span style="color: var(--page-color-accent, black);">◦</span><span>$1</span></div>');
+                result = result.replace(/^   - (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0; padding-right: 1em;"><span style="color: var(--page-color-accent, black);">▪</span><span>$1</span></div>');
+                result = result.replace(/^- (.+)$/gm, '<div style="display: flex; gap: 0.5em; margin: 0.25em 0;"><span style="color: var(--page-color-accent, black);">•</span><span>$1</span></div>');
+                
+                const tableRegex = /^(\|.+\|)\n(\|[-:\s|]+\|)\n((?:\|.+\|\n?)+)/gm;
+                result = result.replace(tableRegex, (match, header, separator, rows) => {
+                    const headerCells = header.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+                    
+                    const rowLines = rows.trim().split('\n');
+                    const tableRows = rowLines.map(row => 
+                        row.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+                    );
+                    
+                    let tableHTML = '<table style="border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.9em;">';
+                    
+                    tableHTML += '<thead><tr>';
+                    headerCells.forEach(cell => {
+                        tableHTML += `<th style="border: 1px solid var(--page-color-accent, #ccc); padding: 0.5em; background: var(--page-color-accent, #f3f4f6); font-weight: bold;">${cell}</th>`;
+                    });
+                    tableHTML += '</tr></thead>';
+                    
+                    tableHTML += '<tbody>';
+                    tableRows.forEach(row => {
+                        tableHTML += '<tr>';
+                        row.forEach(cell => {
+                            tableHTML += `<td style="border: 1px solid var(--page-color-accent, #ccc); padding: 0.5em;">${cell}</td>`;
+                        });
+                        tableHTML += '</tr>';
+                    });
+                    tableHTML += '</tbody></table>';
+                    
+                    return tableHTML;
+                });
+                
+                result = result.replace(/==(.+?)==/g, '<mark style="background: #fef08a; padding: 0.1em 0.2em; border-radius: 2px;">$1</mark>');
+                
+                const footnotes = new Map();
+                result = result.replace(/^\[\^(\d+)\]: (.+)$/gm, (match, num, text) => {
+                    footnotes.set(num, text);
+                    return ''; 
+                });
+                
+                result = result.replace(/\[\^(\d+)\]/g, (match, num) => {
+                    return `<sup style="color: var(--page-color-accent, #3b82f6); font-weight: 600;">[${num}]</sup>`;
+                });
+                
+                if (footnotes.size > 0) {
+                    let footnotesHTML = '<div style="margin-top: 2em; padding-top: 1em; border-top: 1px solid #ccc; font-size: 0.9em;"><strong>הערות שוליים:</strong><br>';
+                    footnotes.forEach((text, num) => {
+                        footnotesHTML += `<div style="margin-top: 0.5em;"><sup style="color: var(--page-color-accent, #3b82f6); font-weight: 600;">[${num}]</sup> ${text}</div>`;
+                    });
+                    footnotesHTML += '</div>';
+                    result += footnotesHTML;
+                }
+                
                 result = result.replace(/_(.+?)_/g, '<u>$1</u>');
-                
-                // 3. Bold: **טקסט** או *טקסט*
                 result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
                 result = result.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
                 
-                // 4. צבעים: {אדום: טקסט} {כחול: טקסט} וכו'
                 const colorMap = {
                     'אדום': '#EF4444',
                     'כתום': '#F59E0B',
@@ -2049,8 +3804,19 @@
                     result = result.replace(regex, `<span style="color: ${colorMap[colorName]}; font-weight: 600;">$1</span>`);
                 });
                 
-                // 5. שורות חדשות
                 result = result.replace(/\n/g, '<br>');
+                
+                codeBlockMap.forEach((html, placeholder) => {
+                    result = result.split(placeholder).join(html);
+                });
+
+                codeMap.forEach((codeHTML, placeholder) => {
+                    result = result.split(placeholder).join(codeHTML);
+                });
+                
+                latexMap.forEach((latex, placeholder) => {
+                    result = result.split(placeholder).join(latex);
+                });
                 
                 return result;
             }
@@ -2059,10 +3825,12 @@
                 const page = dom.a4Page;
                 const design = state.design[state.mode];
                 
-                page.className = `a4-page ${design.theme}`;
+                const currentDir = design.direction || 'rtl';
+                page.className = `a4-page ${design.theme} dir-${currentDir}`;
                 page.style.setProperty('--page-font-size', design.fontSize);
                 page.style.setProperty('--page-columns', design.columns);
                 page.style.setProperty('--page-margins', design.margins);
+                page.style.setProperty('--page-direction', currentDir);
                 
                 let headerHtml = '';
                 let contentHtml = '';
@@ -2080,36 +3848,68 @@
                     headerHtml += '</div>';
                 }
                 
+                let mainContentHtml = '';
+                
                 switch (state.mode) {
                     case 'text':
-                        // טקסט רציף עם פרסור פורמט
-                        contentHtml += parseFormattedText(state.items.text);
+                        mainContentHtml += parseFormattedText(state.items.text);
                         break;
                     case 'glossary':
-                        // דף מושגים עם פרסור פורמט
-                        contentHtml += state.items.glossary.map(item => {
-                            const term = parseFormattedText(item.term);
-                            const def = parseFormattedText(item.def);
-                            return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
+                        mainContentHtml += state.items.glossary.map(item => {
+                            // Check for any header (#, ##, ###)
+                            const headerMatch = item.term && item.term.match(/^(#{1,6})\s+(.+)/);
+                            if (headerMatch) {
+                                // Pass the raw markdown (e.g., "# Title") to parser
+                                return parseFormattedText(item.term);
+                            }
+                            const term = parseFormattedText(item.term || '');
+                            const def = parseFormattedText(item.def || '');
+                            
+                            // FIX: Only show colon if both term and definition exist
+                            const separator = (item.term && item.term.trim() && item.def && item.def.trim()) ? ':' : '';
+                            
+                            // Wrap in paragraph with break-inside: avoid
+                            return `<p style="page-break-inside: avoid; break-inside: avoid;"><strong class="glossary-term">${term}${separator}</strong> ${def}</p>`;
                         }).join('');
                         break;
                     case 'math':
-                        // דף נוסחאות - כבר תומך ב-MathJax
-                        contentHtml += state.items.math.map(item => {
-                            let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
-                            let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
-                            return `<p>${name} ${formula}</p>`;
+                        mainContentHtml += state.items.math.map(item => {
+                            const headerMatch = item.name && item.name.match(/^(#{1,6})\s+(.+)/);
+                            if (headerMatch) {
+                                return parseFormattedText(item.name);
+                            }
+                            
+                            // FIX: Only show colon if both name and formula exist
+                            const hasName = item.name && item.name.trim();
+                            const hasFormula = item.formula && item.formula.trim();
+                            const separator = (hasName && hasFormula) ? ':' : '';
+                            
+                            let nameHtml = hasName ? `<strong class="math-name">${parseFormattedText(item.name)}${separator}</strong>` : '';
+                            let formulaHtml = hasFormula ? `<span class="math-formula">$${item.formula}$</span>` : '';
+                            // Wrap in paragraph with break-inside: avoid
+                            return `<p style="page-break-inside: avoid; break-inside: avoid;">${nameHtml} ${formulaHtml}</p>`;
                         }).join('');
                         break;
                 }
+                
+                // Academic Mode Logic: Extract headings and add IDs, then add TOC
+                if (state.design[state.mode].showTOC) {
+                    const { headings, modifiedHtml } = extractHeadings(mainContentHtml);
+                    mainContentHtml = modifiedHtml;
+                    contentHtml += generateTableOfContents(headings);
+                }
+                
+                contentHtml += mainContentHtml;
                 
                 page.innerHTML = `${headerHtml}<div class="page-content">${contentHtml}</div>`;
                 
                 if(design.increasedSpacing) {
                     page.querySelector('.page-content').classList.add('increased-spacing');
                 }
+                
+                // Render Lucide icons for cover page
+                lucide.createIcons();
 
-                // רינדור MathJax לנוסחאות
                 if (window.MathJax && state.isMathJaxReady) {
                     try {
                         await MathJax.typesetPromise([page]);
@@ -2127,61 +3927,92 @@
                 dom.totalPages.textContent = totalPages;
             }
             
-            function handlePrint() {
+            async function handlePrint() {
                 const printMount = dom.printMount;
-                const pageClone = dom.a4Page.cloneNode(true);
                 
-                pageClone.style.width = '100%';
-                pageClone.style.height = 'auto';
-                pageClone.style.minHeight = 'auto';
-                pageClone.style.boxShadow = 'none';
-                pageClone.style.margin = '0';
-                pageClone.style.padding = state.design[state.mode].margins;
+                // Inject dynamic page styles based on current margins
+                const margin = state.design[state.mode].margins;
+                const styleId = 'dynamic-print-styles';
+                let styleEl = document.getElementById(styleId);
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = styleId;
+                    document.head.appendChild(styleEl);
+                }
+                styleEl.innerHTML = `@media print { @page { margin: ${margin}; } }`;
+
+                // Clone the current preview with all IDs intact
+                printMount.innerHTML = dom.a4Page.outerHTML;
                 
-                printMount.innerHTML = '';
-                printMount.appendChild(pageClone);
+                // Ensure all heading IDs are preserved in print
+                if (state.design[state.mode].showTOC) {
+                    const printPage = printMount.querySelector('.a4-page');
+                    if (printPage) {
+                        // Make sure all links and IDs are in the printed version
+                        const allHeadings = printPage.querySelectorAll('[id^="heading-"]');
+                        allHeadings.forEach(heading => {
+                            // Ensure ID is preserved
+                            heading.setAttribute('id', heading.id);
+                        });
+                    }
+                }
+                
+                if (window.MathJax && state.isMathJaxReady) {
+                    try {
+                        await MathJax.typesetPromise([printMount]);
+                    } catch(e) {
+                        console.error("MathJax print error:", e);
+                    }
+                }
                 
                 window.print();
             }
             
-            // --- COMBINED PDF PRINT FUNCTION ---
             async function handlePrintCombined() {
-                if (!confirm("האם להדפיס PDF משולב של כל 3 סוגי הסיכומים (מושגים, נוסחאות, טקסט)?")) {
+                if (!await showConfirm("הדפסה משולבת", "האם להדפיס PDF משולב של כל 3 סוגי הסיכומים (מושגים, נוסחאות, טקסט)?")) {
                     return;
                 }
+                
+                // Inject generic margin for combined print (using text mode settings or default 20mm)
+                const margin = state.design.text.margins || '20mm';
+                const styleId = 'dynamic-print-styles';
+                let styleEl = document.getElementById(styleId);
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = styleId;
+                    document.head.appendChild(styleEl);
+                }
+                styleEl.innerHTML = `@media print { @page { margin: ${margin}; } }`;
                 
                 const printMount = dom.printMount;
                 printMount.innerHTML = '';
                 
-                // Save current mode and state
                 const originalMode = state.mode;
                 
-                // Array of modes in order
                 const modes = ['glossary', 'math', 'text'];
                 
                 for (const mode of modes) {
-                    // Skip empty sections
                     if (mode === 'text' && !state.items.text.trim()) continue;
                     if (mode !== 'text' && state.items[mode].length === 0) continue;
                     
                     const design = state.design[mode];
+                    const currentDir = design.direction || 'rtl';
                     const page = document.createElement('div');
-                    page.className = `a4-page ${design.theme}`;
+                    page.className = `a4-page ${design.theme} dir-${currentDir}`;
+                    // Important: Reset div styling for print so @page takes over
                     page.style.width = '100%';
                     page.style.height = 'auto';
                     page.style.minHeight = 'auto';
                     page.style.boxShadow = 'none';
                     page.style.margin = '0';
-                    page.style.padding = design.margins;
+                    page.style.padding = '0'; // Use @page margin instead
                     page.style.setProperty('--page-font-size', design.fontSize);
                     page.style.setProperty('--page-columns', design.columns);
-                    page.style.setProperty('--page-margins', design.margins);
-                    page.style.pageBreakAfter = 'always';
+                    page.style.setProperty('--page-direction', currentDir);
                     
                     let headerHtml = '';
                     let contentHtml = '';
                     
-                    // Add header
                     if (design.title || state.meta.authorName || state.meta.showTimestamp) {
                         headerHtml += '<div class="page-header">';
                         if (design.title) {
@@ -2195,33 +4026,30 @@
                         headerHtml += '</div>';
                     }
                     
-                    // Generate content based on mode
                     switch (mode) {
                         case 'text':
                             contentHtml += parseFormattedText(state.items.text);
                             break;
                         case 'glossary':
                             contentHtml += state.items.glossary.map(item => {
-                                // Check if it's a subtitle
-                                if (item.term.startsWith('###')) {
-                                    const title = item.term.substring(3);
-                                    return parseFormattedText(`### ${title}`);
+                                const headerMatch = item.term.match(/^(#{1,6})\s+(.+)/);
+                                if (headerMatch) {
+                                    return parseFormattedText(item.term);
                                 }
                                 const term = parseFormattedText(item.term);
                                 const def = parseFormattedText(item.def);
-                                return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
+                                return `<p style="page-break-inside: avoid; break-inside: avoid;"><strong class="glossary-term">${term}:</strong> ${def}</p>`;
                             }).join('');
                             break;
                         case 'math':
                             contentHtml += state.items.math.map(item => {
-                                // Check if it's a subtitle
-                                if (item.name.startsWith('###')) {
-                                    const title = item.name.substring(3);
-                                    return parseFormattedText(`### ${title}`);
+                                const headerMatch = item.name.match(/^(#{1,6})\s+(.+)/);
+                                if (headerMatch) {
+                                    return parseFormattedText(item.name);
                                 }
                                 let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
                                 let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
-                                return `<p>${name} ${formula}</p>`;
+                                return `<p style="page-break-inside: avoid; break-inside: avoid;">${name} ${formula}</p>`;
                             }).join('');
                             break;
                     }
@@ -2230,25 +4058,21 @@
                     printMount.appendChild(page);
                 }
                 
-                // Typeset all math at once if needed
                 if (state.items.math.length > 0 && window.MathJax && state.isMathJaxReady) {
                     try {
                         await MathJax.typesetPromise([printMount]);
                     } catch(e) { console.error("MathJax combined print error:", e); }
                 }
                 
-                // Small delay to ensure rendering
                 setTimeout(() => {
                     window.print();
                 }, 100);
             }
             
             // --- DATA EXPORT/IMPORT FUNCTIONS ---
-            function handleExportData() {
-                // Save current summary first
+            async function handleExportData() {
                 saveCurrentSummary();
                 
-                // Create backup object with all summaries
                 const backup = {
                     version: 1,
                     exportDate: new Date().toISOString(),
@@ -2256,10 +4080,8 @@
                     currentSummaryId: summaryManager.currentSummaryId
                 };
                 
-                // Convert to JSON
                 const jsonStr = JSON.stringify(backup, null, 2);
                 
-                // Create blob and download
                 const blob = new Blob([jsonStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -2270,15 +4092,11 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                // Show success message
-                alert('✅ הגיבוי נשמר בהצלחה!\n\nשמור קובץ זה במקום בטוח (Google Drive, Dropbox, וכו\')');
+                await showAlert("גיבוי הצליח", "✅ הגיבוי נשמר בהצלחה!\n\nשמור קובץ זה במקום בטוח (Google Drive, Dropbox, וכו')", "success");
             }
             
             function handleImportData() {
-                if (!confirm('⚠️ האם אתה בטוח?\n\nייבוא גיבוי יחליף את כל הסיכומים הנוכחיים.\nאם ברצונך לשמור את הסיכומים הנוכחיים, לחץ "ביטול" וייצא אותם תחילה.')) {
-                    return;
-                }
-                
+                // Just open the file dialog
                 dom.importFileInput.click();
             }
             
@@ -2287,7 +4105,7 @@
                 if (!file) return;
                 
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                     try {
                         const backup = JSON.parse(e.target.result);
                         
@@ -2296,35 +4114,77 @@
                             throw new Error('קובץ גיבוי לא תקין');
                         }
                         
-                        // Restore data
-                        summaryManager.summaries = backup.summaries;
-                        
-                        // Set current summary
-                        if (backup.currentSummaryId && summaryManager.summaries[backup.currentSummaryId]) {
-                            summaryManager.currentSummaryId = backup.currentSummaryId;
-                        } else {
-                            summaryManager.currentSummaryId = Object.keys(summaryManager.summaries)[0];
-                        }
-                        
-                        // Save to localStorage
-                        saveAllSummaries();
-                        
-                        // Load the current summary
-                        loadCurrentSummary();
-                        updateSummarySelector();
-                        
-                        alert(`✅ הגיבוי שוחזר בהצלחה!\n\nשוחזרו ${Object.keys(summaryManager.summaries).length} סיכומים.`);
+                        // Store pending data and show modal
+                        pendingImportData = backup;
+                        dom.importOptionsModal.classList.add('active');
                         
                     } catch (error) {
-                        alert('❌ שגיאה בייבוא הגיבוי:\n' + error.message);
+                        await showAlert("שגיאת ייבוא", '❌ שגיאה בייבוא הגיבוי:\n' + error.message, "error");
                         console.error('Import error:', error);
                     }
                     
-                    // Reset file input
+                    // Reset file input so we can select the same file again if needed
                     event.target.value = '';
                 };
                 
                 reader.readAsText(file);
+            }
+
+            // Perform Merge Import (Add new items, keep existing)
+            async function performImportMerge() {
+                if (!pendingImportData) return;
+                
+                const importedSummaries = pendingImportData.summaries;
+                let count = 0;
+                
+                // Get base timestamp
+                const baseTime = Date.now();
+
+                Object.values(importedSummaries).forEach((summary, index) => {
+                    // Create truly unique ID: timestamp + index + random
+                    const newId = `${baseTime}_${index}_${Math.floor(Math.random() * 1000)}`;
+                    
+                    // Optional: Add (Imported) tag if name collision? 
+                    // For now, we just keep original name to allow user to sort it out.
+                    // Or maybe add a visual indicator? No, user asked for "Add to existing".
+                    
+                    summaryManager.summaries[newId] = summary;
+                    count++;
+                });
+
+                saveAllSummaries();
+                updateSummarySelector();
+                
+                dom.importOptionsModal.classList.remove('active');
+                pendingImportData = null;
+                
+                await showAlert("ייבוא הושלם", `✅ המיזוג הושלם בהצלחה!\n\nנוספו ${count} סיכומים לרשימה.`, "success");
+            }
+
+            // Perform Replace Import (Wipe everything, load new)
+            async function performImportReplace() {
+                if (!pendingImportData) return;
+                
+                if (!await showConfirm("שחזור מגיבוי", '⚠️ אזהרה:\nפעולה זו תמחק את כל הסיכומים הקיימים כרגע בדפדפן!\nהאם להמשיך?')) {
+                    return;
+                }
+
+                summaryManager.summaries = pendingImportData.summaries;
+                
+                if (pendingImportData.currentSummaryId && summaryManager.summaries[pendingImportData.currentSummaryId]) {
+                    summaryManager.currentSummaryId = pendingImportData.currentSummaryId;
+                } else {
+                    summaryManager.currentSummaryId = Object.keys(summaryManager.summaries)[0];
+                }
+                
+                saveAllSummaries();
+                loadCurrentSummary();
+                updateSummarySelector();
+                
+                dom.importOptionsModal.classList.remove('active');
+                pendingImportData = null;
+                
+                await showAlert("שחזור הושלם", `✅ השחזור הושלם בהצלחה!\n\nנטענו ${Object.keys(summaryManager.summaries).length} סיכומים.`, "success");
             }
             
             // --- Settings Modal Handlers ---
@@ -2348,9 +4208,10 @@
                 renderPreview();
                 saveCurrentSummary();
             });
+            dom.designShowTOC.addEventListener('change', handleDesignChange);
             
-            dom.clearDataBtn.addEventListener('click', () => {
-                if (!confirm("האם אתה בטוח? פעולה זו תמחק את כל התוכן וההגדרות של הסיכום הנוכחי.")) return;
+            dom.clearDataBtn.addEventListener('click', async () => {
+                if (!await showConfirm("ניקוי סיכום", "האם אתה בטוח? פעולה זו תמחק את כל התוכן וההגדרות של הסיכום הנוכחי.")) return;
                 
                 const mode = state.mode;
                 state.items[mode] = (mode === 'text') ? "" : [];
@@ -2373,6 +4234,55 @@
                 
                 dom.settingsModal.classList.remove('active');
             });
+
+            // --- DELETE ALL LOGIC ---
+            dom.deleteAllDataBtn.addEventListener('click', async () => {
+                // First confirmation
+                if (!await showConfirm("אזהרה חמורה", "⚠️ האם אתה בטוח שברצונך למחוק את **כל** הסיכומים שלך?\n\nפעולה זו תמחק את כל הנתונים השמורים בדפדפן ולא ניתן לשחזר אותה (אלא אם יש לך גיבוי).")) {
+                    return;
+                }
+                
+                // Second confirmation (Safety check)
+                if (!await showConfirm("אישור סופי", "אני שואל שוב ליתר ביטחון:\nהאם למחוק את הכל ולאפס את המערכת?")) {
+                    return;
+                }
+                
+                // Perform deletion
+                localStorage.removeItem(SUMMARIES_KEY);
+                localStorage.removeItem(CURRENT_SUMMARY_KEY);
+                
+                // Reset internal state
+                summaryManager.summaries = {};
+                summaryManager.currentSummaryId = null;
+                
+                // Re-initialize with defaults
+                loadAllSummaries(); // Will create a default "Summary 1"
+                loadCurrentSummary();
+                updateSummarySelector();
+                
+                await showAlert("המערכת אופסה", "כל הסיכומים נמחקו בהצלחה והמערכת אופסה.", "success");
+                dom.settingsModal.classList.remove('active');
+            });
+
+            // --- IMPORT MODAL LISTENERS ---
+            dom.closeImportModal.addEventListener('click', () => {
+                dom.importOptionsModal.classList.remove('active');
+                pendingImportData = null;
+            });
+            dom.cancelImportAction.addEventListener('click', () => {
+                dom.importOptionsModal.classList.remove('active');
+                pendingImportData = null;
+            });
+            dom.importOptionsModal.addEventListener('click', (e) => {
+                if (e.target === dom.importOptionsModal) {
+                    dom.importOptionsModal.classList.remove('active');
+                    pendingImportData = null;
+                }
+            });
+            
+            dom.btnImportMerge.addEventListener('click', performImportMerge);
+            dom.btnImportReplace.addEventListener('click', performImportReplace);
+
 
             // --- SUMMARY MANAGER EVENT LISTENERS ---
             
@@ -2509,6 +4419,7 @@
             let presentationMode = false;
             let currentCardIndex = 0;
             let isCardFlipped = false;
+            let presentationItems = []; // מערך המכיל את הפריטים להצגה (בכל המצבים)
             
             // Add presentation button to header
             const presentationBtn = document.createElement('button');
@@ -2533,32 +4444,206 @@
                 }
             }
             
+            // פונקציה חדשה לפרסור טקסט רציף לשקופיות
+            function parseTextToSlides(text) {
+                if (!text || !text.trim()) return [];
+                
+                const slides = [];
+                const lines = text.split('\n');
+                let currentSlide = null;
+                let hasHeaders = false;
+                
+                // בדיקה אם יש כותרות בטקסט
+                if (text.match(/^#{1,6}\s/m)) {
+                    hasHeaders = true;
+                    
+                    lines.forEach(line => {
+                        const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
+                        if (headerMatch) {
+                            // כותרת חדשה = שקופית חדשה
+                            if (currentSlide) slides.push(currentSlide);
+                            
+                            // נקה את סימני ה-# מהכותרת לתצוגה יפה
+                            currentSlide = {
+                                term: headerMatch[2].trim(), // הכותרת (צד קדמי)
+                                def: '', // התוכן (צד אחורי)
+                                type: 'header'
+                            };
+                        } else {
+                            // תוכן
+                            if (currentSlide) {
+                                currentSlide.def += line + '\n';
+                            } else if (line.trim() && !hasHeaders) {
+                                // תוכן לפני הכותרת הראשונה (בדרך כלל לא קורה אם זוהו כותרות)
+                                currentSlide = { term: 'הקדמה', def: line + '\n', type: 'intro' };
+                            }
+                        }
+                    });
+                    if (currentSlide) slides.push(currentSlide);
+                    
+                } else {
+                    // אין כותרות - פיצול לפי פסקאות (רווח כפול)
+                    const paragraphs = text.split(/\n\s*\n/);
+                    paragraphs.forEach((p, index) => {
+                        if (p.trim()) {
+                            // חילוץ המילים הראשונות לכותרת
+                            const firstLine = p.split('\n')[0];
+                            const words = firstLine.split(' ').slice(0, 5).join(' ');
+                            const title = words + (firstLine.length > words.length ? '...' : '');
+                            
+                            slides.push({
+                                term: `פסקה ${index + 1}`, // או title אם רוצים את המילים הראשונות
+                                def: p.trim(),
+                                type: 'paragraph'
+                            });
+                        }
+                    });
+                }
+                
+                return slides;
+            }
+            
+            
+            function extractHeadings(html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                const headings = [];
+                const h1s = tempDiv.querySelectorAll('h1');
+                const h2s = tempDiv.querySelectorAll('h2');
+                const h3s = tempDiv.querySelectorAll('h3');
+                
+                // איסוף כל הכותרות עם המידע שלהן
+                const allHeadings = [];
+                
+                h1s.forEach((h, idx) => {
+                    const id = `heading-h1-${idx}`;
+                    h.id = id;
+                    allHeadings.push({ 
+                        level: 1, 
+                        text: h.textContent.trim(), 
+                        id: id,
+                        element: h 
+                    });
+                });
+                
+                h2s.forEach((h, idx) => {
+                    const id = `heading-h2-${idx}`;
+                    h.id = id;
+                    allHeadings.push({ 
+                        level: 2, 
+                        text: h.textContent.trim(), 
+                        id: id,
+                        element: h 
+                    });
+                });
+                
+                h3s.forEach((h, idx) => {
+                    const id = `heading-h3-${idx}`;
+                    h.id = id;
+                    allHeadings.push({ 
+                        level: 3, 
+                        text: h.textContent.trim(), 
+                        id: id,
+                        element: h 
+                    });
+                });
+                
+                // מיון לפי סדר הופעה במסמך
+                allHeadings.sort((a, b) => {
+                    const posA = Array.from(tempDiv.querySelectorAll('h1, h2, h3')).indexOf(a.element);
+                    const posB = Array.from(tempDiv.querySelectorAll('h1, h2, h3')).indexOf(b.element);
+                    return posA - posB;
+                });
+                
+                return { headings: allHeadings, modifiedHtml: tempDiv.innerHTML };
+            }
+            
+            function generateTableOfContents(headings) {
+                if (headings.length === 0) {
+                    return `
+                        <div class="toc-page">
+                            <h2 class="toc-title">מקרא</h2>
+                            <p style="text-align: center; color: var(--text-secondary-light); margin-top: 2rem;">
+                                אין כותרות בסיכום. השתמש ב-#, ## ו-### כדי ליצור כותרות.
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                let tocHtml = `
+                    <div class="toc-page">
+                        <h2 class="toc-title">מקרא</h2>
+                        <ul class="toc-list">
+                `;
+                
+                headings.forEach((heading, index) => {
+                    tocHtml += `
+                        <li class="toc-item level-${heading.level}">
+                            <a href="#${heading.id}" class="toc-link">
+                                <span class="toc-text">${heading.text}</span>
+                            </a>
+                        </li>
+                    `;
+                });
+                
+                tocHtml += `
+                        </ul>
+                    </div>
+                `;
+                
+                return tocHtml;
+            }
+            
+            window.scrollToHeading = function(id) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+
             function startPresentation() {
                 currentCardIndex = 0;
                 isCardFlipped = false;
+                
+                // הכנת הנתונים בהתאם למצב
+                const mode = state.mode;
+                if (mode === 'glossary') {
+                    presentationItems = [...state.items.glossary];
+                } else if (mode === 'math') {
+                    presentationItems = [...state.items.math];
+                } else if (mode === 'text') {
+                    presentationItems = parseTextToSlides(state.items.text);
+                } else {
+                    presentationItems = [];
+                }
                 
                 // Hide normal preview, show presentation
                 dom.a4PreviewWrapper.style.display = 'none';
                 
                 // Create presentation container
-                const presentationContainer = document.createElement('div');
-                presentationContainer.id = 'presentation-container';
-                presentationContainer.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 2rem;
-                    background: var(--bg-light);
-                `;
-                
-                dom.a4PreviewWrapper.parentNode.appendChild(presentationContainer);
+                let presentationContainer = document.getElementById('presentation-container');
+                if (!presentationContainer) {
+                    presentationContainer = document.createElement('div');
+                    presentationContainer.id = 'presentation-container';
+                    presentationContainer.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 2rem;
+                        background: var(--bg-light);
+                    `;
+                    dom.a4PreviewWrapper.parentNode.appendChild(presentationContainer);
+                }
                 
                 renderCard();
                 
                 presentationBtn.innerHTML = '<i data-lucide="x"></i><span>צא ממצב מצגת</span>';
+                presentationBtn.classList.remove('btn-primary');
+                presentationBtn.classList.add('btn-secondary'); // שינוי ויזואלי לכפתור יציאה
                 lucide.createIcons();
             }
             
@@ -2569,6 +4654,8 @@
                     presentationContainer.remove();
                 }
                 presentationBtn.innerHTML = '<i data-lucide="presentation"></i><span>מצב מצגת</span>';
+                presentationBtn.classList.add('btn-primary');
+                presentationBtn.classList.remove('btn-secondary');
                 lucide.createIcons();
             }
             
@@ -2576,34 +4663,34 @@
                 const container = document.getElementById('presentation-container');
                 if (!container) return;
                 
+                if (presentationItems.length === 0) {
+                    let msg = 'אין פריטים להצגה';
+                    if (state.mode === 'text') msg = 'הקלד טקסט (עם כותרות # או פסקאות) כדי לראות אותו במצגת';
+                    
+                    container.innerHTML = `<div style="text-align: center; color: var(--text-secondary-light); font-size: 1.2rem;">${msg}</div>`;
+                    return;
+                }
+                
+                const item = presentationItems[currentCardIndex];
                 const mode = state.mode;
-                let items = [];
                 
-                if (mode === 'glossary') {
-                    items = state.items.glossary;
-                } else if (mode === 'math') {
-                    items = state.items.math;
-                } else {
-                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary-light);">מצב מצגת זמין רק לדף מושגים ודף נוסחאות</div>';
-                    return;
-                }
-                
-                if (items.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary-light);">אין פריטים להצגה</div>';
-                    return;
-                }
-                
-                const item = items[currentCardIndex];
-                
+                // התאמת סגנון לטקסט ארוך
+                const isLongText = mode === 'text' && isCardFlipped;
+                const cardStyle = isLongText ? 
+                    `align-items: flex-start; overflow-y: auto; text-align: right;` : 
+                    `align-items: center; justify-content: center; text-align: center;`;
+
                 container.innerHTML = `
                     <div style="text-align: center; margin-bottom: 1rem; color: var(--text-secondary-light); font-size: 0.9rem;">
-                        כרטיסייה ${currentCardIndex + 1} מתוך ${items.length}
+                        כרטיסייה ${currentCardIndex + 1} מתוך ${presentationItems.length}
+                        ${mode === 'text' ? '(מבוסס על כותרות/פסקאות)' : ''}
                     </div>
                     
                     <div id="flashcard" style="
                         width: 100%;
-                        max-width: 600px;
-                        min-height: 300px;
+                        max-width: 700px;
+                        min-height: 400px;
+                        max-height: 60vh;
                         background: var(--bg-lighter);
                         border: 2px solid var(--border-light);
                         border-radius: var(--radius-xl);
@@ -2612,25 +4699,24 @@
                         cursor: pointer;
                         transition: all 0.3s ease;
                         display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        text-align: center;
+                        flex-direction: column;
                         font-size: 1.5rem;
-                        font-weight: 600;
+                        font-weight: 500;
                         color: var(--text-primary-light);
+                        ${cardStyle}
                     " onclick="flipCard()">
                         ${isCardFlipped ? getCardBack(item, mode) : getCardFront(item, mode)}
                     </div>
                     
-                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                        <button onclick="previousCard()" class="btn-secondary" ${currentCardIndex === 0 ? 'disabled' : ''}>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem; width: 100%; max-width: 600px;">
+                        <button onclick="previousCard()" class="btn-secondary" style="flex: 1;" ${currentCardIndex === 0 ? 'disabled' : ''}>
                             <i data-lucide="chevron-right"></i>
                             הקודם
                         </button>
-                        <button onclick="flipCard()" class="btn-primary">
+                        <button onclick="flipCard()" class="btn-primary" style="flex: 2;">
                             ${isCardFlipped ? 'הסתר תשובה' : 'הצג תשובה'}
                         </button>
-                        <button onclick="nextCard()" class="btn-secondary" ${currentCardIndex === items.length - 1 ? 'disabled' : ''}>
+                        <button onclick="nextCard()" class="btn-secondary" style="flex: 1;" ${currentCardIndex === presentationItems.length - 1 ? 'disabled' : ''}>
                             הבא
                             <i data-lucide="chevron-left"></i>
                         </button>
@@ -2640,7 +4726,7 @@
                 lucide.createIcons();
                 
                 // Render MathJax if needed
-                if (mode === 'math' && isCardFlipped && window.MathJax) {
+                if ((mode === 'math' || (mode === 'text' && isCardFlipped)) && window.MathJax) {
                     MathJax.typesetPromise([document.getElementById('flashcard')]).catch(e => console.error(e));
                 }
             }
@@ -2650,6 +4736,9 @@
                     return parseFormattedText(item.term).replace(/<br>/g, ' ');
                 } else if (mode === 'math') {
                     return parseFormattedText(item.name || 'נוסחה').replace(/<br>/g, ' ');
+                } else if (mode === 'text') {
+                    // בטקסט רציף, הצד הקדמי הוא ה"מונח" שיצרנו בפונקציית הפרסור (הכותרת)
+                    return `<div style="color: var(--primary); font-weight: bold;">${parseFormattedText(item.term)}</div>`;
                 }
                 return '';
             }
@@ -2659,19 +4748,23 @@
                     return parseFormattedText(item.def);
                 } else if (mode === 'math') {
                     return `$${item.formula}$`;
+                } else if (mode === 'text') {
+                    // בטקסט רציף, הצד האחורי הוא התוכן, עם תמיכה מלאה בפורמט
+                    return `<div style="font-size: 1.1rem; line-height: 1.6; width: 100%;">${parseFormattedText(item.def)}</div>`;
                 }
                 return '';
             }
             
             window.flipCard = function() {
+                // מונע בחירת טקסט בטעות כשלוחצים
+                if (window.getSelection().toString().length > 0) return;
+                
                 isCardFlipped = !isCardFlipped;
                 renderCard();
             };
             
             window.nextCard = function() {
-                const mode = state.mode;
-                const items = mode === 'glossary' ? state.items.glossary : state.items.math;
-                if (currentCardIndex < items.length - 1) {
+                if (currentCardIndex < presentationItems.length - 1) {
                     currentCardIndex++;
                     isCardFlipped = false;
                     renderCard();
@@ -2705,138 +4798,15 @@
                 lucide.createIcons();
             });
             
-            // --- SUBTITLE BUTTONS ---
-            function setupSubtitleButtons() {
-                const glossarySubtitleBtn = document.getElementById('add-glossary-subtitle-btn');
-                const mathSubtitleBtn = document.getElementById('add-math-subtitle-btn');
-                
-                if (glossarySubtitleBtn) {
-                    glossarySubtitleBtn.addEventListener('click', () => {
-                        const title = prompt('הזן את תת-הכותרת:');
-                        if (title && title.trim()) {
-                            state.items.glossary.push({
-                                term: `###${title.trim()}`,
-                                def: '',
-                                isSubtitle: true
-                            });
-                            renderItemList();
-                            renderPreview();
-                            saveCurrentSummary();
-                        }
-                    });
-                }
-                
-                if (mathSubtitleBtn) {
-                    mathSubtitleBtn.addEventListener('click', () => {
-                        const title = prompt('הזן את תת-הכותרת:');
-                        if (title && title.trim()) {
-                            state.items.math.push({
-                                name: `###${title.trim()}`,
-                                formula: '',
-                                isSubtitle: true
-                            });
-                            renderItemList();
-                            renderPreview();
-                            saveCurrentSummary();
-                        }
-                    });
-                }
-            }
-            
-            // Call setup when switching modes
-            const originalSwitchMode = switchMode;
-            switchMode = function(mode) {
-                originalSwitchMode.call(this, mode);
-                setTimeout(() => {
-                    setupSubtitleButtons();
-                    lucide.createIcons();
-                }, 100);
-            };
-            
-            // Initial setup
-            setTimeout(() => {
-                setupSubtitleButtons();
-            }, 500);
-            
-            // Update renderPreview to handle subtitles without colons
-            const originalGenerateContent = renderPreview;
-            renderPreview = async function() {
-                const page = dom.a4Page;
-                const design = state.design[state.mode];
-                
-                page.className = `a4-page ${design.theme}`;
-                page.style.setProperty('--page-font-size', design.fontSize);
-                page.style.setProperty('--page-columns', design.columns);
-                page.style.setProperty('--page-margins', design.margins);
-                
-                let headerHtml = '';
-                let contentHtml = '';
-                
-                if (design.title || state.meta.authorName || state.meta.showTimestamp) {
-                    headerHtml += '<div class="page-header">';
-                    if (design.title) {
-                        headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
-                    }
-                    if (state.meta.authorName || state.meta.showTimestamp) {
-                        const author = state.meta.authorName;
-                        const date = state.meta.showTimestamp ? new Date().toLocaleDateString('he-IL') : '';
-                        headerHtml += `<div class="page-meta">${author} ${author && date ? '•' : ''} ${date}</div>`;
-                    }
-                    headerHtml += '</div>';
-                }
-                
-                switch (state.mode) {
-                    case 'text':
-                        contentHtml += parseFormattedText(state.items.text);
-                        break;
-                    case 'glossary':
-                        contentHtml += state.items.glossary.map(item => {
-                            // Check if it's a subtitle
-                            if (item.term.startsWith('###')) {
-                                const title = item.term.substring(3);
-                                return parseFormattedText(`### ${title}`);
-                            }
-                            const term = parseFormattedText(item.term);
-                            const def = parseFormattedText(item.def);
-                            return `<p><strong class="glossary-term">${term}:</strong> ${def}</p>`;
-                        }).join('');
-                        break;
-                    case 'math':
-                        contentHtml += state.items.math.map(item => {
-                            // Check if it's a subtitle
-                            if (item.name.startsWith('###')) {
-                                const title = item.name.substring(3);
-                                return parseFormattedText(`### ${title}`);
-                            }
-                            let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
-                            let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
-                            return `<p>${name} ${formula}</p>`;
-                        }).join('');
-                        break;
-                }
-                
-                page.innerHTML = `${headerHtml}<div class="page-content">${contentHtml}</div>`;
-                
-                if(design.increasedSpacing) {
-                    page.querySelector('.page-content').classList.add('increased-spacing');
-                }
-
-                if (window.MathJax && state.isMathJaxReady) {
-                    try {
-                        await MathJax.typesetPromise([page]);
-                    } catch(e) { console.error("MathJax typesetting error:", e); }
-                }
-
-                updatePageCount();
-                dom.a4PreviewWrapper.scrollTop = 0;
-            };
-
             // --- INITIALIZATION ---
             function init() {
                 lucide.createIcons();
                 loadAllSummaries();
                 loadCurrentSummary();
                 updateSummarySelector();
+                
+                // Initialize content display
+                switchMode('glossary');
                 
                 if (window.MathJax && window.MathJax.startup.promise) {
                     window.MathJax.startup.promise.then(() => {
