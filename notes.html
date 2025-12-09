@@ -646,6 +646,8 @@
             line-height: 1.4;
             padding: var(--page-margins, 20mm);
             direction: var(--page-direction, rtl);
+            
+            overflow-wrap: break-word; /* Important for print */
         }
         
         .a4-page.dir-ltr {
@@ -1422,7 +1424,23 @@
         /* Print Mount & Media Query */
         #print-mount { display: none; visibility: hidden; }
         
+        /* Global Page Settings - Default Fallback */
+        @page {
+            size: A4;
+            margin: 0; /* Reset global page margins for our table hack */
+        }
+        
         @media print {
+            /* Reset body for printing */
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 100% !important;
+                width: 100% !important;
+                overflow: visible !important;
+                background: transparent !important;
+            }
+
             /* Hide everything except print area */
             body > :not(#print-mount) {
                 display: none !important;
@@ -1434,11 +1452,13 @@
                 top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
-                height: auto !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 display: block !important;
                 visibility: visible !important;
+                background-color: transparent !important; /* CHANGED: Was white, now transparent to show BG layer */
+                z-index: auto !important;
+                
                 /* FORCE BACKGROUND COLORS */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -1465,31 +1485,58 @@
                 position: relative !important;
             }
             
-            /* Page setup will be injected via JS based on user selection */
-            /* Default fallback */
-            @page {
-                size: A4;
-                margin: 20mm;
+            /* Table Wrapper Specifics */
+            #print-mount .print-wrapper-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important; /* Allow BG layer to show */
+                position: relative !important;
+                z-index: 1 !important; /* Content above background */
             }
             
-            /* IMPORTANT: Override .a4-page settings for print 
-               We use @page margins instead of div padding to ensure all pages have margins
-            */
-            #print-mount .a4-page {
+            #print-mount .print-header-space, 
+            #print-mount .print-footer-space {
+                height: var(--print-margin, 20mm);
+                display: block;
+            }
+            
+            #print-mount .print-content-cell {
+                padding: 0 !important;
+                background: transparent !important;
+            }
+            
+            /* Background Layer for Full Bleed Print */
+            .print-background-layer {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                z-index: -1 !important; /* CHANGED: From -5 to -1, safer stacking */
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                /* Background defined by theme classes added in JS */
+            }
+
+            /* IMPORTANT: Override .a4-page settings for print content */
+            #print-mount .a4-page:not(.print-background-layer) {
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 0 !important; /* Let @page handle margins */
+                padding: 0 var(--print-margin, 20mm) !important;
                 width: 100% !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 min-height: 0 !important;
+                background: transparent !important; /* Content is transparent, BG layer is behind */
+                border: none !important;
             }
             
-            /* Force page break after each "section" in combined print */
-            #print-mount > .a4-page {
-                page-break-after: always;
-            }
-            #print-mount > .a4-page:last-child {
-                page-break-after: auto;
+            /* Handle page breaks */
+            #print-mount .page-break {
+                page-break-before: always;
             }
         }
         
@@ -3927,11 +3974,13 @@ def greeting(name):
                 dom.totalPages.textContent = totalPages;
             }
             
+            // --- NEW TABLE-BASED PRINT STRATEGY ---
+            
             async function handlePrint() {
                 const printMount = dom.printMount;
-                
-                // Inject dynamic page styles based on current margins
                 const margin = state.design[state.mode].margins;
+                
+                // Inject margin size CSS variable for the table hack
                 const styleId = 'dynamic-print-styles';
                 let styleEl = document.getElementById(styleId);
                 if (!styleEl) {
@@ -3939,41 +3988,51 @@ def greeting(name):
                     styleEl.id = styleId;
                     document.head.appendChild(styleEl);
                 }
-                styleEl.innerHTML = `@media print { @page { margin: ${margin}; } }`;
+                // Override page margins to 0, use CSS variables for table
+                styleEl.innerHTML = `
+                    :root { --print-margin: ${margin}; }
+                    @page { size: A4; margin: 0; }
+                `;
 
-                // Clone the current preview with all IDs intact
-                printMount.innerHTML = dom.a4Page.outerHTML;
+                // --- FULL BLEED FIX ---
+                // Create a background layer with fixed position
+                const themeClasses = dom.a4Page.className; // e.g., "a4-page theme-ocean dir-rtl"
+                const bgLayer = `<div class="${themeClasses} print-background-layer"></div>`;
+
+                // Wrap content in table structure
+                const tableWrapper = `
+                    <table class="print-wrapper-table">
+                        <thead><tr><td><div class="print-header-space"></div></td></tr></thead>
+                        <tbody><tr><td class="print-content-cell">
+                            ${dom.a4Page.outerHTML}
+                        </td></tr></tbody>
+                        <tfoot><tr><td><div class="print-footer-space"></div></td></tr></tfoot>
+                    </table>
+                `;
+                
+                printMount.innerHTML = bgLayer + tableWrapper;
                 
                 // Ensure all heading IDs are preserved in print
                 if (state.design[state.mode].showTOC) {
-                    const printPage = printMount.querySelector('.a4-page');
+                    const printPage = printMount.querySelector('.print-content-cell .a4-page');
                     if (printPage) {
-                        // Make sure all links and IDs are in the printed version
                         const allHeadings = printPage.querySelectorAll('[id^="heading-"]');
-                        allHeadings.forEach(heading => {
-                            // Ensure ID is preserved
-                            heading.setAttribute('id', heading.id);
-                        });
+                        allHeadings.forEach(heading => heading.setAttribute('id', heading.id));
                     }
                 }
                 
                 if (window.MathJax && state.isMathJaxReady) {
                     try {
                         await MathJax.typesetPromise([printMount]);
-                    } catch(e) {
-                        console.error("MathJax print error:", e);
-                    }
+                    } catch(e) { console.error("MathJax print error:", e); }
                 }
                 
-                window.print();
+                setTimeout(() => window.print(), 250);
             }
             
             async function handlePrintCombined() {
-                if (!await showConfirm("הדפסה משולבת", "האם להדפיס PDF משולב של כל 3 סוגי הסיכומים (מושגים, נוסחאות, טקסט)?")) {
-                    return;
-                }
+                if (!await showConfirm("הדפסה משולבת", "האם להדפיס PDF משולב?")) return;
                 
-                // Inject generic margin for combined print (using text mode settings or default 20mm)
                 const margin = state.design.text.margins || '20mm';
                 const styleId = 'dynamic-print-styles';
                 let styleEl = document.getElementById(styleId);
@@ -3982,12 +4041,19 @@ def greeting(name):
                     styleEl.id = styleId;
                     document.head.appendChild(styleEl);
                 }
-                styleEl.innerHTML = `@media print { @page { margin: ${margin}; } }`;
+                styleEl.innerHTML = `
+                    :root { --print-margin: ${margin}; }
+                    @page { size: A4; margin: 0; }
+                `;
                 
                 const printMount = dom.printMount;
-                printMount.innerHTML = '';
                 
-                const originalMode = state.mode;
+                // Start table wrapper
+                let combinedHtml = `
+                    <table class="print-wrapper-table">
+                        <thead><tr><td><div class="print-header-space"></div></td></tr></thead>
+                        <tbody><tr><td class="print-content-cell">
+                `;
                 
                 const modes = ['glossary', 'math', 'text'];
                 
@@ -3997,27 +4063,15 @@ def greeting(name):
                     
                     const design = state.design[mode];
                     const currentDir = design.direction || 'rtl';
-                    const page = document.createElement('div');
-                    page.className = `a4-page ${design.theme} dir-${currentDir}`;
-                    // Important: Reset div styling for print so @page takes over
-                    page.style.width = '100%';
-                    page.style.height = 'auto';
-                    page.style.minHeight = 'auto';
-                    page.style.boxShadow = 'none';
-                    page.style.margin = '0';
-                    page.style.padding = '0'; // Use @page margin instead
-                    page.style.setProperty('--page-font-size', design.fontSize);
-                    page.style.setProperty('--page-columns', design.columns);
-                    page.style.setProperty('--page-direction', currentDir);
                     
-                    let headerHtml = '';
+                    // Note: We render div, not a4-page class directly to avoid double margin logic, 
+                    // but we apply theme classes
                     let contentHtml = '';
+                    let headerHtml = '';
                     
                     if (design.title || state.meta.authorName || state.meta.showTimestamp) {
                         headerHtml += '<div class="page-header">';
-                        if (design.title) {
-                            headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
-                        }
+                        if (design.title) headerHtml += `<h1 class="page-main-title">${design.title}</h1>`;
                         if (state.meta.authorName || state.meta.showTimestamp) {
                             const author = state.meta.authorName;
                             const date = state.meta.showTimestamp ? new Date().toLocaleDateString('he-IL') : '';
@@ -4033,9 +4087,7 @@ def greeting(name):
                         case 'glossary':
                             contentHtml += state.items.glossary.map(item => {
                                 const headerMatch = item.term.match(/^(#{1,6})\s+(.+)/);
-                                if (headerMatch) {
-                                    return parseFormattedText(item.term);
-                                }
+                                if (headerMatch) return parseFormattedText(item.term);
                                 const term = parseFormattedText(item.term);
                                 const def = parseFormattedText(item.def);
                                 return `<p style="page-break-inside: avoid; break-inside: avoid;"><strong class="glossary-term">${term}:</strong> ${def}</p>`;
@@ -4044,29 +4096,43 @@ def greeting(name):
                         case 'math':
                             contentHtml += state.items.math.map(item => {
                                 const headerMatch = item.name.match(/^(#{1,6})\s+(.+)/);
-                                if (headerMatch) {
-                                    return parseFormattedText(item.name);
-                                }
+                                if (headerMatch) return parseFormattedText(item.name);
                                 let name = item.name ? `<strong class="math-name">${parseFormattedText(item.name)}:</strong>` : '';
                                 let formula = item.formula ? `<span class="math-formula">$${item.formula}$</span>` : '';
                                 return `<p style="page-break-inside: avoid; break-inside: avoid;">${name} ${formula}</p>`;
                             }).join('');
                             break;
                     }
+
+                    // Add page break before section if it's not the first one
+                    const pageBreakClass = (mode !== modes[0]) ? 'page-break' : '';
                     
-                    page.innerHTML = `${headerHtml}<div class="page-content ${design.increasedSpacing ? 'increased-spacing' : ''}">${contentHtml}</div>`;
-                    printMount.appendChild(page);
+                    combinedHtml += `
+                        <div class="a4-page ${design.theme} dir-${currentDir} ${pageBreakClass}" style="margin: 0; padding: 0; width: 100%; box-shadow: none; min-height: 0;">
+                            ${headerHtml}
+                            <div class="page-content ${design.increasedSpacing ? 'increased-spacing' : ''}">
+                                ${contentHtml}
+                            </div>
+                        </div>
+                    `;
                 }
                 
-                if (state.items.math.length > 0 && window.MathJax && state.isMathJaxReady) {
+                // Close table wrapper
+                combinedHtml += `
+                        </td></tr></tbody>
+                        <tfoot><tr><td><div class="print-footer-space"></div></td></tr></tfoot>
+                    </table>
+                `;
+                
+                printMount.innerHTML = combinedHtml;
+                
+                if (window.MathJax && state.isMathJaxReady) {
                     try {
                         await MathJax.typesetPromise([printMount]);
                     } catch(e) { console.error("MathJax combined print error:", e); }
                 }
                 
-                setTimeout(() => {
-                    window.print();
-                }, 100);
+                setTimeout(() => window.print(), 250);
             }
             
             // --- DATA EXPORT/IMPORT FUNCTIONS ---
